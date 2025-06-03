@@ -1,11 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
-const keys = require('./service-account.json');
+// const keys = require('./service-account.json'); //local host
+const keys = require('/etc/secrets/service-account.json'); //render
+
 
 const app = express();
 app.use(express.json());
 
-const SHEET_ID = '1qeTFWl0dQbGji-GDfsdwPGNZXdTj3nDzELCxduVkVGU';
+const SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,
@@ -60,5 +63,5 @@ app.post('/submit-manifest', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
