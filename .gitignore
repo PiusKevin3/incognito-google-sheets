@@ -1,0 +1,54 @@
+# Node.js specific
+node_modules/
+.npmrc
+
+# Editor directories and files
+.vscode/
+*.suo
+*.user
+*.tmp
+*.log
+*.obj
+*.csproj
+*.sln
+
+# Logs
+logs/
+*.log
+*.err
+
+# Test directories and files
+coverage/
+test/
+tests/
+*.spec.js
+*.test.js
+
+# Build directories
+build/
+dist/
+
+# Temporary directories
+tmp/
+temp/
+
+# Dependency-related files
+.DS_Store
+yarn.lock
+pnpm-lock.yaml
+
+# IDE generated files
+.idea/
+.metadata/
+.DS_Store
+
+# Other
+.env
+.env.*
+npm-debug.log*
+
+# Example of an ignored file (specific to your project)
+my-custom-config.json
+
+#service account details
+service-account.json
