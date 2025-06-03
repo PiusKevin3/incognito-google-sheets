@@ -20,7 +20,7 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
-        const d = req.body.General || {};
+        const d = req.body.Entry || {};
 
         const values = [[
             d.Event || '',
