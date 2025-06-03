@@ -20,36 +20,33 @@ app.post('/submit-manifest', async (req, res) => {
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
 
-    const d = req.body;
-    console.log(JSON.stringify(req.body, null, 2));
+    const d = req.body.General || {};
 
-    // Map your data to the sheet columns
     const values = [[
-  d['General.Event'] || '',
-  d['General.Department'] || '',
-  d['General.Manifests'] || '',
-  d['General.StageName'] || '',
-  d['General.Coordinator.Name'] || '',
-  d['General.Coordinator.Contact'] || '',
-  d['General.DriversDetails.Name'] || '',
-  d['General.DriversDetails.Contact'] || '',
-  d['General.DriversDetails.NINPermitNo'] || '',
-  d['General.DriversDetails.VehicleType'] || '',
-  d['General.VehicleDetails.CostOfVehicle2'] || '',
-  d['General.VehicleDetails.CashContribution'] || '',
-  d['General.VehicleDetails.BookingFee'] || '',
-  d['General.VehicleDetails.Balance'] || '',
-  d['General.VehicleDetails.CostPerHead'] || '',
-  d['General.SoulsDetails.TotalNumber'] || '',
-  d['General.SoulsDetails.Residents.NoOfPeople'] || '',
-  d['General.SoulsDetails.Residents.FirstTimers'] || '',
-  d['General.SoulsDetails.Institutions.NoOfPeople'] || '',
-  d['General.SoulsDetails.Institutions.FirstTimers'] || '',
-  d['General.SoulsDetails.Schools.NoOfPeople'] || '',
-  d['General.SoulsDetails.Schools.FirstTimers'] || '',
-  d['General.VehicleDetails.VerifierName'] || ''
-]];
-
+      d.Event || '',
+      d.Department || '',
+      d.Manifests || '',
+      d.StageName || '',
+      d.Coordinator?.Name || '',
+      d.Coordinator?.Contact || '',
+      d.DriversDetails?.Name || '',
+      d.DriversDetails?.Contact || '',
+      d.DriversDetails?.NINPermitNo || '',
+      d.DriversDetails?.VehicleType || '',
+      d.VehicleDetails?.CostOfVehicle2 || '',
+      d.VehicleDetails?.CashContribution || '',
+      d.VehicleDetails?.BookingFee || '',
+      d.VehicleDetails?.Balance || '',
+      d.VehicleDetails?.CostPerHead || '',
+      d.SoulsDetails?.TotalNumber || '',
+      d.SoulsDetails?.Residents?.NoOfPeople || '',
+      d.SoulsDetails?.Residents?.FirstTimers || '',
+      d.SoulsDetails?.Institutions?.NoOfPeople || '',
+      d.SoulsDetails?.Institutions?.FirstTimers || '',
+      d.SoulsDetails?.Schools?.NoOfPeople || '',
+      d.SoulsDetails?.Schools?.FirstTimers || '',
+      d.VehicleDetails?.VerifierName || ''
+    ]];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
@@ -60,10 +57,11 @@ app.post('/submit-manifest', async (req, res) => {
 
     res.json({ success: true, message: 'Data saved to Google Sheets!' });
   } catch (error) {
-    console.error(error);
+    console.error('Google Sheets API Error:', error);
     res.status(500).json({ success: false, message: 'Failed to save data' });
   }
 });
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
