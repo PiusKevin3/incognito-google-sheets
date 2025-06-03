@@ -21,33 +21,35 @@ app.post('/submit-manifest', async (req, res) => {
     const sheets = google.sheets({ version: 'v4', auth: client });
 
     const d = req.body;
+    console.log(JSON.stringify(req.body, null, 2));
 
     // Map your data to the sheet columns
     const values = [[
-      d.Event || '',
-      d.Department || '',
-      d.Manifests || '',
-      d.StageName || '',
-      d.CoordinatorName || '',
-      d.CoordinatorContact || '',
-      d.DriverName || '',
-      d.DriverContact || '',
-      d.DriverNINOrPermit || '',
-      d.VehicleType || '',
-      d.VehicleCost || '',
-      d.CashContribution || '',
-      d.BookingFee || '',
-      d.Balance || '',
-      d.CostPerHead || '',
-      d.TotalSouls || '',
-      d.ResidentCount || '',
-      d.ResidentFirstTimers || '',
-      d.InstitutionCount || '',
-      d.InstitutionFirstTimers || '',
-      d.SchoolCount || '',
-      d.SchoolFirstTimers || '',
-      d.VerifierName || ''
-    ]];
+  d['General.Event'] || '',
+  d['General.Department'] || '',
+  d['General.Manifests'] || '',
+  d['General.StageName'] || '',
+  d['General.Coordinator.Name'] || '',
+  d['General.Coordinator.Contact'] || '',
+  d['General.DriversDetails.Name'] || '',
+  d['General.DriversDetails.Contact'] || '',
+  d['General.DriversDetails.NINPermitNo'] || '',
+  d['General.DriversDetails.VehicleType'] || '',
+  d['General.VehicleDetails.CostOfVehicle2'] || '',
+  d['General.VehicleDetails.CashContribution'] || '',
+  d['General.VehicleDetails.BookingFee'] || '',
+  d['General.VehicleDetails.Balance'] || '',
+  d['General.VehicleDetails.CostPerHead'] || '',
+  d['General.SoulsDetails.TotalNumber'] || '',
+  d['General.SoulsDetails.Residents.NoOfPeople'] || '',
+  d['General.SoulsDetails.Residents.FirstTimers'] || '',
+  d['General.SoulsDetails.Institutions.NoOfPeople'] || '',
+  d['General.SoulsDetails.Institutions.FirstTimers'] || '',
+  d['General.SoulsDetails.Schools.NoOfPeople'] || '',
+  d['General.SoulsDetails.Schools.FirstTimers'] || '',
+  d['General.VehicleDetails.VerifierName'] || ''
+]];
+
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
