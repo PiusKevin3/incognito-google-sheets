@@ -5,7 +5,7 @@ const keys = require('./service-account.json');
 const app = express();
 app.use(express.json());
 
-const SHEET_ID = 'https://docs.google.com/spreadsheets/d/1qeTFWl0dQbGji-GDfsdwPGNZXdTj3nDzELCxduVkVGU/edit?gid=0#gid=0'; // Paste your Google Sheet ID here
+const SHEET_ID = '1qeTFWl0dQbGji-GDfsdwPGNZXdTj3nDzELCxduVkVGU';
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,
