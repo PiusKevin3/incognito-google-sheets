@@ -23,11 +23,11 @@ app.post('/submit-manifest', async (req, res) => {
         console.log("Body keys:", Object.keys(req.body));
 
 
-        console.log("Request full details:\n", JSON.stringify(req.body, null, 2));
+        // console.log("Request full details:\n", JSON.stringify(req.body, null, 2));
 
         const d = req.body; // <== FIXED: removed .General
 
-        console.log("Parsed object:\n", JSON.stringify(d, null, 2));
+        // console.log("Parsed object:\n", JSON.stringify(d, null, 2));
 
         const values = [[
             d.Event || '',
@@ -56,7 +56,7 @@ app.post('/submit-manifest', async (req, res) => {
             d.VehicleDetails?.VerifierName || ''
         ]];
 
-        console.log("Parsed values:\n", values);
+        // console.log("Parsed values:\n", values);
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
