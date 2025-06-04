@@ -20,7 +20,22 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
-        const d = req.body.General || {};
+        // const d = req.body.General || {};
+        console.log("Request full details : "+req.body);
+        
+        const d = {
+            ...req.body.General,
+            Coordinator: req.body.General?.Coordinator || {},
+            DriversDetails: req.body.General?.DriversDetails || {},
+            VehicleDetails: req.body.General?.VehicleDetails || {},
+            SoulsDetails: {
+                ...req.body.General?.SoulsDetails,
+                Residents: req.body.General?.SoulsDetails?.Residents || {},
+                Institutions: req.body.General?.SoulsDetails?.Institutions || {},
+                Schools: req.body.General?.SoulsDetails?.Schools || {},
+            },
+        };
+
 
         const values = [[
             d.Event || '',
@@ -50,7 +65,7 @@ app.post('/submit-manifest', async (req, res) => {
         ]];
 
         console.log(values);
-        
+
 
 
         await sheets.spreadsheets.values.append({
