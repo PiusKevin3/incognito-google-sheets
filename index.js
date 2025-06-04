@@ -26,11 +26,16 @@ app.post('/submit-manifest', async (req, res) => {
         const d = req.body.General || {};
 
         // console.log("Parsed General object:\n", JSON.stringify(d, null, 2));
-        console.log("Actual Form structure:", JSON.stringify(req.body.Form, null, 2));
-                console.log("Actual Entry structure:", JSON.stringify(req.body.Entry, null, 2));
+        // console.log("Actual Form structure:", JSON.stringify(req.body.Form, null, 2));
+                // console.log("Actual Entry structure:", JSON.stringify(req.body.Entry, null, 2));
 
 
-        console.log("Actual General structure:", JSON.stringify(req.body.General, null, 2));
+        // console.log("Actual General structure:", JSON.stringify(req.body.General, null, 2));
+
+                console.log("General DriversDetails structure:", JSON.stringify(req.body.General.DriversDetails, null, 2));
+
+                console.log("General VehicleDetails structure:", JSON.stringify(req.body.General.VehicleDetails, null, 2));
+                console.log("General SoulsDetails structure:", JSON.stringify(req.body.General.SoulsDetails, null, 2));
 
 
          const values = [[
@@ -63,9 +68,9 @@ app.post('/submit-manifest', async (req, res) => {
         // console.log(values);
 
        
-        console.log("Processed values:",
-            values[0].map((val, i) => `${i}: ${val}`).join('\n')
-        );
+        // console.log("Processed values:",
+        //     values[0].map((val, i) => `${i}: ${val}`).join('\n')
+        // );
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
