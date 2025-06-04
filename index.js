@@ -1,14 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
-// const keys = require('./service-account.json'); //local host
-const keys = require('/etc/secrets/service-account.json'); //render
+// const keys = require('./service-account.json'); //Google service account json credentials path for local host
+const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
 
 
 const app = express();
 app.use(express.json());
 
-const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const SHEET_ID = process.env.GOOGLE_SHEET_ID; //Google Sheets file id
 
 const auth = new google.auth.GoogleAuth({
     credentials: keys,
@@ -39,7 +39,6 @@ app.post('/submit-manifest', async (req, res) => {
         // Extract the General object where all manifest data lives
         const general = req.body.General || {};
         const flatGeneral = flattenObject(general);
-        // console.log("Flattened General structure:", JSON.stringify(flatGeneral, null, 2));
 
         // Extract all values from the General object
         const values = [[
