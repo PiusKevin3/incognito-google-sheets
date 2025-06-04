@@ -21,16 +21,16 @@ app.post('/submit-manifest', async (req, res) => {
         const sheets = google.sheets({ version: 'v4', auth: client });
 
         // Log the entire request body to understand its structure
-        console.log("Full request body:", JSON.stringify(req.body, null, 2));
+        // console.log("Full request body:", JSON.stringify(req.body, null, 2));
 
-        //         console.log("Top-level keys in request body:", Object.keys(req.body));
+                console.log("Top-level keys in request body:", Object.keys(req.body));
 
-        // // Log specific objects to see their structure
-        // console.log("Event:", req.body.Event);
-        // console.log("Coordinator:", req.body.Coordinator);
-        // console.log("DriversDetails:", req.body.DriversDetails);
-        // console.log("VehicleDetails:", req.body.VehicleDetails);
-        // console.log("SoulsDetails:", req.body.SoulsDetails);
+        // Log specific objects to see their structure
+        console.log("Event:", req.body.Event);
+        console.log("Coordinator:", req.body.Coordinator);
+        console.log("DriversDetails:", req.body.DriversDetails);
+        console.log("VehicleDetails:", req.body.VehicleDetails);
+        console.log("SoulsDetails:", req.body.SoulsDetails);
 
         // Extract data directly from the root level
         const values = [[
