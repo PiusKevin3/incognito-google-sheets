@@ -49,7 +49,7 @@ app.post('/submit-manifest', async (req, res) => {
             flatGeneral["StageName"] ?? '',
             flatGeneral["Coordinator_Name"] ?? '',
             flatGeneral["Coordinator_Contact"] ?? '',
-            flatGeneral["DriversDetails_Name"] ?? '',
+            flatGeneral["Drivers_Name"] ?? '',
             flatGeneral["DriversDetails_Contact"] ?? '',
             flatGeneral["DriversDetails_NINPermitNo"] ?? '',
             flatGeneral["DriversDetails_VehicleType"] ?? '',
