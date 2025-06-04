@@ -20,7 +20,7 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
-        const d = req.body.Entry || {};
+        const d = req.body.General || {};
 
         const values = [[
             d.Event || '',
@@ -48,6 +48,9 @@ app.post('/submit-manifest', async (req, res) => {
             d.SoulsDetails?.Schools?.FirstTimers ?? '',
             d.VehicleDetails?.VerifierName || ''
         ]];
+
+        console.log(values);
+        
 
 
         await sheets.spreadsheets.values.append({
