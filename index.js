@@ -23,14 +23,17 @@ app.post('/submit-manifest', async (req, res) => {
         // console.log("Request full details:\n", JSON.stringify(req.body, null, 2));
 
 
-        const d = req.body.Entry?.General || req.body.General || {};
+        const d = req.body.General || {};
 
         // console.log("Parsed General object:\n", JSON.stringify(d, null, 2));
+        console.log("Actual Form structure:", JSON.stringify(req.body.Form, null, 2));
+                console.log("Actual Entry structure:", JSON.stringify(req.body.Entry, null, 2));
 
-        console.log("Parsed General object:", JSON.stringify(req.body.Entry?.General, null, 2));
+
+        console.log("Actual General structure:", JSON.stringify(req.body.General, null, 2));
 
 
-        const values = [[
+         const values = [[
             d.Event ?? '',
             d.Department ?? '',
             d.Manifests ?? '',
@@ -59,11 +62,7 @@ app.post('/submit-manifest', async (req, res) => {
 
         // console.log(values);
 
-        console.log("Resolved data source:",
-            req.body.Entry?.General ? "Entry.General" :
-                req.body.General ? "General" : "NONE"
-        );
-
+       
         console.log("Processed values:",
             values[0].map((val, i) => `${i}: ${val}`).join('\n')
         );
