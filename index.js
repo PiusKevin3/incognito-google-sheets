@@ -20,9 +20,16 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
+
+
         // Extract the General object where all manifest data lives
         const general = req.body.General || {};
-        
+
+        if (!req.body?.General) {
+            return res.status(400).json({ success: false, message: "Missing 'General' in request body." });
+        }
+
+
         // Log the General structure for debugging
         console.log("General structure:", JSON.stringify(general, null, 2));
 
@@ -54,7 +61,7 @@ app.post('/submit-manifest', async (req, res) => {
             general.VehicleDetails?.VerifierName ?? ''
         ]];
 
-        console.log("Processed values:", values[0]);
+        console.log("Processed values:", JSON.stringify(values[0], null, 2));
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
