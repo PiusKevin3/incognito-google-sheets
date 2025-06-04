@@ -24,7 +24,7 @@ This Node.js application exposes a `/submit-manifest` POST endpoint that accepts
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/your-repo/google-sheets-webhook.git
+git clone repository
 cd google-sheets-webhook
 ```
 2. **Install Dependencies:**
