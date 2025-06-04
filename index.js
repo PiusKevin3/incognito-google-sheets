@@ -39,7 +39,7 @@ app.post('/submit-manifest', async (req, res) => {
         // Extract the General object where all manifest data lives
         const general = req.body.General || {};
         const flatGeneral = flattenObject(general);
-        console.log("Flattened General structure:", JSON.stringify(flatGeneral, null, 2));
+        // console.log("Flattened General structure:", JSON.stringify(flatGeneral, null, 2));
 
         // Extract all values from the General object
         const values = [[
