@@ -20,14 +20,14 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
+        console.log("Body keys:", Object.keys(req.body));
+
+
         console.log("Request full details:\n", JSON.stringify(req.body, null, 2));
 
+        const d = req.body; // <== FIXED: removed .General
 
-        const d = req.body.General || {};
-
-        console.log("Parsed General object:\n", JSON.stringify(d, null, 2));
-
-
+        console.log("Parsed object:\n", JSON.stringify(d, null, 2));
 
         const values = [[
             d.Event || '',
@@ -56,9 +56,7 @@ app.post('/submit-manifest', async (req, res) => {
             d.VehicleDetails?.VerifierName || ''
         ]];
 
-        console.log(values);
-
-
+        console.log("Parsed values:\n", values);
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
@@ -73,6 +71,7 @@ app.post('/submit-manifest', async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to save data' });
     }
 });
+
 
 
 const PORT = process.env.PORT || 4000;
