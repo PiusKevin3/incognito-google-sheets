@@ -20,25 +20,13 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
-        // console.log("Request full details:\n", JSON.stringify(req.body, null, 2));
+        // Corrected data source: use Entry.General
+        const d = req.body.Entry?.General || {};
 
+        console.log("Full Entry.General structure:", JSON.stringify(d, null, 2));
 
-        const d = req.body.General || {};
-
-        // console.log("Parsed General object:\n", JSON.stringify(d, null, 2));
-        // console.log("Actual Form structure:", JSON.stringify(req.body.Form, null, 2));
-                // console.log("Actual Entry structure:", JSON.stringify(req.body.Entry, null, 2));
-
-
-        // console.log("Actual General structure:", JSON.stringify(req.body.General, null, 2));
-
-                console.log("General DriversDetails structure:", JSON.stringify(req.body.Entry?.General.DriversDetails, null, 2));
-
-                console.log("General VehicleDetails structure:", JSON.stringify(req.body.Entry?.General.VehicleDetails, null, 2));
-                console.log("General SoulsDetails structure:", JSON.stringify(req.body.Entry?.General.SoulsDetails, null, 2));
-
-
-         const values = [[
+        // Safely extract all values with proper fallbacks
+        const values = [[
             d.Event ?? '',
             d.Department ?? '',
             d.Manifests ?? '',
@@ -65,12 +53,7 @@ app.post('/submit-manifest', async (req, res) => {
             d.VehicleDetails?.VerifierName ?? ''
         ]];
 
-        // console.log(values);
-
-       
-        // console.log("Processed values:",
-        //     values[0].map((val, i) => `${i}: ${val}`).join('\n')
-        // );
+        console.log("Processed values:", values[0]);
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
