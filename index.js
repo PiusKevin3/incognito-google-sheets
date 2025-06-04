@@ -20,44 +20,38 @@ app.post('/submit-manifest', async (req, res) => {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
-        // Log the entire request body to understand its structure
-        // console.log("Full request body:", JSON.stringify(req.body, null, 2));
+        // Extract the General object where all manifest data lives
+        const general = req.body.General || {};
+        
+        // Log the General structure for debugging
+        console.log("General structure:", JSON.stringify(general, null, 2));
 
-                console.log("Top-level keys in request body:", Object.keys(req.body));
-
-        // Log specific objects to see their structure
-        console.log("Event:", req.body.Event);
-        console.log("Coordinator:", req.body.Coordinator);
-        console.log("DriversDetails:", req.body.DriversDetails);
-        console.log("VehicleDetails:", req.body.VehicleDetails);
-        console.log("SoulsDetails:", req.body.SoulsDetails);
-
-        // Extract data directly from the root level
+        // Extract all values from the General object
         const values = [[
-            req.body.Event ?? '',
-            req.body.Department ?? '',
-            req.body.Manifests ?? '',
-            req.body.StageName ?? '',
-            req.body.Coordinator?.Name ?? '',
-            req.body.Coordinator?.Contact ?? '',
-            req.body.DriversDetails?.Name ?? '',
-            req.body.DriversDetails?.Contact ?? '',
-            req.body.DriversDetails?.NINPermitNo ?? '',
-            req.body.DriversDetails?.VehicleType ?? '',
-            req.body.DriversDetails?.NumberPlate ?? '',
-            req.body.VehicleDetails?.CostOfVehicle2 ?? '',
-            req.body.VehicleDetails?.CashContribution ?? '',
-            req.body.VehicleDetails?.BookingFee ?? '',
-            req.body.VehicleDetails?.Balance ?? '',
-            req.body.VehicleDetails?.CostPerHead ?? '',
-            req.body.SoulsDetails?.TotalNumber ?? '',
-            req.body.SoulsDetails?.Residents?.NoOfPeople ?? '',
-            req.body.SoulsDetails?.Residents?.FirstTimers ?? '',
-            req.body.SoulsDetails?.Institutions?.NoOfPeople ?? '',
-            req.body.SoulsDetails?.Institutions?.FirstTimers ?? '',
-            req.body.SoulsDetails?.Schools?.NoOfPeople ?? '',
-            req.body.SoulsDetails?.Schools?.FirstTimers ?? '',
-            req.body.VehicleDetails?.VerifierName ?? ''
+            general.Event ?? '',
+            general.Department ?? '',
+            general.Manifests ?? '',
+            general.StageName ?? '',
+            general.Coordinator?.Name ?? '',
+            general.Coordinator?.Contact ?? '',
+            general.DriversDetails?.Name ?? '',
+            general.DriversDetails?.Contact ?? '',
+            general.DriversDetails?.NINPermitNo ?? '',
+            general.DriversDetails?.VehicleType ?? '',
+            general.DriversDetails?.NumberPlate ?? '',
+            general.VehicleDetails?.CostOfVehicle2 ?? '',
+            general.VehicleDetails?.CashContribution ?? '',
+            general.VehicleDetails?.BookingFee ?? '',
+            general.VehicleDetails?.Balance ?? '',
+            general.VehicleDetails?.CostPerHead ?? '',
+            general.SoulsDetails?.TotalNumber ?? '',
+            general.SoulsDetails?.Residents?.NoOfPeople ?? '',
+            general.SoulsDetails?.Residents?.FirstTimers ?? '',
+            general.SoulsDetails?.Institutions?.NoOfPeople ?? '',
+            general.SoulsDetails?.Institutions?.FirstTimers ?? '',
+            general.SoulsDetails?.Schools?.NoOfPeople ?? '',
+            general.SoulsDetails?.Schools?.FirstTimers ?? '',
+            general.VehicleDetails?.VerifierName ?? ''
         ]];
 
         console.log("Processed values:", values[0]);
