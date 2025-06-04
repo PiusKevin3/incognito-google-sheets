@@ -23,7 +23,7 @@ app.post('/submit-manifest', async (req, res) => {
         // console.log("Request full details:\n", JSON.stringify(req.body, null, 2));
 
 
-        const d = req.body.Entry?.General || {};
+        const d = req.body.Entry?.General || req.body.General || {};
 
         // console.log("Parsed General object:\n", JSON.stringify(d, null, 2));
 
@@ -31,17 +31,17 @@ app.post('/submit-manifest', async (req, res) => {
 
 
         const values = [[
-            d.Event || '',
-            d.Department || '',
-            d.Manifests || '',
-            d.StageName || '',
-            d.Coordinator?.Name || '',
-            d.Coordinator?.Contact || '',
-            d.DriversDetails?.Name || '',
-            d.DriversDetails?.Contact || '',
-            d.DriversDetails?.NINPermitNo || '',
-            d.DriversDetails?.VehicleType || '',
-            d.DriversDetails?.NumberPlate || '',
+            d.Event ?? '',
+            d.Department ?? '',
+            d.Manifests ?? '',
+            d.StageName ?? '',
+            d.Coordinator?.Name ?? '',
+            d.Coordinator?.Contact ?? '',
+            d.DriversDetails?.Name ?? '',
+            d.DriversDetails?.Contact ?? '',
+            d.DriversDetails?.NINPermitNo ?? '',
+            d.DriversDetails?.VehicleType ?? '',
+            d.DriversDetails?.NumberPlate ?? '',
             d.VehicleDetails?.CostOfVehicle2 ?? '',
             d.VehicleDetails?.CashContribution ?? '',
             d.VehicleDetails?.BookingFee ?? '',
@@ -54,12 +54,19 @@ app.post('/submit-manifest', async (req, res) => {
             d.SoulsDetails?.Institutions?.FirstTimers ?? '',
             d.SoulsDetails?.Schools?.NoOfPeople ?? '',
             d.SoulsDetails?.Schools?.FirstTimers ?? '',
-            d.VehicleDetails?.VerifierName || ''
+            d.VehicleDetails?.VerifierName ?? ''
         ]];
 
         // console.log(values);
 
+        console.log("Resolved data source:",
+            req.body.Entry?.General ? "Entry.General" :
+                req.body.General ? "General" : "NONE"
+        );
 
+        console.log("Processed values:",
+            values[0].map((val, i) => `${i}: ${val}`).join('\n')
+        );
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
