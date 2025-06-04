@@ -32,10 +32,10 @@ app.post('/submit-manifest', async (req, res) => {
 
         // console.log("Actual General structure:", JSON.stringify(req.body.General, null, 2));
 
-                console.log("General DriversDetails structure:", JSON.stringify(req.body.General.DriversDetails, null, 2));
+                console.log("General DriversDetails structure:", JSON.stringify(req.body.Entry?.General.DriversDetails, null, 2));
 
-                console.log("General VehicleDetails structure:", JSON.stringify(req.body.General.VehicleDetails, null, 2));
-                console.log("General SoulsDetails structure:", JSON.stringify(req.body.General.SoulsDetails, null, 2));
+                console.log("General VehicleDetails structure:", JSON.stringify(req.body.Entry?.General.VehicleDetails, null, 2));
+                console.log("General SoulsDetails structure:", JSON.stringify(req.body.Entry?.General.SoulsDetails, null, 2));
 
 
          const values = [[
