@@ -15,53 +15,61 @@ const auth = new google.auth.GoogleAuth({
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
+function flattenObject(obj, prefix = '') {
+    let result = {};
+    for (let key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`));
+        } else {
+            result[`${prefix}${key}`] = obj[key];
+        }
+    }
+    return result;
+}
+
 app.post('/submit-manifest', async (req, res) => {
     try {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
-
-
-        // Extract the General object where all manifest data lives
-        const general = req.body.General || {};
-
         if (!req.body?.General) {
             return res.status(400).json({ success: false, message: "Missing 'General' in request body." });
         }
 
-
-        // Log the General structure for debugging
-        console.log("General structure:", JSON.stringify(general, null, 2));
+        // Extract the General object where all manifest data lives
+        const general = req.body.General || {};
+        const flatGeneral = flattenObject(general);
+        console.log("Flattened General structure:", JSON.stringify(flatGeneral, null, 2));
 
         // Extract all values from the General object
         const values = [[
-            general.Event ?? '',
-            general.Department ?? '',
-            general.Manifests ?? '',
-            general.StageName ?? '',
-            general.Coordinator?.Name ?? '',
-            general.Coordinator?.Contact ?? '',
-            general.DriversDetails?.Name ?? '',
-            general.DriversDetails?.Contact ?? '',
-            general.DriversDetails?.NINPermitNo ?? '',
-            general.DriversDetails?.VehicleType ?? '',
-            general.DriversDetails?.NumberPlate ?? '',
-            general.VehicleDetails?.CostOfVehicle2 ?? '',
-            general.VehicleDetails?.CashContribution ?? '',
-            general.VehicleDetails?.BookingFee ?? '',
-            general.VehicleDetails?.Balance ?? '',
-            general.VehicleDetails?.CostPerHead ?? '',
-            general.SoulsDetails?.TotalNumber ?? '',
-            general.SoulsDetails?.Residents?.NoOfPeople ?? '',
-            general.SoulsDetails?.Residents?.FirstTimers ?? '',
-            general.SoulsDetails?.Institutions?.NoOfPeople ?? '',
-            general.SoulsDetails?.Institutions?.FirstTimers ?? '',
-            general.SoulsDetails?.Schools?.NoOfPeople ?? '',
-            general.SoulsDetails?.Schools?.FirstTimers ?? '',
-            general.VehicleDetails?.VerifierName ?? ''
+            flatGeneral["Event"] ?? '',
+            flatGeneral["Department"] ?? '',
+            flatGeneral["Manifests"] ?? '',
+            flatGeneral["StageName"] ?? '',
+            flatGeneral["Coordinator_Name"] ?? '',
+            flatGeneral["Coordinator_Contact"] ?? '',
+            flatGeneral["DriversDetails_Name"] ?? '',
+            flatGeneral["DriversDetails_Contact"] ?? '',
+            flatGeneral["DriversDetails_NINPermitNo"] ?? '',
+            flatGeneral["DriversDetails_VehicleType"] ?? '',
+            flatGeneral["DriversDetails_NumberPlate"] ?? '',
+            flatGeneral["VehicleDetails_CostOfVehicle2"] ?? '',
+            flatGeneral["VehicleDetails_CashContribution"] ?? '',
+            flatGeneral["VehicleDetails_BookingFee"] ?? '',
+            flatGeneral["VehicleDetails_Balance"] ?? '',
+            flatGeneral["VehicleDetails_CostPerHead"] ?? '',
+            flatGeneral["SoulsDetails_TotalNumber"] ?? '',
+            flatGeneral["SoulsDetails_Residents_NoOfPeople"] ?? '',
+            flatGeneral["SoulsDetails_Residents_FirstTimers"] ?? '',
+            flatGeneral["SoulsDetails_Institutions_NoOfPeople"] ?? '',
+            flatGeneral["SoulsDetails_Institutions_FirstTimers"] ?? '',
+            flatGeneral["SoulsDetails_Schools_NoOfPeople"] ?? '',
+            flatGeneral["SoulsDetails_Schools_FirstTimers"] ?? '',
+            flatGeneral["VehicleDetails_VerifierName"] ?? ''
         ]];
 
-        console.log("Processed values:", JSON.stringify(values[0], null, 2));
+
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
