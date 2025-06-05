@@ -104,7 +104,7 @@ app.post('/submit-finance', async (req, res) => {
 
         // Validate that required Section fields exist
         if (
-            !flatSection["AccountabilityEntry"] ||
+            !flatSection["AccountabilityEntry_Label"] ||
             !flatSection["FundingParty"] ||
             !flatSection["Amount"] ||
             !flatSection["IssuedBy"] ||
@@ -116,7 +116,7 @@ app.post('/submit-finance', async (req, res) => {
 
         // Construct the values to append in the order you want
         const values = [[
-            flatSection["AccountabilityEntry"] ?? '',
+            flatSection["AccountabilityEntry_Label"] ?? '',
             flatSection["FundingParty"] ?? '',
             flatSection["Amount"] ?? '',
             flatSection["IssuedBy"] ?? '',
