@@ -9,6 +9,8 @@ const app = express();
 app.use(express.json());
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID; //Google Sheets file id
+const FINACE_SHEET_ID = process.env.FINACE_GOOGLE_SHEET_ID; //Finance Google Sheets file id
+
 
 const auth = new google.auth.GoogleAuth({
     credentials: keys,
@@ -84,6 +86,56 @@ app.post('/submit-manifest', async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to save data' });
     }
 });
+
+app.post('/submit-finance', async (req, res) => {
+    try {
+        const client = await auth.getClient();
+        const sheets = google.sheets({ version: 'v4', auth: client });
+
+        const section = req.body.Section || {};
+
+        console.log(section);
+        
+
+        // Flatten the nested objects
+        const flatSection = flattenObject(section);
+
+        // Validate that required Section fields exist
+        if (
+            !flatSection["AccountabilityEntry"] ||
+            !flatSection["FundingParty"] ||
+            !flatSection["Amount"] ||
+            !flatSection["IssuedBy"] ||
+            !flatSection["ReceivedBy"] ||
+            !flatSection["FormID"]
+        ) {
+            return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
+        }
+
+        // Construct the values to append in the order you want
+        const values = [[
+            flatSection["AccountabilityEntry"] ?? '',
+            flatSection["FundingParty"] ?? '',
+            flatSection["Amount"] ?? '',
+            flatSection["IssuedBy"] ?? '',
+            flatSection["ReceivedBy"] ?? '',
+            flatSection["FormID"] ?? ''
+        ]];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId: FINACE_SHEET_ID,
+            range: 'Sheet1!A1',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: { values },
+        });
+
+        res.json({ success: true, message: 'Data saved to Google Sheets!' });
+    } catch (error) {
+        console.error('Google Sheets API Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to save data' });
+    }
+});
+
 
 
 const PORT = process.env.PORT || 4000;
