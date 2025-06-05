@@ -94,11 +94,13 @@ app.post('/submit-finance', async (req, res) => {
 
         const section = req.body.Section || {};
 
-        console.log(section);
+        // console.log(section);
         
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
+        console.log('🧾 Data to be sent to Google Sheets:', flatSection);
+
 
         // Validate that required Section fields exist
         if (
