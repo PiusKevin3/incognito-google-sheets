@@ -95,7 +95,7 @@ app.post('/submit-finance', async (req, res) => {
         const section = req.body.Section || {};
 
         // console.log(section);
-        
+
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
@@ -109,7 +109,17 @@ app.post('/submit-finance', async (req, res) => {
             !flatSection["Amount"] ||
             !flatSection["IssuedBy"] ||
             !flatSection["ReceivedBy"] ||
-            !flatSection["FormID"]
+            !flatSection["FormID"] ||
+            !flatSection["FinalBalance"] ||
+            !flatSection["ManifestName"] ||
+            !flatSection["InstitutionName"] ||
+            !flatSection["SchoolName"] ||
+            !flatSection["Department"] ||
+            !flatSection["CostOfVehicle"] ||
+            !flatSection["Balance"] ||
+            !flatSection["StageName"] ||
+            !flatSection["Contribution"] ||
+            !flatSection["BookingFee"]
         ) {
             return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
         }
@@ -121,7 +131,18 @@ app.post('/submit-finance', async (req, res) => {
             flatSection["Amount"] ?? '',
             flatSection["IssuedBy"] ?? '',
             flatSection["ReceivedBy"] ?? '',
-            flatSection["FormID"] ?? ''
+            flatSection["FormID"] ?? '',
+            flatSection["FinalBalance"] ?? '',
+            flatSection["ManifestName"] ?? '',
+            flatSection["InstitutionName"] ?? '',
+            flatSection["SchoolName"] ?? '',
+            flatSection["Department"] ?? '',
+            flatSection["CostOfVehicle"] ?? '',
+            flatSection["Balance"] ?? '',
+            flatSection["StageName"] ?? '',
+            flatSection["Contribution"] ?? '',
+            flatSection["BookingFee"] ?? ''
+
         ]];
 
         await sheets.spreadsheets.values.append({
