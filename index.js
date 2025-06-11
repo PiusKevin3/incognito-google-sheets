@@ -29,8 +29,9 @@ function flattenObject(obj, prefix = '') {
     return result;
 }
 
-app.post('/submit-manifest', async (req, res) => {
+app.post('/submit-manifest', validateApiKey, async (req, res) => {
     try {
+        
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
@@ -44,6 +45,7 @@ app.post('/submit-manifest', async (req, res) => {
 
         // Extract all values from the General object
         const values = [[
+            flatGeneral["ID"] ?? '',
             flatGeneral["Event"] ?? '',
             flatGeneral["Department"] ?? '',
             flatGeneral["Manifests"] ?? '',
@@ -87,7 +89,7 @@ app.post('/submit-manifest', async (req, res) => {
     }
 });
 
-app.post('/submit-finance', async (req, res) => {
+app.post('/submit-finance', validateApiKey, async (req, res) => {
     try {
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
@@ -159,7 +161,21 @@ app.post('/submit-finance', async (req, res) => {
     }
 });
 
-
+// API key validation middleware
+const validateApiKey = (req, res, next) => {
+    const providedApiKey = req.query.apiKey;
+    const expectedApiKey = process.env.API_KEY;
+    
+    if (!providedApiKey || providedApiKey !== expectedApiKey) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid or missing API key" 
+      });
+    }
+    
+    // If API key is valid, proceed to the next middleware/route handler
+    next();
+  };
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
