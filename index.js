@@ -4,7 +4,6 @@ const { google } = require('googleapis');
 // const keys = require('./service-account.json'); //Google service account json credentials path for local host
 const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
 
-
 const app = express();
 app.use(express.json());
 
@@ -31,7 +30,6 @@ function flattenObject(obj, prefix = '') {
 
 app.post('/submit-manifest', validateApiKey, async (req, res) => {
     try {
-        
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 
@@ -45,10 +43,15 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
 
         // Extract all values from the General object
         const values = [[
-            flatGeneral["ID"] ?? '',
+            flatGeneral["Id"] ?? '',
             flatGeneral["Event"] ?? '',
             flatGeneral["Department"] ?? '',
             flatGeneral["Manifests"] ?? '',
+            flatGeneral["Institutions"] ?? '',
+            flatGeneral["Hospitals"] ?? '',
+            flatGeneral["Masterclass"] ?? '',
+            flatGeneral["Schools"] ?? '',
+            flatGeneral["UpCountry"] ?? '',
             flatGeneral["StageName"] ?? '',
             flatGeneral["Coordinator_Name"] ?? '',
             flatGeneral["Coordinator_Contact"] ?? '',
@@ -72,9 +75,6 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
             flatGeneral["Coordinator_VehicleDetails_VerifierName"] ?? ''
         ]];
 
-
-
-
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
             range: 'Sheet1!A1',
@@ -96,13 +96,9 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
 
         const section = req.body.Section || {};
 
-        // console.log(section);
-
-
         // Flatten the nested objects
         const flatSection = flattenObject(section);
         // console.log('🧾 Data to be sent to Google Sheets:', flatSection);
-
 
         // Validate that required Section fields exist
         if (
