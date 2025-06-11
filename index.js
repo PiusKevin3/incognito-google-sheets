@@ -45,6 +45,7 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
 
         // Extract all values from the General object
         const values = [[
+            flatGeneral["ID"] ?? '',
             flatGeneral["Event"] ?? '',
             flatGeneral["Department"] ?? '',
             flatGeneral["Manifests"] ?? '',
