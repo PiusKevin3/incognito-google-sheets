@@ -11,17 +11,19 @@ app.use(express.json());
 const validateApiKey = (req, res, next) => {
     const providedApiKey = req.query.apiKey;
     const expectedApiKey = process.env.API_KEY;
-    
+
     if (!providedApiKey || providedApiKey !== expectedApiKey) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Invalid or missing API key" 
-      });
+        console.log("API KEY :" + expectedApiKey);
+
+        return res.status(401).json({
+            success: false,
+            message: "Invalid or missing API key"
+        });
     }
-    
+
     // If API key is valid, proceed to the next middleware/route handler
     next();
-  };
+};
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID; //Google Sheets file id
 const FINACE_SHEET_ID = process.env.FINACE_GOOGLE_SHEET_ID; //Finance Google Sheets file id
@@ -56,6 +58,9 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
         // Extract the General object where all manifest data lives
         const general = req.body.General || {};
         const flatGeneral = flattenObject(general);
+
+        console.log('🧾 Data to be sent to Google Sheets:', flatGeneral);
+
 
         // Extract all values from the General object
         const values = [[
@@ -114,7 +119,7 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
-        // console.log('🧾 Data to be sent to Google Sheets:', flatSection);
+        console.log('🧾 Data to be sent to Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
         if (
