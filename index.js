@@ -7,6 +7,22 @@ const keys = require('/etc/secrets/service-account.json'); //Google service acco
 const app = express();
 app.use(express.json());
 
+// API key validation middleware
+const validateApiKey = (req, res, next) => {
+    const providedApiKey = req.query.apiKey;
+    const expectedApiKey = process.env.API_KEY;
+    
+    if (!providedApiKey || providedApiKey !== expectedApiKey) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid or missing API key" 
+      });
+    }
+    
+    // If API key is valid, proceed to the next middleware/route handler
+    next();
+  };
+
 const SHEET_ID = process.env.GOOGLE_SHEET_ID; //Google Sheets file id
 const FINACE_SHEET_ID = process.env.FINACE_GOOGLE_SHEET_ID; //Finance Google Sheets file id
 
@@ -157,21 +173,7 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
     }
 });
 
-// API key validation middleware
-const validateApiKey = (req, res, next) => {
-    const providedApiKey = req.query.apiKey;
-    const expectedApiKey = process.env.API_KEY;
-    
-    if (!providedApiKey || providedApiKey !== expectedApiKey) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Invalid or missing API key" 
-      });
-    }
-    
-    // If API key is valid, proceed to the next middleware/route handler
-    next();
-  };
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
