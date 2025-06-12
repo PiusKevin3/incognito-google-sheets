@@ -11,14 +11,15 @@ app.use(express.json());
 const validateApiKey = (req, res, next) => {
     const providedApiKey = req.query.apiKey;
     const expectedApiKey = process.env.API_KEY;
+    console.log("Query :" + req.query);
+    console.log("Body :" + req.body);
 
     if (!providedApiKey || providedApiKey !== expectedApiKey) {
         console.log("API KEY :" + expectedApiKey);
         console.log("API KEY SECRET :" + providedApiKey);
 
         console.log("API KEY SECRET :" + providedApiKey);
-        console.log("Query :" + req.query);
-        console.log("Body :" + req.body);
+
 
 
 
