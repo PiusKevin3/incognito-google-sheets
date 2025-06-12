@@ -13,9 +13,14 @@ const validateApiKey = (req, res, next) => {
     const expectedApiKey = process.env.API_KEY;
 
     if (!providedApiKey || providedApiKey !== expectedApiKey) {
-                console.log("API KEY :" + expectedApiKey);
+        console.log("API KEY :" + expectedApiKey);
+        console.log("API KEY SECRET :" + providedApiKey);
 
         console.log("API KEY SECRET :" + providedApiKey);
+        console.log("Query :" + req.query);
+        console.log("Body :" + req.body);
+
+
 
         return res.status(401).json({
             success: false,
