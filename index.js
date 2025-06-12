@@ -174,7 +174,8 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: FINACE_SHEET_ID,
-            range: 'Sheet1!A1',
+            // range: 'Sheet1!A1',
+            range: 'Finance!A1',
             valueInputOption: 'USER_ENTERED',
             requestBody: { values },
         });
