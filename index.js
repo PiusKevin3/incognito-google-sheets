@@ -11,18 +11,8 @@ app.use(express.json());
 const validateApiKey = (req, res, next) => {
     const providedApiKey = req.query.apiKey;
     const expectedApiKey = process.env.API_KEY;
-    // console.log("Query :" + req.query);
-    // console.log("Body :" + req.body);
 
     if (!providedApiKey || providedApiKey !== expectedApiKey) {
-        console.log("API KEY :" + expectedApiKey);
-        console.log("API KEY SECRET :" + providedApiKey);
-
-        console.log("API KEY SECRET :" + providedApiKey);
-
-
-
-
         return res.status(401).json({
             success: false,
             message: "Invalid or missing API key"
@@ -72,7 +62,7 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
 
         // Extract all values from the General object
         const values = [[
-            flatGeneral["Id"] ?? '',
+            flatGeneral["ID1"] ?? '',
             flatGeneral["Event"] ?? '',
             flatGeneral["Department"] ?? '',
             flatGeneral["Manifests"] ?? '',
@@ -81,7 +71,7 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
             flatGeneral["Masterclass"] ?? '',
             flatGeneral["Schools"] ?? '',
             flatGeneral["UpCountry"] ?? '',
-            flatGeneral["StageName"] ?? '',
+            flatGeneral["StageName2"] ?? '',
             flatGeneral["Coordinator_Name"] ?? '',
             flatGeneral["Coordinator_Contact"] ?? '',
             flatGeneral["Coordinator_DriversDetails_Name"] ?? '',
@@ -94,7 +84,7 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
             flatGeneral["Coordinator_VehicleDetails_BookingFee"] ?? '',
             flatGeneral["Coordinator_VehicleDetails_Balance"] ?? '',
             flatGeneral["Coordinator_VehicleDetails_CostPerHead"] ?? '',
-            flatGeneral["Coordinator_SoulsDetails_TotalNumber"] ?? '',
+            flatGeneral["Coordinator_SoulsDetails_TOTAL"] ?? '',
             flatGeneral["Coordinator_SoulsDetails_Residents_NoOfPeople"] ?? '',
             flatGeneral["Coordinator_SoulsDetails_Residents_FirstTimers"] ?? '',
             flatGeneral["Coordinator_SoulsDetails_Institutions_NoOfPeople"] ?? '',
@@ -106,7 +96,7 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
-            range: 'Sheet1!A1',
+            range: 'Accountability!A1',
             valueInputOption: 'USER_ENTERED',
             requestBody: { values },
         });
@@ -168,13 +158,15 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
             flatSection["Balance"] ?? '',
             flatSection["StageName"] ?? '',
             flatSection["Contribution"] ?? '',
-            flatSection["BookingFee"] ?? ''
+            flatSection["BookingFee"] ?? '',
+            flatSection["Event"] ?? ''
 
         ]];
 
         await sheets.spreadsheets.values.append({
-            spreadsheetId: FINACE_SHEET_ID,
-            range: 'Sheet1!A1',
+            spreadsheetId: SHEET_ID,
+            // range: 'Sheet1!A1',
+            range: 'Finance!A1',
             valueInputOption: 'USER_ENTERED',
             requestBody: { values },
         });
