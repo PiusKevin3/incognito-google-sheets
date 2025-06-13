@@ -158,7 +158,8 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
             flatSection["Balance"] ?? '',
             flatSection["StageName"] ?? '',
             flatSection["Contribution"] ?? '',
-            flatSection["BookingFee"] ?? ''
+            flatSection["BookingFee"] ?? '',
+            flatSection["Event"] ?? ''
 
         ]];
 
