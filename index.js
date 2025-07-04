@@ -3,7 +3,12 @@ const express = require('express');
 const { google } = require('googleapis');
 // const keys = require('./service-account.json'); //Google service account json credentials path for local host
 const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
+const { createClient } = require('@supabase/supabase-js');
 
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 const app = express();
 app.use(express.json());
 
@@ -94,12 +99,20 @@ app.post('/submit-manifest', validateApiKey, async (req, res) => {
             flatGeneral["Coordinator_VehicleDetails_VerifierName"] ?? ''
         ]];
 
+        // Save to Supabase
+        const { error } = await supabase.from('manifest_entries').insert([flatGeneral]);
+        if (error) console.error('Supabase insert error:', error);
+
+
+
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
             range: 'Accountability!A1',
             valueInputOption: 'USER_ENTERED',
             requestBody: { values },
         });
+
+
 
         res.json({ success: true, message: 'Data saved to Google Sheets!' });
     } catch (error) {
@@ -162,6 +175,11 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
             flatSection["Event"] ?? ''
 
         ]];
+
+        const { error } = await supabase.from('finance_entries').insert([flatSection]);
+        if (error) console.error('Supabase insert error:', error);
+
+
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
