@@ -1,18 +1,31 @@
 {
   "name": "incognito-google-sheets",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A modular system to sync Cognito Forms data to PostgreSQL and Google Sheets.",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "cognito",
+    "google-sheets",
+    "postgresql",
+    "sync",
+    "cron",
+    "express"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@supabase/supabase-js": "^2.50.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "googleapis": "^149.0.0"
+    "googleapis": "^149.0.0",
+    "node-cron": "^4.2.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }
