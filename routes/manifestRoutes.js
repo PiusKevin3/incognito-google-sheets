@@ -3,8 +3,8 @@ const router = express.Router();
 const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject, validateApiKey } = require('../utils/helpers');
-//const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
-const keys = require('../service-account.json'); //Google service account json credentials path for local host
+const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
+// const keys = require('../service-account.json'); //Google service account json credentials path for local host
 
 const auth = new google.auth.GoogleAuth({
     credentials: keys,
