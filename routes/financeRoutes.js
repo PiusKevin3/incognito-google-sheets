@@ -73,10 +73,9 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         ]];
 
-        const { error } = await supabase.from('finance_entries').insert([flatSection]);
-        if (error) console.error('Supabase insert error:', error);
 
-
+        // Save to PostgreSQL
+        await dbService.saveFinanceEntry(flatSection);
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
