@@ -163,6 +163,27 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
 
         ]];
 
+        const newBalance = flatSection["Balance"] - flatSection["Amount"];
+
+        try {
+            await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${process.env.COGNITO_SECRET_TOKEN}`
+                },
+                body: JSON.stringify({
+                    Entry: {
+                        Action: 'Submit',
+                        Role: 'Public'
+                    },
+                    Balance: newBalance
+                })
+            });
+        } catch (error) {
+            console.error('Error updating Cognito form:', error);
+        }
+
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
             // range: 'Sheet1!A1',
