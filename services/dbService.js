@@ -1,42 +1,52 @@
 const db = require('../config/db');
 
 module.exports = {
-  saveManifestEntry: async (data) => {
+  upsertManifestEntry: async (data, updatedAt) => {
     const query = `
-      INSERT INTO manifest_entries (data) 
-      VALUES ($1) 
+      INSERT INTO manifest_entries (data, updated_at)
+      VALUES ($1, $2)
+      ON CONFLICT ((data->>'FormID'))
+      DO UPDATE SET data = EXCLUDED.data, updated_at = EXCLUDED.updated_at
       RETURNING *`;
-    return db.query(query, [data]);
+      
+    return db.query(query, [data, updatedAt]);
   },
-  
-  saveFinanceEntry: async (data) => {
+
+  upsertFinanceEntry: async (data, updatedAt) => {
     const query = `
-      INSERT INTO finance_entries (data) 
-      VALUES ($1) 
+      INSERT INTO finance_entries (data, updated_at)
+      VALUES ($1, $2)
+      ON CONFLICT ((data->>'FormID'))
+      DO UPDATE SET data = EXCLUDED.data, updated_at = EXCLUDED.updated_at
       RETURNING *`;
-    return db.query(query, [data]);
+
+    return db.query(query, [data, updatedAt]);
   },
-  
-  saveCognitoEntry: async (formId, entryId, entryData) => {
+
+  upsertCognitoEntry: async (formId, entryId, entryData, updatedAt) => {
     const query = `
       INSERT INTO cognito_entries (
         cognito_form_id, 
         cognito_entry_id, 
-        entry_data
+        entry_data,
+        updated_at
       ) 
-      VALUES ($1, $2, $3) 
-      ON CONFLICT (cognito_entry_id) DO NOTHING
+      VALUES ($1, $2, $3, $4) 
+      ON CONFLICT (cognito_entry_id) 
+      DO UPDATE SET entry_data = EXCLUDED.entry_data, updated_at = EXCLUDED.updated_at
       RETURNING *`;
-    return db.query(query, [formId, entryId, entryData]);
+
+    return db.query(query, [formId, entryId, entryData, updatedAt]);
   },
-  
+
   getLatestCognitoEntry: async (formId) => {
     const query = `
       SELECT * 
       FROM cognito_entries 
       WHERE cognito_form_id = $1 
-      ORDER BY created_at DESC 
+      ORDER BY updated_at DESC 
       LIMIT 1`;
+
     return db.query(query, [formId]);
   }
 };

@@ -2,18 +2,13 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const dbService = require('../services/dbService');
+const { verifyCognitoSignature } = require('../utils/helpers');
 
 router.post('/cognito-webhook', async (req, res) => {
   try {
     // Verify HMAC signature
-    if (process.env.COGNITO_WEBHOOK_SECRET) {
-      const signature = crypto.createHmac('sha256', process.env.COGNITO_WEBHOOK_SECRET)
-        .update(JSON.stringify(req.body))
-        .digest('hex');
-      
-      if (signature !== req.headers['x-cognito-signature']) {
-        return res.status(401).send('Invalid signature');
-      }
+    if (!verifyCognitoSignature(req)) {
+      return res.status(401).send('Invalid signature');
     }
 
     const { formId, entryId, event } = req.body;

@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 module.exports = {
   getForms: async () => {
@@ -8,6 +8,7 @@ module.exports = {
         'Content-Type': 'application/json'
       }
     });
+    
     return response.json();
   },
   
@@ -19,6 +20,7 @@ module.exports = {
         'Content-Type': 'application/json'
       }
     });
+
     return response.json();
   }
 };
