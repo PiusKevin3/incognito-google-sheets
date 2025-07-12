@@ -5,10 +5,10 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const crypto = require('crypto');
 const dbService = require('../services/dbService');
 const { flattenObject, validateApiKey, verifyCognitoSignature } = require('../utils/helpers');
-// const keys = require('/etc/secrets/service-account.json'); // Use on render
-const keys = require('../service-account.json');
+const keys = require('/etc/secrets/service-account.json'); // Use on render
+// const keys = require('../service-account.json');
 
-const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID || process.env.FINACE_GOOGLE_SHEET_ID;
+const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID 
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,
