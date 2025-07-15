@@ -17,12 +17,14 @@ const auth = new google.auth.GoogleAuth({
 
 router.post('/submit-finance', async (req, res) => {
   try {
-    const isWebhook = verifyCognitoSignature(req);
-    const hasApiKey = req.query.apiKey === process.env.API_KEY;
+    console.log(req.body);
+    
+    // const isWebhook = verifyCognitoSignature(req);
+    // const hasApiKey = req.query.apiKey === process.env.API_KEY;
 
-    if (!isWebhook && !hasApiKey) {
-      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
-    }
+    // if (!isWebhook && !hasApiKey) {
+    //   return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
+    // }
 
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
@@ -34,27 +36,29 @@ router.post('/submit-finance', async (req, res) => {
     const section = req.body.Section;
     const flatSection = flattenObject(section);
 
-    if (!isWebhook && (
-      !flatSection["AccountabilityEntry_Label"] ||
-      !flatSection["FundingParty"] ||
-      !flatSection["Amount"] ||
-      !flatSection["IssuedBy"] ||
-      !flatSection["ReceivedBy"] ||
-      !flatSection["FormID"] ||
-      !flatSection["FinalBalance"] ||
-      !flatSection["ManifestName"] ||
-      !flatSection["InstitutionName"] ||
-      !flatSection["SchoolName"] ||
-      !flatSection["Department"] ||
-      !flatSection["CostOfVehicle"] ||
-      !flatSection["Balance"] ||
-      !flatSection["StageName"] ||
-      !flatSection["Contribution"] ||
-      !flatSection["BookingFee"]
-    )) {
-      return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields." });
-    }
+    // if (!isWebhook && (
+    //   !flatSection["AccountabilityEntry_Label"] ||
+    //   !flatSection["FundingParty"] ||
+    //   !flatSection["Amount"] ||
+    //   !flatSection["IssuedBy"] ||
+    //   !flatSection["ReceivedBy"] ||
+    //   !flatSection["FormID"] ||
+    //   !flatSection["FinalBalance"] ||
+    //   !flatSection["ManifestName"] ||
+    //   !flatSection["InstitutionName"] ||
+    //   !flatSection["SchoolName"] ||
+    //   !flatSection["Department"] ||
+    //   !flatSection["CostOfVehicle"] ||
+    //   !flatSection["Balance"] ||
+    //   !flatSection["StageName"] ||
+    //   !flatSection["Contribution"] ||
+    //   !flatSection["BookingFee"]
+    // )) {
+    //   return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields." });
+    // }
 
+    console.log(flatSection);
+    
     const values = [[
       flatSection["AccountabilityEntry_Label"] ?? '',
       flatSection["FundingParty"] ?? '',
@@ -81,44 +85,49 @@ router.post('/submit-finance', async (req, res) => {
     const newBalance = currentBalance - amount;
 
     // Update Cognito form entry balance
-    try {
-      await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.COGNITO_SECRET_TOKEN}`
-        },
-        body: JSON.stringify({
-          Entry: {
-            Action: 'Submit',
-            Role: 'Public'
-          },
-          Balance: newBalance
-        })
-      });
-    } catch (err) {
-      console.error('Cognito balance update failed:', err);
-    }
+    // try {
+    //   await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
+    //     method: 'PATCH',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: `Bearer ${process.env.COGNITO_SECRET_TOKEN}`
+    //     },
+    //     body: JSON.stringify({
+    //       Entry: {
+    //         Action: 'Submit',
+    //         Role: 'Public'
+    //       },
+    //       Balance: newBalance
+    //     })
+    //   });
+    // } catch (err) {
+    //   console.error('Cognito balance update failed:', err);
+    // }
 
     // Update local balance before saving
-    flatSection["Balance"] = newBalance;
+    // flatSection["Balance"] = newBalance;
 
     // Upsert the full finance entry with updated balance and timestamp
     const updatedAt = new Date();
     await dbService.upsertFinanceEntry(flatSection, updatedAt);
 
     // Append to Google Sheets if enabled
-    if (process.env.ENABLE_GOOGLE_SHEETS === 'true') {
+    // if (process.env.ENABLE_GOOGLE_SHEETS === 'true') {
       await sheets.spreadsheets.values.append({
         spreadsheetId: SHEET_ID,
         range: 'Finance!A1',
         valueInputOption: 'USER_ENTERED',
         requestBody: { values },
       });
-    }
+    // }
+
+    console.log('Data saved!');
+    
 
     res.json({ success: true, message: 'Data saved!' });
   } catch (error) {
+    console.log(error);
+    
     console.error('Finance route error:', error);
     res.status(500).json({ success: false, message: 'Failed to save data' });
   }
