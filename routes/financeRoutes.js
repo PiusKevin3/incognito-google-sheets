@@ -17,14 +17,14 @@ const auth = new google.auth.GoogleAuth({
 
 router.post('/submit-finance', async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
 
-    // const isWebhook = verifyCognitoSignature(req);
-    // const hasApiKey = req.query.apiKey === process.env.API_KEY;
+    const isWebhook = verifyCognitoSignature(req);
+    const hasApiKey = req.query.apiKey === process.env.API_KEY;
 
-    // if (!isWebhook && !hasApiKey) {
-    //   return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
-    // }
+    if (!isWebhook && !hasApiKey) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
+    }
 
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
@@ -36,28 +36,28 @@ router.post('/submit-finance', async (req, res) => {
     const section = req.body.Section;
     const flatSection = flattenObject(section);
 
-    // if (!isWebhook && (
-    //   !flatSection["AccountabilityEntry_Label"] ||
-    //   !flatSection["FundingParty"] ||
-    //   !flatSection["Amount"] ||
-    //   !flatSection["IssuedBy"] ||
-    //   !flatSection["ReceivedBy"] ||
-    //   !flatSection["FormID"] ||
-    //   !flatSection["FinalBalance"] ||
-    //   !flatSection["ManifestName"] ||
-    //   !flatSection["InstitutionName"] ||
-    //   !flatSection["SchoolName"] ||
-    //   !flatSection["Department"] ||
-    //   !flatSection["CostOfVehicle"] ||
-    //   !flatSection["Balance"] ||
-    //   !flatSection["StageName"] ||
-    //   !flatSection["Contribution"] ||
-    //   !flatSection["BookingFee"]
-    // )) {
-    //   return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields." });
-    // }
+    if (!isWebhook && (
+      !flatSection["AccountabilityEntry_Label"] ||
+      !flatSection["FundingParty"] ||
+      !flatSection["Amount"] ||
+      !flatSection["IssuedBy"] ||
+      !flatSection["ReceivedBy"] ||
+      !flatSection["FormID"] ||
+      !flatSection["FinalBalance"] ||
+      !flatSection["ManifestName"] ||
+      !flatSection["InstitutionName"] ||
+      !flatSection["SchoolName"] ||
+      !flatSection["Department"] ||
+      !flatSection["CostOfVehicle"] ||
+      !flatSection["Balance"] ||
+      !flatSection["StageName"] ||
+      !flatSection["Contribution"] ||
+      !flatSection["BookingFee"]
+    )) {
+      return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields." });
+    }
 
-    console.log(flatSection);
+    // console.log(flatSection);
 
     // Clean numeric values
     flatSection["Amount"] = parseNumeric(flatSection["Amount"]);

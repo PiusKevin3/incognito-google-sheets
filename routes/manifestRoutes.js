@@ -12,7 +12,7 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const SHEET_ID = process.env.ACC_GOOGLE_SHEET_ID;
 
 async function saveToGoogleSheets(flatGeneral) {
   const client = await auth.getClient();
