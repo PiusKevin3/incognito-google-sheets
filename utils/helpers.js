@@ -36,8 +36,17 @@ function verifyCognitoSignature(req) {
   return computedSignature === providedSignature;
 }
 
+function parseNumeric(value) {
+  if (typeof value === 'string') {
+    return Number(value.replace(/,/g, ''));
+  }
+  return Number(value);
+}
+
+
 module.exports = {
   flattenObject,
   validateApiKey,
-  verifyCognitoSignature
+  verifyCognitoSignature,
+  parseNumeric
 };

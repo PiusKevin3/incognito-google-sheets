@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { google } = require('googleapis');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const crypto = require('crypto');
 const dbService = require('../services/dbService');
-const { flattenObject, validateApiKey, verifyCognitoSignature } = require('../utils/helpers');
+const { flattenObject, validateApiKey, verifyCognitoSignature, parseNumeric } = require('../utils/helpers');
 const keys = require('/etc/secrets/service-account.json'); // Use on render
 // const keys = require('../service-account.json');
 
-const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID 
+const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,
@@ -18,7 +18,7 @@ const auth = new google.auth.GoogleAuth({
 router.post('/submit-finance', async (req, res) => {
   try {
     console.log(req.body);
-    
+
     // const isWebhook = verifyCognitoSignature(req);
     // const hasApiKey = req.query.apiKey === process.env.API_KEY;
 
@@ -58,7 +58,16 @@ router.post('/submit-finance', async (req, res) => {
     // }
 
     console.log(flatSection);
-    
+
+    // Clean numeric values
+    flatSection["Amount"] = parseNumeric(flatSection["Amount"]);
+    flatSection["Balance"] = parseNumeric(flatSection["Balance"]);
+    flatSection["FinalBalance"] = parseNumeric(flatSection["FinalBalance"]);
+    flatSection["CostOfVehicle"] = parseNumeric(flatSection["CostOfVehicle"]);
+    flatSection["Contribution"] = parseNumeric(flatSection["Contribution"]);
+    flatSection["BookingFee"] = parseNumeric(flatSection["BookingFee"]);
+
+
     const values = [[
       flatSection["AccountabilityEntry_Label"] ?? '',
       flatSection["FundingParty"] ?? '',
@@ -85,49 +94,49 @@ router.post('/submit-finance', async (req, res) => {
     const newBalance = currentBalance - amount;
 
     // Update Cognito form entry balance
-    // try {
-    //   await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
-    //     method: 'PATCH',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${process.env.COGNITO_SECRET_TOKEN}`
-    //     },
-    //     body: JSON.stringify({
-    //       Entry: {
-    //         Action: 'Submit',
-    //         Role: 'Public'
-    //       },
-    //       Balance: newBalance
-    //     })
-    //   });
-    // } catch (err) {
-    //   console.error('Cognito balance update failed:', err);
-    // }
+    try {
+      await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.COGNITO_SECRET_TOKEN}`
+        },
+        body: JSON.stringify({
+          Entry: {
+            Action: 'Submit',
+            Role: 'Public'
+          },
+          Balance: newBalance
+        })
+      });
+    } catch (err) {
+      console.error('Cognito balance update failed:', err);
+    }
 
     // Update local balance before saving
-    // flatSection["Balance"] = newBalance;
+    flatSection["Balance"] = newBalance;
 
     // Upsert the full finance entry with updated balance and timestamp
     const updatedAt = new Date();
     await dbService.upsertFinanceEntry(flatSection, updatedAt);
 
     // Append to Google Sheets if enabled
-    // if (process.env.ENABLE_GOOGLE_SHEETS === 'true') {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: SHEET_ID,
-        range: 'Finance!A1',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: { values },
-      });
-    // }
+    if (process.env.ENABLE_GOOGLE_SHEETS === 'true') {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: 'Finance!A1',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values },
+    });
+    }
 
     console.log('Data saved!');
-    
+
 
     res.json({ success: true, message: 'Data saved!' });
   } catch (error) {
     console.log(error);
-    
+
     console.error('Finance route error:', error);
     res.status(500).json({ success: false, message: 'Failed to save data' });
   }
