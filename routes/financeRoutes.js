@@ -9,6 +9,8 @@ const keys = require('/etc/secrets/service-account.json'); // Use on render
 // const keys = require('../service-account.json');
 
 const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID
+const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
+const FINANCE_FORM_ID = process.env.FINANCE_FORM_ID;
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,
@@ -17,14 +19,20 @@ const auth = new google.auth.GoogleAuth({
 
 router.post('/submit-finance', async (req, res) => {
   try {
-    // console.log(req.body);
-
-    const isWebhook = verifyCognitoSignature(req);
     const hasApiKey = req.query.apiKey === process.env.API_KEY;
 
-    if (!isWebhook && !hasApiKey) {
-      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
+    if (!hasApiKey) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
+
+    // const isWebhook = verifyCognitoSignature(req);
+    
+    //Currrently cognito has no UI Signiture signing
+    // if (!isWebhook && !hasApiKey) {
+    //   return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
+    // }
+
+
 
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
@@ -36,7 +44,7 @@ router.post('/submit-finance', async (req, res) => {
     const section = req.body.Section;
     const flatSection = flattenObject(section);
 
-    if (!isWebhook && (
+    if (!hasApiKey && (
       !flatSection["AccountabilityEntry_Label"] ||
       !flatSection["FundingParty"] ||
       !flatSection["Amount"] ||
@@ -95,7 +103,7 @@ router.post('/submit-finance', async (req, res) => {
 
     // Update Cognito form entry balance
     try {
-      await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
+      await fetch(`https://www.cognitoforms.com/api/forms/${MANIFEST_FORM_ID}/entries/${flatSection["FormID"]}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -122,12 +130,12 @@ router.post('/submit-finance', async (req, res) => {
 
     // Append to Google Sheets if enabled
     if (process.env.ENABLE_GOOGLE_SHEETS === 'true') {
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SHEET_ID,
-      range: 'Finance!A1',
-      valueInputOption: 'USER_ENTERED',
-      requestBody: { values },
-    });
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: SHEET_ID,
+        range: 'Finance!A1',
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values },
+      });
     }
 
     console.log('Data saved!');

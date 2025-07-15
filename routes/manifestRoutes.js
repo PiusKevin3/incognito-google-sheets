@@ -61,9 +61,15 @@ async function saveToGoogleSheets(flatGeneral) {
 
 router.post('/cognito-manifest-webhook', async (req, res) => {
   try {
-    if (!verifyCognitoSignature(req)) {
-      return res.status(401).send('Invalid signature');
+    const hasApiKey = req.query.apiKey === process.env.API_KEY;
+
+    if (!hasApiKey) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
+
+    // if (!verifyCognitoSignature(req)) {
+    //   return res.status(401).send('Invalid signature');
+    // }
 
     const { formId, entryId, event } = req.body;
 

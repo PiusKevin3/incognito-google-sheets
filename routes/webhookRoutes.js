@@ -6,13 +6,19 @@ const { verifyCognitoSignature } = require('../utils/helpers');
 
 router.post('/cognito-webhook', async (req, res) => {
   try {
-    // Verify HMAC signature
-    if (!verifyCognitoSignature(req)) {
-      return res.status(401).send('Invalid signature');
+    const hasApiKey = req.query.apiKey === process.env.API_KEY;
+
+    if (!hasApiKey) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
+    // Verify HMAC signature
+    // if (!verifyCognitoSignature(req)) {
+    //   return res.status(401).send('Invalid signature');
+    // }
+
     const { formId, entryId, event } = req.body;
-    
+
     if (event !== 'entry.created') {
       return res.status(200).send('Ignored event');
     }
