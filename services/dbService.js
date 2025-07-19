@@ -75,24 +75,27 @@ module.exports = {
     }
 
     const query = `
-      INSERT INTO manifest_entries (
-        form_id, event, department, manifests, institutions, hospitals, masterclass,
-        schools, up_country, stage_name, coordinator_name, coordinator_contact,
-        driver_name, driver_contact, driver_nin_permit, driver_vehicle_type, driver_number_plate,
-        vehicle_cost, vehicle_contribution, vehicle_booking_fee, vehicle_balance,
-        cost_per_head, souls_total, souls_residents, souls_residents_firsttimers,
-        souls_institutions, souls_institutions_firsttimers,
-        souls_schools, souls_schools_firsttimers, verifier_name, updated_at
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7,
-        $8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17,
-        $18, $19, $20, $21,
-        $22, $23, $24, $25,
-        $26, $27, $28, $29, $30, $31
-      )
-      RETURNING *;
-    `;
+  INSERT INTO manifest_entries (
+    form_id, event, department, manifests, institutions, hospitals, masterclass,
+    schools, up_country, stage_name, coordinator_name, coordinator_contact,
+    driver_name, driver_contact, driver_nin_permit, driver_vehicle_type,
+    driver_number_plate, vehicle_cost, vehicle_contribution, vehicle_booking_fee,
+    vehicle_balance, cost_per_head, souls_total, souls_residents, souls_residents_firsttimers,
+    souls_institutions, souls_institutions_firsttimers, souls_schools,
+    souls_schools_firsttimers, verifier_name, updated_at
+  )
+  VALUES (
+    $1, $2, $3, $4, $5, $6, $7,
+    $8, $9, $10, $11, $12,
+    $13, $14, $15, $16,
+    $17, $18, $19, $20,
+    $21, $22, $23, $24, $25,
+    $26, $27, $28,
+    $29, $30, $31
+  )
+  ON CONFLICT (form_id) DO NOTHING;
+`;
+
 
     const values = [
       formId, // Using the passed formId directly
@@ -229,16 +232,16 @@ module.exports = {
     const query = `SELECT * FROM finance_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);
     console.log(result);
-    
+
     return result.rows[0] || null;
   },
   findManifestByFormID: async (formId) => {
     console.log(formId);
-    
+
     const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);
     console.log(result);
-    
+
     return result.rows[0] || null;
   },
 
