@@ -4,7 +4,7 @@ const { parseNumeric } = require('../utils/helpers');
 
 async function upsertFinanceEntry(entry, updatedAt = new Date()) {
   try {
-    const formId = entry?.TestFinanceAccountabilityForm_Id;
+    const formId = entry?.Section_AccountabilityEntry;
 
     if (!formId) {
       console.warn('⚠️ Skipped finance entry: Missing FormID');

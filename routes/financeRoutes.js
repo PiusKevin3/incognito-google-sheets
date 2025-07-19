@@ -25,15 +25,6 @@ router.post('/submit-finance', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
-    // const isWebhook = verifyCognitoSignature(req);
-    
-    //Currrently cognito has no UI Signiture signing
-    // if (!isWebhook && !hasApiKey) {
-    //   return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key/signature' });
-    // }
-
-
-
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
 
