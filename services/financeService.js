@@ -5,7 +5,7 @@ const { parseNumeric } = require('../utils/helpers');
 async function upsertFinanceEntry(entry, updatedAt = new Date()) {
   try {
     const formId = entry.Section_AccountabilityEntry;
-            console.log(formId);
+            // console.log(formId);
 
 
     if (!formId) {
@@ -34,7 +34,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
     entry.BookingFee = parseNumeric(entry.BookingFee);
 
     // Insert new entry
-    const result = await dbService.upsertFinanceEntry(entry, updatedAt);
+    const result = await dbService.insertFinanceEntry(entry, updatedAt);
 
     console.log(`✅ Inserted new finance entry: ${formId}`);
        return {
@@ -43,7 +43,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
             data: result.rows[0],
         };
   } catch (err) {
-    console.error(`❌ Error in upsertFinanceEntry:`, err.message);
+    console.error(`❌ Error in insertFinanceEntry:`, err.message);
       return {
             inserted: false,
             reason: "Service error",
