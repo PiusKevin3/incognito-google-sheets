@@ -72,10 +72,10 @@ router.post('/upload-csv-sync', upload.single('file'), async (req, res) => {
             
             const flat = flattenObject(row);
 
-            console.log(flat.Section_AccountabilityEntry);
+            // console.log(flat.Section_AccountabilityEntry);
             
 
-            if (!flat.General_ID1||!flat.Section_AccountabilityEntry) {
+            if (!flat.General_ID1&&!flat.Section_AccountabilityEntry) {
                 results.push({ inserted: false, reason: 'Missing form_id', row: flat });
                 continue;
             }
@@ -83,8 +83,10 @@ router.post('/upload-csv-sync', upload.single('file'), async (req, res) => {
             try {
                 let result;
                 if (type === 'finance') {
+                    
                     result = await upsertFinanceEntry(flat);
                 } else {
+                    
                     result = await upsertManifestEntry(flat);
                 }
 
