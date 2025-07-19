@@ -4,7 +4,7 @@ const { parseNumeric } = require('../utils/helpers');
 
 async function upsertFinanceEntry(entry, updatedAt = new Date()) {
   try {
-    const formId = entry;
+    const formId = entry.Section_AccountabilityEntry;
             console.log(formId);
 
 
@@ -18,7 +18,11 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
 
     if (existing) {
       console.log(`⏭️ Finance entry with FormID ${formId} already exists. Skipping insert.`);
-      return;
+        return {
+            inserted: true,
+            form_id: formId,
+            data: result.rows[0],
+        };
     }
 
     // Parse numeric fields
@@ -33,10 +37,18 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
     const result = await dbService.upsertFinanceEntry(entry, updatedAt);
 
     console.log(`✅ Inserted new finance entry: ${formId}`);
-    return result;
+       return {
+            inserted: true,
+            form_id: formId,
+            data: result.rows[0],
+        };
   } catch (err) {
     console.error(`❌ Error in upsertFinanceEntry:`, err.message);
-    throw err;
+      return {
+            inserted: false,
+            reason: "Service error",
+            error: err.message || err,
+        };
   }
 }
 
