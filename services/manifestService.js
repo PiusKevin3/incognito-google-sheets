@@ -1,4 +1,4 @@
-const db = require('./dbService'); // Make sure this has a working db.query method
+const dbService = require('./dbService'); // Make sure this has a working db.query method
 
 const upsertManifestEntry = async (entry, updatedAt = new Date()) => {
   const formId = entry?.General_ID1;
