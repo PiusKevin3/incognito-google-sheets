@@ -75,7 +75,7 @@ router.post('/upload-csv-sync', upload.single('file'), async (req, res) => {
             console.log(flat.Section_AccountabilityEntry);
             
 
-            if (!flat.General_ID1||!Section_AccountabilityEntry) {
+            if (!flat.General_ID1||!flat.Section_AccountabilityEntry) {
                 results.push({ inserted: false, reason: 'Missing form_id', row: flat });
                 continue;
             }
