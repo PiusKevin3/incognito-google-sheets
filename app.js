@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const syncService = require('./services/syncService');
+const syncRoutes = require('./routes/syncRoutes');
 
 // Routes
 const manifestRoutes = require('./routes/manifestRoutes');
@@ -14,6 +15,8 @@ app.use(express.json());
 app.use('/api', manifestRoutes);
 app.use('/api', financeRoutes);
 app.use('/webhooks', webhookRoutes);
+app.use('/api', syncRoutes);
+
 
 // Start synchronization
 syncService.start();

@@ -19,8 +19,8 @@ async function syncCognitoEntries() {
 
       const result = await dbService.getLatestCognitoEntry(form.id);
       const since = result.rows[0]
-        ? new Date(result.rows[0].updated_at)   // Use updated_at here
-        : new Date(Date.now() - 24 * 60 * 60 * 1000);
+        ? new Date(result.rows[0].updated_at)
+        : new Date(Date.now() - 24 * 60 * 60 * 1000); // fallback to 24hrs ago
 
       const newEntries = await cognitoService.getEntriesSince(form.id, since);
 
@@ -43,8 +43,13 @@ async function syncCognitoEntries() {
   }
 }
 
-
 module.exports = {
-  start: () => cron.schedule('*/15 * * * *', syncCognitoEntries),
+  start: () => {
+    // Start cron job (every 15 minutes)
+    cron.schedule('*/15 * * * *', syncCognitoEntries);
+
+    // Immediately trigger sync on server start
+    syncCognitoEntries();
+  },
   syncNow: syncCognitoEntries,
 };
