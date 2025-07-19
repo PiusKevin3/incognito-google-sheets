@@ -133,6 +133,39 @@ module.exports = {
       LIMIT 1`;
 
     return db.query(query, [formId]);
-  }
+  },
+  // ✅ NEW: Get latest manifest entry
+  getLatestManifestEntry: async () => {
+    const query = `
+      SELECT * 
+      FROM manifest_entries 
+      ORDER BY updated_at DESC 
+      LIMIT 1`;
+
+    return db.query(query);
+  },
+
+  // ✅ NEW: Get latest finance entry
+  getLatestFinanceEntry: async () => {
+    const query = `
+      SELECT * 
+      FROM finance_entries 
+      ORDER BY updated_at DESC 
+      LIMIT 1`;
+
+    return db.query(query);
+  },
+
+  findFinanceByFormID: async (formId) => {
+    const query = `SELECT * FROM finance_entries WHERE form_id = $1 LIMIT 1`;
+    const result = await db.query(query, [formId]);
+    return result.rows[0] || null;
+  },
+  findManifestByFormID: async (formId) => {
+    const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
+    const result = await db.query(query, [formId]);
+    return result.rows[0] || null;
+  },
+
 };
 

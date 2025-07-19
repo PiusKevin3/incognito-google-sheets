@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Excel Upload</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    form {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+    }
+    .result {
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Upload Excel File for Sync</h2>
+
+  <form id="uploadForm">
+    <label for="type">Upload Type</label>
+    <select id="type" name="type" required>
+      <option value="">-- Select Type --</option>
+      <option value="finance">Finance</option>
+      <option value="manifest">Manifest</option>
+    </select>
+
+    <label for="file">Choose Excel File (.xlsx)</label>
+    <input type="file" id="file" name="file" accept=".xlsx" required />
+
+    <button type="submit">Upload</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script>
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('type', document.getElementById('type').value);
+    formData.append('file', document.getElementById('file').files[0]);
+
+    try {
+        const response = await fetch('/api/upload-csv-sync', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+    } catch (err) {
+        document.getElementById('result').innerText = 'Error: ' + err.message;
+    }
+});
+</script>
+
+</body>
+</html>

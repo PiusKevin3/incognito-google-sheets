@@ -2,7 +2,6 @@ const cron = require('node-cron');
 const cognitoService = require('./cognitoService');
 const dbService = require('./dbService');
 
-// Load form IDs from environment variables
 const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
 const FINANCE_FORM_ID = process.env.FINANCE_FORM_ID;
 
@@ -13,14 +12,12 @@ async function syncCognitoEntries() {
     const forms = await cognitoService.getForms();
 
     for (const form of forms) {
-      if (![MANIFEST_FORM_ID, FINANCE_FORM_ID].includes(form.id)) {
-        continue; // skip irrelevant forms
-      }
+      if (![MANIFEST_FORM_ID, FINANCE_FORM_ID].includes(form.id)) continue;
 
       const result = await dbService.getLatestCognitoEntry(form.id);
       const since = result.rows[0]
         ? new Date(result.rows[0].updated_at)
-        : new Date(Date.now() - 24 * 60 * 60 * 1000); // fallback to 24hrs ago
+        : new Date(Date.now() - 24 * 60 * 60 * 1000);
 
       const newEntries = await cognitoService.getEntriesSince(form.id, since);
 
@@ -38,17 +35,16 @@ async function syncCognitoEntries() {
     }
 
     console.log('✅ Cognito sync complete');
+    return { success: true };
   } catch (error) {
     console.error(`❌ Sync failed: ${error.message}`);
+    return { success: false, error: error.message };
   }
 }
 
 module.exports = {
   start: () => {
-    // Start cron job (every 15 minutes)
     cron.schedule('*/15 * * * *', syncCognitoEntries);
-
-    // Immediately trigger sync on server start
     syncCognitoEntries();
   },
   syncNow: syncCognitoEntries,
