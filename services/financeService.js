@@ -18,20 +18,20 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
 
     if (existing) {
       console.log(`⏭️ Finance entry with FormID ${formId} already exists. Skipping insert.`);
-        return {
-            inserted: true,
+       return {
+            inserted: false,
+            reason: "Already exists",
             form_id: formId,
-            data: result.rows[0],
         };
     }
 
     // Parse numeric fields
-    entry.Amount = parseNumeric(entry.Amount);
-    entry.Balance = parseNumeric(entry.Balance);
-    entry.FinalBalance = parseNumeric(entry.FinalBalance);
-    entry.CostOfVehicle = parseNumeric(entry.CostOfVehicle);
-    entry.Contribution = parseNumeric(entry.Contribution);
-    entry.BookingFee = parseNumeric(entry.BookingFee);
+    entry.Section_Amount = parseNumeric(entry.Section_Amount);
+    entry.Section_Balance = parseNumeric(entry.Section_Balance);
+    entry.Section_FinalBalance = parseNumeric(entry.Section_FinalBalance);
+    entry.Section_CostOfVehicle = parseNumeric(entry.Section_CostOfVehicle);
+    entry.Section_Contribution = parseNumeric(entry.Section_Contribution);
+    entry.Section_BookingFee = parseNumeric(entry.Section_BookingFee);
 
     // Insert new entry
     const result = await dbService.insertFinanceEntry(entry, updatedAt);

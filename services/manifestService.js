@@ -23,7 +23,11 @@ const upsertManifestEntry = async (entry, updatedAt = new Date()) => {
     }
 
     try {
-        console.log(entry.rows);
+        // console.log("flatten :" +entry.rows);
+
+        // const general = entry.rows?.General || {};
+        // const flatGeneral = flattenObject(general);
+        // // console.log("flatten :" + flatGeneral);
 
         const result = await dbService.insertManifestEntry(formId, entry, updatedAt);
         console.log(`✅ Inserted new manifest entry: ${formId}`);
