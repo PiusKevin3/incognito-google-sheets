@@ -71,13 +71,13 @@ module.exports = {
   // and form_id has a UNIQUE constraint.
   insertManifestEntry: async (formId, entry, updatedAt = new Date()) => {
     // console.log("insert manifest : " + entry);
-    
+
     if (!formId) {
       console.warn("⚠️ Skipped: Missing ID1 (form_id) for insertManifestEntry");
       return null; // Or throw an error, depending on desired behavior
     }
 
-     const query = `
+    const query = `
     INSERT INTO manifest_entries (
       form_id, event, department, manifests, institutions, hospitals, masterclass,
       schools, up_country, stage_name, coordinator_name, coordinator_contact,
@@ -132,16 +132,39 @@ module.exports = {
   `;
 
 
-
-     const values = [
-    formId, entry.event, entry.department, entry.manifests, entry.institutions, entry.hospitals, entry.masterclass,
-    entry.schools, entry.up_country, entry.stage_name, entry.coordinator_name, entry.coordinator_contact,
-    entry.driver_name, entry.driver_contact, entry.driver_nin_permit, entry.driver_vehicle_type,
-    entry.driver_number_plate, entry.vehicle_cost, entry.vehicle_contribution, entry.vehicle_booking_fee,
-    entry.vehicle_balance, entry.cost_per_head, entry.souls_total, entry.souls_residents, entry.souls_residents_firsttimers,
-    entry.souls_institutions, entry.souls_institutions_firsttimers, entry.souls_schools,
-    entry.souls_schools_firsttimers, entry.verifier_name, updatedAt
-  ];
+    const values = [
+      formId,
+      entry.General_Event,
+      entry.General_Department,
+      entry.General_Manifests,
+      entry.General_Institutions,
+      entry.General_Hospitals,
+      entry.General_Masterclass,
+      entry.General_Schools,
+      entry.General_UpCountry,
+      entry.General_StageName2,
+      entry.General_Coordinator_Name,
+      entry.General_Coordinator_Contact,
+      entry.General_Coordinator_DriversDetails_Name,
+      entry.General_Coordinator_DriversDetails_Contact,
+      entry.General_Coordinator_DriversDetails_NINPermitNo,
+      entry.General_Coordinator_DriversDetails_VehicleType,
+      entry.General_Coordinator_DriversDetails_NumberPlate,
+      entry.General_Coordinator_VehicleDetails_CostOfVehicle2,
+      entry.General_Coordinator_VehicleDetails_CashContribution,
+      entry.General_Coordinator_VehicleDetails_BookingFee,
+      entry.General_Coordinator_VehicleDetails_Balance,
+      entry.General_Coordinator_VehicleDetails_CostPerHead,
+      entry.General_Coordinator_SoulsDetails_TOTAL,
+      entry.General_Coordinator_SoulsDetails_Residents_NoOfPeople,
+      entry.General_Coordinator_SoulsDetails_Residents_FirstTimers,
+      entry.General_Coordinator_SoulsDetails_Institutions_NoOfPeople,
+      entry.General_Coordinator_SoulsDetails_Institutions_FirstTimers,
+      entry.General_Coordinator_SoulsDetails_Schools_NoOfPeople,
+      entry.General_Coordinator_SoulsDetails_Schools_FirstTimers,
+      entry.General_Coordinator_VehicleDetails_VerifierName,
+      updatedAt,
+    ];
 
     const result = await db.query(query, values);
     console.log(`✅ Inserted new manifest entry: ${formId}`);
@@ -213,7 +236,7 @@ module.exports = {
       RETURNING *;
     `;
 
-    
+
     // Clean numeric values
     flat["Section_Amount"] = parseNumeric(flat["Section_Amount"]);
     flat["Section_Balance"] = parseNumeric(flat["Section_Balance"]);
@@ -244,6 +267,9 @@ module.exports = {
       flat["Section_Event"],
       updatedAt
     ];
+
+    console.log(values);
+    
 
     return db.query(query, values);
   },
@@ -299,17 +325,17 @@ module.exports = {
   findFinanceByFormID: async (formId) => {
     const query = `SELECT * FROM finance_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);
-    console.log(result);
+    // console.log(result);
 
     return result.rows[0] || null;
   },
   findManifestByFormID: async (formId) => {
-  const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
-  const result = await db.query(query, [String(formId)]);  //  ensure it's a string
-  console.log(result.rows[0]);
+    const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
+    const result = await db.query(query, [formId]);  //  ensure it's a string
+    // console.log(result);
 
-  return result.rows[0] || null;
-},
+    return result.rows[0] || null;
+  },
 
 };
 

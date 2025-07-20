@@ -3,31 +3,22 @@ const dbService = require('./dbService'); // Make sure this has a working db.que
 const upsertManifestEntry = async (entry, updatedAt = new Date()) => {
     const formId = entry?.General_ID1;
 
-
-    if (!formId) {
-        console.warn("⚠️ Skipped: Missing ID1 (form_id)");
-        return;
-    }
-
-    // Check if FormID already exists
-    const existing = await dbService.findManifestByFormID(formId);
-
-
-    if (existing) {
-        console.log(`⏭️ Entry with form_id ${formId} already exists. Skipping insert.`);
-        return {
-            inserted: false,
-            reason: "Already exists",
-            form_id: formId,
-        }; // Skip insertion
-    }
-
     try {
-        // console.log("flatten :" +entry.rows);
+        if (!formId) {
+            console.warn("⚠️ Skipped: Missing ID1 (form_id)");
+            return;
+        }
+        // Check if FormID already exists
+        const existing = await dbService.findManifestByFormID(formId);
 
-        // const general = entry.rows?.General || {};
-        // const flatGeneral = flattenObject(general);
-        // // console.log("flatten :" + flatGeneral);
+        if (existing) {
+            console.log(`⏭️ Entry with form_id ${formId} already exists. Skipping insert.`);
+            return {
+                inserted: false,
+                reason: "Already exists",
+                form_id: formId,
+            }; // Skip insertion
+        }
 
         const result = await dbService.insertManifestEntry(formId, entry, updatedAt);
         console.log(`✅ Inserted new manifest entry: ${formId}`);
@@ -39,7 +30,6 @@ const upsertManifestEntry = async (entry, updatedAt = new Date()) => {
 
     } catch (err) {
         console.log(err);
-
         console.error(`❌ Failed to insert manifest entry for form_id ${formId}`, err.message || err);
         return {
             inserted: false,

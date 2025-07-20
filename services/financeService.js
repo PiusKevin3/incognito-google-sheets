@@ -5,7 +5,6 @@ const { parseNumeric } = require('../utils/helpers');
 async function upsertFinanceEntry(entry, updatedAt = new Date()) {
   try {
     const formId = entry.Section_AccountabilityEntry;
-            // console.log(formId);
 
 
     if (!formId) {
