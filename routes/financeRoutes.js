@@ -88,13 +88,13 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             }
         });
 
-        await sheets.spreadsheets.values.append({
-            spreadsheetId: SHEET_ID,
-            // range: 'Sheet1!A1',
-            range: 'Finance!A1',
-            valueInputOption: 'USER_ENTERED',
-            requestBody: { values },
-        });
+        // await sheets.spreadsheets.values.append({
+        //     spreadsheetId: SHEET_ID,
+        //     // range: 'Sheet1!A1',
+        //     range: 'Finance!A1',
+        //     valueInputOption: 'USER_ENTERED',
+        //     requestBody: { values },
+        // });
 
         res.json({ success: true, message: 'Data saved to Google Sheets!' });
     } catch (error) {
