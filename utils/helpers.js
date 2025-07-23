@@ -6,8 +6,7 @@ const { upsertBudgetEntry } = require('../services/dbService');
 
 
 const REQUIRED_BUDGET_COLUMNS = [
-  'District Name',
-  'Division Name',
+  'District Name|Division Name',
   'Residential',
   'Stage Name',
   'Targets No. of Persons',
@@ -143,8 +142,7 @@ async function processXlsxSyncUpload(file, type) {
   };
 }
 
-async function validateColumns(requiredColumns, row) {
-  const actualColumns = Object.keys(row);
+async function validateColumns(requiredColumns, actualColumns) {
   const missingColumns = requiredColumns.filter(col => !actualColumns.includes(col));
 
   if (missingColumns.length > 0) {
