@@ -48,6 +48,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             !flatSection["Contribution"] ||
             !flatSection["BookingFee"]
         ) {
+            console.log('Missing one or more required fields in request body:', flatSection);
             return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
         }
 
