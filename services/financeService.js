@@ -6,9 +6,9 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
   try {
     const formId = entry.Section_AccountabilityEntry;
 
-
     if (!formId) {
       console.warn('⚠️ Skipped finance entry: Missing FormID');
+
       return;
     }
 
@@ -36,6 +36,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
     const result = await dbService.insertFinanceEntry(entry, updatedAt);
 
     console.log(`✅ Inserted new finance entry: ${formId}`);
+
        return {
             inserted: true,
             form_id: formId,
@@ -43,6 +44,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
         };
   } catch (err) {
     console.error(`❌ Error in insertFinanceEntry:`, err.message);
+
       return {
             inserted: false,
             reason: "Service error",

@@ -27,40 +27,49 @@ const upload = multer({
     }
 });
 
+// Helper function for safe file cleanup
+function safeUnlink(filePath) {
+    if (filePath && fs.existsSync(filePath)) {
+        try {
+            fs.unlinkSync(filePath);
+        } catch (err) {
+            console.error('File cleanup error:', err);
+        }
+    }
+}
 
+const ALLOWED_TYPES = new Set(['finance', 'manifest']);
 
 router.post('/upload-xlsx-sync', upload.single('file'), async (req, res) => {
     const { file } = req;
     const type = req.body.type;
 
     if (!file || !type) {
+        safeUnlink(file && file.path);
+
         return res.status(400).json({ error: 'File or type missing' });
     }
 
-    if (type !== 'finance' && type !== 'manifest') {
-        fs.unlinkSync(file.path);
+    if (!ALLOWED_TYPES.has(type)) {
+        safeUnlink(file.path);
+
         return res.status(400).json({ error: 'Invalid type' });
     }
 
     try {
         const result = await processXlsxSyncUpload(file, type);
-        fs.unlinkSync(file.path); // Clean up file
+        safeUnlink(file.path); // Clean up file after processing
+
         return res.status(200).json(result);
     } catch (err) {
         console.error('Upload error:', err);
-        if (file && file.path) {
-            try {
-                fs.unlinkSync(file.path);
-            } catch (cleanupErr) {
-                console.error('File cleanup error:', cleanupErr);
-            }
-        }
+        safeUnlink(file && file.path);
+
         return res.status(500).json({
             error: 'Error processing file',
             details: err.message
         });
     }
 });
-
 
 module.exports = router;

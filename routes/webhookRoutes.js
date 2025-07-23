@@ -10,8 +10,6 @@ router.post('/cognito-webhook', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
-   
-
     const { formId, entryId, event } = req.body;
 
     if (event !== 'entry.created') {
@@ -19,9 +17,11 @@ router.post('/cognito-webhook', async (req, res) => {
     }
 
     await dbService.saveCognitoEntry(formId, entryId, req.body);
+
     res.status(200).send('Entry saved');
   } catch (error) {
     console.error(`Webhook Error: ${error.message}`);
+
     res.status(500).send('Error processing webhook');
   }
 });

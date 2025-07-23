@@ -56,8 +56,6 @@ router.post('/submit-finance', async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields." });
     }
 
-    // console.log(flatSection);
-
     // Clean numeric values
     flatSection["Amount"] = parseNumeric(flatSection["Amount"]);
     flatSection["Balance"] = parseNumeric(flatSection["Balance"]);

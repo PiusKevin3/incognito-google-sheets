@@ -12,6 +12,7 @@ function flattenObject(obj, prefix = '') {
       result[`${prefix}${key}`] = obj[key];
     }
   }
+
   return result;
 }
 
@@ -39,8 +40,6 @@ function verifyCognitoSignature(req) {
   return computedSignature === providedSignature;
 }
 
-
-
 function flattenXlsxObject(obj, prefix = '') {
     let result = {};
     for (let key in obj) {
@@ -50,6 +49,7 @@ function flattenXlsxObject(obj, prefix = '') {
             result[`${prefix}${key}`] = obj[key];
         }
     }
+
     return result;
 }
 
@@ -62,30 +62,38 @@ async function processXlsxSyncUpload(file, type) {
 
   for (const row of sheetData) {
     const flat = flattenXlsxObject(row);
-    
 
     if (!flat.General_ID1 && !flat.Section_AccountabilityEntry) {
       results.push({ inserted: false, reason: 'Missing form_id', row: flat });
+
       continue;
     }
 
     try {
       let result;
-      if (type === 'finance') {
-        result = await upsertFinanceEntry(flat);
-      } else {
-        result = await upsertManifestEntry(flat);
+
+      switch (type) {
+        case 'finance':
+          result = await upsertFinanceEntry(flat);
+          break;
+        case 'manifest':
+          result = await upsertManifestEntry(flat);
+          break;
+        default:
+          result = null;
+          break;
       }
 
       if (result && typeof result === 'object' && 'inserted' in result) {
         results.push(result);
-      } else {
-        results.push({
-          inserted: false,
-          reason: 'Unexpected response from service',
-          serviceResponse: result
-        });
+        continue;
       }
+
+      results.push({
+        inserted: false,
+        reason: 'Unexpected response from service',
+        serviceResponse: result
+      });
     } catch (serviceErr) {
       results.push({
         inserted: false,
@@ -105,8 +113,6 @@ async function processXlsxSyncUpload(file, type) {
     details: results,
   };
 }
-
-
 
 module.exports = {
   flattenObject,

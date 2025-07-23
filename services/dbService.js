@@ -127,10 +127,9 @@ module.exports = {
       souls_schools_firsttimers = COALESCE(EXCLUDED.souls_schools_firsttimers, manifest_entries.souls_schools_firsttimers),
       verifier_name = COALESCE(EXCLUDED.verifier_name, manifest_entries.verifier_name),
       updated_at = NOW()
-    WHERE 
+    WHERE
       manifest_entries.* IS DISTINCT FROM EXCLUDED.*;
   `;
-
 
     const values = [
       formId,
@@ -236,7 +235,6 @@ module.exports = {
       RETURNING *;
     `;
 
-
     // Clean numeric values
     flat["Section_Amount"] = parseNumeric(flat["Section_Amount"]);
     flat["Section_Balance"] = parseNumeric(flat["Section_Balance"]);
@@ -244,8 +242,6 @@ module.exports = {
     flat["Section_CostOfVehicle"] = parseNumeric(flat["Section_CostOfVehicle"]);
     flat["Section_Contribution"] = parseNumeric(flat["Section_Contribution"]);
     flat["Section_BookingFee"] = parseNumeric(flat["Section_BookingFee"]);
-
-
 
     const values = [
       flat["Section_AccountabilityEntry_Label"],
@@ -269,7 +265,6 @@ module.exports = {
     ];
 
     console.log(values);
-    
 
     return db.query(query, values);
   },
@@ -277,13 +272,13 @@ module.exports = {
   upsertCognitoEntry: async (formId, entryId, entryData, updatedAt) => {
     const query = `
       INSERT INTO cognito_entries (
-        cognito_form_id, 
-        cognito_entry_id, 
+        cognito_form_id,
+        cognito_entry_id,
         entry_data,
         updated_at
-      ) 
-      VALUES ($1, $2, $3, $4) 
-      ON CONFLICT (cognito_entry_id) 
+      )
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (cognito_entry_id)
       DO UPDATE SET entry_data = EXCLUDED.entry_data, updated_at = EXCLUDED.updated_at
       RETURNING *`;
 
@@ -292,10 +287,10 @@ module.exports = {
 
   getLatestCognitoEntry: async (formId) => {
     const query = `
-      SELECT * 
-      FROM cognito_entries 
-      WHERE cognito_form_id = $1 
-      ORDER BY updated_at DESC 
+      SELECT *
+      FROM cognito_entries
+      WHERE cognito_form_id = $1
+      ORDER BY updated_at DESC
       LIMIT 1`;
 
     return db.query(query, [formId]);
@@ -303,9 +298,9 @@ module.exports = {
   // ✅ NEW: Get latest manifest entry
   getLatestManifestEntry: async () => {
     const query = `
-      SELECT * 
-      FROM manifest_entries 
-      ORDER BY updated_at DESC 
+      SELECT *
+      FROM manifest_entries
+      ORDER BY updated_at DESC
       LIMIT 1`;
 
     return db.query(query);
@@ -314,9 +309,9 @@ module.exports = {
   // ✅ NEW: Get latest finance entry
   getLatestFinanceEntry: async () => {
     const query = `
-      SELECT * 
-      FROM finance_entries 
-      ORDER BY updated_at DESC 
+      SELECT *
+      FROM finance_entries
+      ORDER BY updated_at DESC
       LIMIT 1`;
 
     return db.query(query);
