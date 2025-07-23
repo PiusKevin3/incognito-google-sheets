@@ -2,6 +2,24 @@ const crypto = require('crypto');
 const xlsx = require('xlsx');
 const { upsertFinanceEntry } = require('../services/financeService');
 const { upsertManifestEntry } = require('../services/manifestService');
+const { upsertBudgetEntry } = require('../services/dbService');
+
+
+const REQUIRED_BUDGET_COLUMNS = [
+  'District Name',
+  'Division Name',
+  'Residential',
+  'Stage Name',
+  'Targets No. of Persons',
+  'Confirmed No.Actual No.to be Transported',
+  'Target/QTY of Persons to transported(Taxi)',
+  'Target/QTY of Persons in Coaster',
+  'Number of Taxis',
+  'Number of Coasters',
+  'Number of Buses',
+  'Total Cost',
+  'MANIFEST PLEDGES'
+];
 
 function flattenObject(obj, prefix = '') {
   let result = {};
@@ -57,6 +75,11 @@ async function processXlsxSyncUpload(file, type) {
   const workbook = xlsx.readFile(file.path);
   const sheetName = workbook.SheetNames[0];
   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  const actualColumns = sheetData.length > 0 ? Object.keys(sheetData[0]) : [];
+
+  console.log(actualColumns);
+
+  await validateColumns(REQUIRED_BUDGET_COLUMNS, actualColumns);
 
   const results = [];
 
@@ -74,10 +97,16 @@ async function processXlsxSyncUpload(file, type) {
 
       switch (type) {
         case 'finance':
-          result = await upsertFinanceEntry(flat);
+          console.log('finance');
+          // result = await upsertFinanceEntry(flat);
           break;
         case 'manifest':
-          result = await upsertManifestEntry(flat);
+          console.log('manifest');
+          // result = await upsertManifestEntry(flat);
+          break;
+        case 'budget':
+          console.log('budget');
+          // result = await upsertBudgetEntry(flat);
           break;
         default:
           result = null;
@@ -113,6 +142,16 @@ async function processXlsxSyncUpload(file, type) {
     details: results,
   };
 }
+
+async function validateColumns(requiredColumns, row) {
+  const actualColumns = Object.keys(row);
+  const missingColumns = requiredColumns.filter(col => !actualColumns.includes(col));
+
+  if (missingColumns.length > 0) {
+    throw new Error(`Missing columns: ${missingColumns.join(', ')}`);
+  }
+}
+
 
 module.exports = {
   flattenObject,

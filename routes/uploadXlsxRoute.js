@@ -38,7 +38,7 @@ function safeUnlink(filePath) {
     }
 }
 
-const ALLOWED_TYPES = new Set(['finance', 'manifest']);
+const ALLOWED_TYPES = new Set(['finance', 'manifest', 'budget']);
 
 router.post('/upload-xlsx-sync', upload.single('file'), async (req, res) => {
     const { file } = req;
