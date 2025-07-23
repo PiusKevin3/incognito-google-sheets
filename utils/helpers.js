@@ -81,7 +81,7 @@ async function processXlsxSyncUpload(file, type) {
 
   for (const row of sheetData) {
     const flat = flattenXlsxObject(row);
-
+    console.log("Flattened row:", flat);
     if (!flat.General_ID1 && !flat.Section_AccountabilityEntry) {
       results.push({ inserted: false, reason: 'Missing form_id', row: flat });
 
@@ -140,7 +140,13 @@ async function processXlsxSyncUpload(file, type) {
 }
 
 async function validateColumns(requiredColumns, actualColumns) {
-  const missingColumns = requiredColumns.filter(col => !actualColumns.includes(col));
+  // Normalize: trim and uppercase for comparison
+  const normalize = str => str.trim().toUpperCase();
+
+  const normalizedActual = actualColumns.map(normalize);
+  const missingColumns = requiredColumns.filter(
+    col => !normalizedActual.includes(normalize(col))
+  );
 
   if (missingColumns.length > 0) {
     throw new Error(`Missing columns: ${missingColumns.join(', ')}`);
