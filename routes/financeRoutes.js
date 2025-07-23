@@ -27,7 +27,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
-        console.log('🧾 Data to be sent to Google Sheets:', flatSection);
+        console.log('🧾 Data to be sent to the Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
         if (
