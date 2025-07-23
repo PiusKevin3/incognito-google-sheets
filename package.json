@@ -2,7 +2,7 @@
   "name": "incognito-google-sheets",
   "version": "1.0.0",
   "description": "A modular system to sync Cognito Forms data to PostgreSQL and Google Sheets.",
-  "main": "src/app.js",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
