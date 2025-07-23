@@ -27,7 +27,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
-        console.log('🧾 Data to be sent to the Google Sheets:', flatSection);
+        // console.log('🧾 Data to be sent to the Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
         if (
@@ -79,19 +79,15 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         console.log('New Finance Contribution:', newFinanceContribution);
 
-        try {
-            await updateCognitoEntry(MANIFEST_FORM_ID, flatSection["FormID"], {
-                General : {
-                    Coordinator : {
-                        VehicleDetails : {
-                            FinanceContribution: parseInt(newFinanceContribution)
-                        }
+        await updateCognitoEntry(MANIFEST_FORM_ID, flatSection["FormID"], {
+            General : {
+                Coordinator : {
+                    VehicleDetails : {
+                        FinanceContribution: parseInt(newFinanceContribution)
                     }
                 }
-            });
-        } catch (error) {
-            console.error('Error updating Cognito form:', error);
-        }
+            }
+        });
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
