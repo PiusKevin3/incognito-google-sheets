@@ -1,6 +1,6 @@
 // dbService.js
 const db = require('../config/db');
-const { parseNumeric } = require('../utils/helpers');
+const { parseNumeric } = require('../utils/numericUtils');
 
 module.exports = {
   upsertManifestEntry: async (flat, updatedAt) => {

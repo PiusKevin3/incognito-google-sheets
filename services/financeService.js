@@ -1,6 +1,6 @@
 // services/financeService.js
 const dbService = require('./dbService');
-const { parseNumeric } = require('../utils/helpers');
+const { parseNumeric } = require('../utils/numericUtils');
 
 async function upsertFinanceEntry(entry, updatedAt = new Date()) {
   try {

@@ -1,4 +1,7 @@
 const crypto = require('crypto');
+const xlsx = require('xlsx');
+const { upsertFinanceEntry } = require('../services/financeService');
+const { upsertManifestEntry } = require('../services/manifestService');
 
 function flattenObject(obj, prefix = '') {
   let result = {};
@@ -36,17 +39,78 @@ function verifyCognitoSignature(req) {
   return computedSignature === providedSignature;
 }
 
-function parseNumeric(value) {
-  if (typeof value === 'string') {
-    return Number(value.replace(/,/g, ''));
-  }
-  return Number(value);
+
+
+function flattenXlsxObject(obj, prefix = '') {
+    let result = {};
+    for (let key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`));
+        } else {
+            result[`${prefix}${key}`] = obj[key];
+        }
+    }
+    return result;
 }
+
+async function processXlsxSyncUpload(file, type) {
+  const workbook = xlsx.readFile(file.path);
+  const sheetName = workbook.SheetNames[0];
+  const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+  const results = [];
+
+  for (const row of sheetData) {
+    const flat = flattenXlsxObject(row);
+    
+
+    if (!flat.General_ID1 && !flat.Section_AccountabilityEntry) {
+      results.push({ inserted: false, reason: 'Missing form_id', row: flat });
+      continue;
+    }
+
+    try {
+      let result;
+      if (type === 'finance') {
+        result = await upsertFinanceEntry(flat);
+      } else {
+        result = await upsertManifestEntry(flat);
+      }
+
+      if (result && typeof result === 'object' && 'inserted' in result) {
+        results.push(result);
+      } else {
+        results.push({
+          inserted: false,
+          reason: 'Unexpected response from service',
+          serviceResponse: result
+        });
+      }
+    } catch (serviceErr) {
+      results.push({
+        inserted: false,
+        reason: 'Service error',
+        error: serviceErr.message
+      });
+    }
+  }
+
+  return {
+    message: `Sync complete for ${type}`,
+    summary: {
+      total: results.length,
+      inserted: results.filter(r => r.inserted).length,
+      skipped: results.filter(r => !r.inserted).length,
+    },
+    details: results,
+  };
+}
+
 
 
 module.exports = {
   flattenObject,
   validateApiKey,
   verifyCognitoSignature,
-  parseNumeric
+  processXlsxSyncUpload
 };

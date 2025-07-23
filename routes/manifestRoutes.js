@@ -3,9 +3,9 @@ const express = require('express');
 const router = express.Router();
 const { google } = require('googleapis');
 const dbService = require('../services/dbService');
-const { flattenObject, verifyCognitoSignature } = require('../utils/helpers');
-// const keys = require('/etc/secrets/service-account.json'); // For Render
-const keys = require('../service-account.json'); // For local dev
+const { flattenObject } = require('../utils/helpers');
+const keys = require('/etc/secrets/service-account.json'); // For Render
+// const keys = require('../service-account.json'); // For local dev
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,

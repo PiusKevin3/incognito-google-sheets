@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const crypto = require('crypto');
 const dbService = require('../services/dbService');
-const { verifyCognitoSignature } = require('../utils/helpers');
 
 router.post('/cognito-webhook', async (req, res) => {
   try {
@@ -12,10 +10,7 @@ router.post('/cognito-webhook', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
-    // Verify HMAC signature
-    // if (!verifyCognitoSignature(req)) {
-    //   return res.status(401).send('Invalid signature');
-    // }
+   
 
     const { formId, entryId, event } = req.body;
 

@@ -11,7 +11,7 @@ const { flattenObject } = require('../utils/helpers');
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/upload-csv-sync', upload.single('csv'), async (req, res) => {
+router.post('/upload-csv-sync/:type', upload.single('csv'), async (req, res) => {
     const type = req.query.type;
 
     if (!['finance', 'manifest'].includes(type)) {
