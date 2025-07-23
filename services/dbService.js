@@ -285,6 +285,61 @@ module.exports = {
     return db.query(query, [formId, entryId, entryData, updatedAt]);
   },
 
+  upsertBudgetEntry: async (flat, updatedAt) => {
+  const query = `
+    INSERT INTO budget_entries (
+      division, department, manifest, manifest_pledge, region,
+      planned_people, planned_coasters, planned_buses, planned_taxis,
+      actual_people, actual_coasters, actual_buses, actual_taxis,
+      cognito_id, id
+    ) VALUES (
+      $1, $2, $3, $4, $5,
+      $6, $7, $8, $9,
+      $10, $11, $12, $13,
+      $14, $15
+    )
+    ON CONFLICT (id)
+    DO UPDATE SET
+      division = EXCLUDED.division,
+      department = EXCLUDED.department,
+      manifest = EXCLUDED.manifest,
+      manifest_pledge = EXCLUDED.manifest_pledge,
+      region = EXCLUDED.region,
+      planned_people = EXCLUDED.planned_people,
+      planned_coasters = EXCLUDED.planned_coasters,
+      planned_buses = EXCLUDED.planned_buses,
+      planned_taxis = EXCLUDED.planned_taxis,
+      actual_people = EXCLUDED.actual_people,
+      actual_coasters = EXCLUDED.actual_coasters,
+      actual_buses = EXCLUDED.actual_buses,
+      actual_taxis = EXCLUDED.actual_taxis,
+      cognito_id = EXCLUDED.cognito_id,
+      updated_at = EXCLUDED.updated_at
+    RETURNING *;
+  `;
+
+  const values = [
+    flat.division,
+    flat.department,
+    flat.manifest,
+    flat.manifest_pledge,
+    flat.region,
+    flat.planned_people,
+    flat.planned_coasters,
+    flat.planned_buses,
+    flat.planned_taxis,
+    flat.actual_people,
+    flat.actual_coasters,
+    flat.actual_buses,
+    flat.actual_taxis,
+    flat.cognito_id,
+    flat.id,
+    updatedAt
+  ];
+
+  return db.query(query, values);
+},
+
   getLatestCognitoEntry: async (formId) => {
     const query = `
       SELECT *

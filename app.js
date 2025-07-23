@@ -14,6 +14,7 @@ const syncService = require('./services/syncService');
 // Routes
 const manifestRoutes = require('./routes/manifestRoutes');
 const financeRoutes = require('./routes/financeRoutes');
+const budgetsRoutes = require('./routes/budgetsRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const syncRoutes = require('./routes/syncRoutes');
 const uploadCsvRoute = require('./routes/uploadCsvRoute');
@@ -28,6 +29,7 @@ app.use(bodyParser.json());
 // Register routes
 app.use('/api', manifestRoutes);
 app.use('/api', financeRoutes);
+app.use('/api', budgetsRoutes);
 app.use('/webhooks', webhookRoutes);
 app.use('/api', syncRoutes);
 app.use('/api', uploadCsvRoute);
