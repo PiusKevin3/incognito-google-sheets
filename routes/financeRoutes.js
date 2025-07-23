@@ -74,6 +74,8 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         ]];
 
         const newFinanceContribution = flatSection["FinanceContribution"] + flatSection["Amount"];
+        console.log(flatSection["FinanceContribution"], flatSection["Amount"]);
+
         console.log('New Finance Contribution:', newFinanceContribution);
 
         try {
