@@ -76,7 +76,7 @@ async function processXlsxSyncUpload(file, type) {
   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
   const actualColumns = sheetData.length > 0 ? Object.keys(sheetData[0]) : [];
 
-  console.log(actualColumns);
+  console.log(sheetData[0]);
 
   await validateColumns(REQUIRED_BUDGET_COLUMNS, actualColumns);
 
