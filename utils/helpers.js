@@ -76,7 +76,17 @@ async function processXlsxSyncUpload(file, type) {
 
   const results = [];
 
-  for (const row of sheetData) {
+  const headers = sheetData[0];
+  const dataRows = sheetData.slice(1);
+  const dataObjects = dataRows.map(row => {
+    const obj = {};
+    headers.forEach((header, i) => {
+      obj[header] = row[i];
+    });
+    return obj;
+  });
+
+  for (const row of dataObjects) {
     const flat = flattenXlsxObject(row);
     console.log("Flattened row:", flat);
     if (!flat.General_ID1 && !flat.Section_AccountabilityEntry) {
