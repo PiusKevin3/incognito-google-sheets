@@ -69,10 +69,8 @@ function flattenXlsxObject(obj, prefix = '') {
 async function processXlsxSyncUpload(file, type) {
   const workbook = xlsx.readFile(file.path);
   const sheetName = workbook.SheetNames[0];
-  const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-  const actualColumns = sheetData.length > 0 ? Object.keys(sheetData[0]) : [];
-
-  console.log(sheetData[0]);
+  const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+  const actualColumns = sheetData.length > 0 ? sheetData[0]: [];
 
   await validateColumns(REQUIRED_BUDGET_COLUMNS, actualColumns);
 
