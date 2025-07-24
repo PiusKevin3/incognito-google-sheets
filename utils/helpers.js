@@ -9,12 +9,11 @@ const REQUIRED_BUDGET_COLUMNS = [
   'District Name|Division Name',
   'Residential',
   'Stage Name',
-  'Target People',
+  'TargetPeople',
   'Number of Taxis',
   'Number of Coasters',
   'Number of Buses',
   'Total Cost',
-  'MANIFEST PLEDGES'
 ];
 
 function flattenObject(obj, prefix = '') {
