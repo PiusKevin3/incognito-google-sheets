@@ -16,6 +16,17 @@ const REQUIRED_BUDGET_COLUMNS = [
   'Total Cost',
 ];
 
+const BUDGET_COLUMN_MAPPINGS = {
+  'District Name|Division Name': 'district_division',
+  'Residential': 'residential',
+  'Stage Name': 'stage_name',
+  'TargetPeople': 'target_people',
+  'Number of Taxis': 'num_taxis',
+  'Number of Coasters': 'num_coasters',
+  'Number of Buses': 'num_buses',
+  'Total Cost': 'total_cost'
+};
+
 function flattenObject(obj, prefix = '', keyMapping = null) {
   let result = {};
   for (let key in obj) {
@@ -58,11 +69,11 @@ function verifyCognitoSignature(req) {
   return computedSignature === providedSignature;
 }
 
-function flattenXlsxObject(obj, prefix = '') {
+function flattenXlsxObject(obj, prefix = '', keyMapping = null) {
     let result = {};
     for (let key in obj) {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
-            Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`));
+            Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`, keyMapping));
         } else {
             result[`${prefix}${key}`] = obj[key];
         }
@@ -94,7 +105,7 @@ async function processXlsxSyncUpload(file, type) {
   console.log(dataObjects);
 
   for (const row of dataObjects) {
-    const flat = flattenXlsxObject(row);
+    const flat = flattenXlsxObject(row, '', BUDGET_COLUMN_MAPPINGS);
     console.log("Flattened row:", flat);
 
     try {
