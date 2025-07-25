@@ -16,13 +16,18 @@ const REQUIRED_BUDGET_COLUMNS = [
   'Total Cost',
 ];
 
-function flattenObject(obj, prefix = '') {
+function flattenObject(obj, prefix = '', keyMapping = null) {
   let result = {};
   for (let key in obj) {
+    // Check if this key should be mapped to something else
+    const mappedKey = keyMapping && keyMapping[key] ? keyMapping[key] : key;
+
     if (typeof obj[key] === 'object' && obj[key] !== null) {
-      Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`));
+      // For nested objects, recursively flatten with the mapped key as prefix
+      Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
     } else {
-      result[`${prefix}${key}`] = obj[key];
+      // For non-objects, use the mapped key in the result
+      result[`${prefix}${mappedKey}`] = obj[key];
     }
   }
 
@@ -91,11 +96,6 @@ async function processXlsxSyncUpload(file, type) {
   for (const row of dataObjects) {
     const flat = flattenXlsxObject(row);
     console.log("Flattened row:", flat);
-    if (!flat.General_ID1 && !flat.Section_AccountabilityEntry) {
-      results.push({ inserted: false, reason: 'Missing form_id', row: flat });
-
-      continue;
-    }
 
     try {
       let result;
