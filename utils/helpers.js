@@ -72,10 +72,13 @@ function verifyCognitoSignature(req) {
 function flattenXlsxObject(obj, prefix = '', keyMapping = null) {
     let result = {};
     for (let key in obj) {
+        // Apply mapping to the current key if it exists in the mapping
+        const mappedKey = keyMapping && keyMapping[key] ? keyMapping[key] : key;
+
         if (typeof obj[key] === 'object' && obj[key] !== null) {
-            Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`, keyMapping));
+            Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
         } else {
-            result[`${prefix}${key}`] = obj[key];
+            result[`${prefix}${mappedKey}`] = obj[key];
         }
     }
 
