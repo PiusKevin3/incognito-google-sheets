@@ -86,6 +86,8 @@ async function processXlsxSyncUpload(file, type) {
     return obj;
   });
 
+  console.log(dataObjects);
+
   for (const row of dataObjects) {
     const flat = flattenXlsxObject(row);
     console.log("Flattened row:", flat);
