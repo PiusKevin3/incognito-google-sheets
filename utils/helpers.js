@@ -17,13 +17,13 @@ const REQUIRED_BUDGET_COLUMNS = [
 ];
 
 const BUDGET_COLUMN_MAPPINGS = {
-  'District Name|Division Name': 'district_division',
-  'Residential': 'residential',
+  'District Name|Division Name': 'division',
+  'Residential': 'manifest',
   'Stage Name': 'stage_name',
-  'TargetPeople': 'target_people',
-  'Number of Taxis': 'num_taxis',
-  'Number of Coasters': 'num_coasters',
-  'Number of Buses': 'num_buses',
+  'TargetPeople': 'planned_people',
+  'Number of Taxis': 'planned_taxis',
+  'Number of Coasters': 'planned_coasters',
+  'Number of Buses': 'planned_buses',
   'Total Cost': 'total_cost'
 };
 
@@ -123,7 +123,7 @@ async function processXlsxSyncUpload(file, type) {
           break;
         case 'budget':
           console.log('budget');
-          // result = await upsertBudgetEntry(flat);
+          result = await upsertBudgetEntry(flat, new Date().toISOString());
           break;
         default:
           result = null;
