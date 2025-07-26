@@ -27,22 +27,23 @@ const BUDGET_COLUMN_MAPPINGS = {
   'Total Cost': 'total_cost'
 };
 
-function flattenObject(obj, prefix = '', keyMapping = null) {
-  let result = {};
-  for (let key in obj) {
-    // Check if this key should be mapped to something else
-    const mappedKey = keyMapping && keyMapping[key] ? keyMapping[key] : key;
+function flattenXlsxObject(obj, prefix = '', keyMapping = null) {
+    let result = {};
+    for (let key in obj) {
+        // Only process keys that exist in the mapping
+        if (keyMapping && keyMapping[key]) {
+            const mappedKey = keyMapping[key];
 
-    if (typeof obj[key] === 'object' && obj[key] !== null) {
-      // For nested objects, recursively flatten with the mapped key as prefix
-      Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
-    } else {
-      // For non-objects, use the mapped key in the result
-      result[`${prefix}${mappedKey}`] = obj[key];
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
+            } else {
+                result[`${prefix}${mappedKey}`] = obj[key];
+            }
+        }
+        // Skip keys that don't have a mapping
     }
-  }
 
-  return result;
+    return result;
 }
 
 function validateApiKey(req, res, next) {
