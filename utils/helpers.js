@@ -135,6 +135,15 @@ async function processXlsxSyncUpload(file, type) {
         continue;
       }
 
+      if (result && typeof result === 'object' && 'updated' in result) {
+        results.push({
+          updated: true,
+          reason: 'Updated',
+          serviceResponse: result
+        });
+        continue;
+      }
+
       results.push({
         inserted: false,
         reason: 'Unexpected response from service',
@@ -154,7 +163,8 @@ async function processXlsxSyncUpload(file, type) {
     summary: {
       total: results.length,
       inserted: results.filter(r => r.inserted).length,
-      skipped: results.filter(r => !r.inserted).length,
+      updated: results.filter(r => r.updated).length,
+      skipped: results.filter(r => !r.inserted && !r.updated).length,
     },
     details: results,
   };

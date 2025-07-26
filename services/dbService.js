@@ -308,7 +308,7 @@ module.exports = {
       $8,
       $9
     )
-    ON CONFLICT (id)
+    ON CONFLICT (stage_name)
     DO UPDATE SET
       division = EXCLUDED.division,
       manifest = EXCLUDED.manifest,
