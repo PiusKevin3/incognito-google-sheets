@@ -103,11 +103,11 @@ async function processXlsxSyncUpload(file, type) {
     return obj;
   });
 
-  console.log(dataObjects);
+  // console.log(dataObjects);
 
   for (const row of dataObjects) {
     const flat = flattenXlsxObject(row, '', BUDGET_COLUMN_MAPPINGS);
-    console.log("Flattened row:", flat);
+    // console.log("Flattened row:", flat);
 
     try {
       let result;
@@ -124,6 +124,7 @@ async function processXlsxSyncUpload(file, type) {
         case 'budget':
           console.log('budget');
           result = await upsertBudgetEntry(flat, new Date().toISOString());
+          console.log(result);
           break;
         default:
           result = null;
