@@ -6,20 +6,66 @@ module.exports = {
   upsertManifestEntry: async (flat, updatedAt) => {
     const query = `
       INSERT INTO manifest_entries (
-        form_id, event, department, manifests, institutions, hospitals, masterclass,
-        schools, up_country, stage_name, coordinator_name, coordinator_contact,
-        driver_name, driver_contact, driver_nin_permit, driver_vehicle_type, driver_number_plate,
-        vehicle_cost, vehicle_contribution, vehicle_booking_fee, vehicle_balance,
-        cost_per_head, souls_total, souls_residents, souls_residents_firsttimers,
-        souls_institutions, souls_institutions_firsttimers,
+        form_id,
+        event,
+        department,
+        manifests,
+        institutions,
+        hospitals,
+        masterclass,
+        schools,
+        up_country,
+        stage_name,
+        coordinator_name,
+        coordinator_contact,
+        driver_name,
+        driver_contact,
+        driver_nin_permit,
+        driver_vehicle_type,
+        driver_number_plate,
+        vehicle_cost,
+        vehicle_contribution,
+        vehicle_booking_fee,
+        vehicle_balance,
+        cost_per_head,
+        souls_total,
+        souls_residents,
+        souls_residents_firsttimers,
+        souls_institutions,
+        souls_institutions_firsttimers,
         souls_schools, souls_schools_firsttimers, verifier_name, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7,
-        $8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17,
-        $18, $19, $20, $21,
-        $22, $23, $24, $25,
-        $26, $27, $28, $29, $30, $31
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20,
+        $21,
+        $22,
+        $23,
+        $24,
+        $25,
+        $26,
+        $27,
+        $28,
+        $29,
+        $30,
+        $31
       )
       ON CONFLICT (form_id)
       DO UPDATE SET
@@ -184,7 +230,7 @@ module.exports = {
         $10, $11, $12, $13, $14,
         $15, $16, $17, $18
       )
-      ON CONFLICT (form_id)
+      ON CONFLICT (id)
       DO UPDATE SET
         amount = EXCLUDED.amount,
         updated_at = EXCLUDED.updated_at
@@ -229,9 +275,7 @@ module.exports = {
         $15, $16, $17, $18
       )
       ON CONFLICT (form_id)
-      DO UPDATE SET
-        amount = EXCLUDED.amount,
-        updated_at = EXCLUDED.updated_at
+      DO NOTHING
       RETURNING *;
     `;
 
