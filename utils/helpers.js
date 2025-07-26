@@ -27,23 +27,17 @@ const BUDGET_COLUMN_MAPPINGS = {
   'Total Cost': 'total_cost'
 };
 
-function flattenXlsxObject(obj, prefix = '', keyMapping = null) {
-    let result = {};
-    for (let key in obj) {
-        // Only process keys that exist in the mapping
-        if (keyMapping && keyMapping[key]) {
-            const mappedKey = keyMapping[key];
-
-            if (typeof obj[key] === 'object' && obj[key] !== null) {
-                Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
-            } else {
-                result[`${prefix}${mappedKey}`] = obj[key];
-            }
-        }
-        // Skip keys that don't have a mapping
+function flattenObject(obj, prefix = '') {
+  let result = {};
+  for (let key in obj) {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      Object.assign(result, flattenObject(obj[key], `${prefix}${key}_`));
+    } else {
+      result[`${prefix}${key}`] = obj[key];
     }
+  }
 
-    return result;
+  return result;
 }
 
 function validateApiKey(req, res, next) {
@@ -73,14 +67,17 @@ function verifyCognitoSignature(req) {
 function flattenXlsxObject(obj, prefix = '', keyMapping = null) {
     let result = {};
     for (let key in obj) {
-        // Apply mapping to the current key if it exists in the mapping
-        const mappedKey = keyMapping && keyMapping[key] ? keyMapping[key] : key;
+        // Only process keys that exist in the mapping
+        if (keyMapping && keyMapping[key]) {
+            const mappedKey = keyMapping[key];
 
-        if (typeof obj[key] === 'object' && obj[key] !== null) {
-            Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
-        } else {
-            result[`${prefix}${mappedKey}`] = obj[key];
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                Object.assign(result, flattenObject(obj[key], `${prefix}${mappedKey}_`, keyMapping));
+            } else {
+                result[`${prefix}${mappedKey}`] = obj[key];
+            }
         }
+        // Skip keys that don't have a mapping
     }
 
     return result;
