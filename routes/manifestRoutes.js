@@ -5,6 +5,7 @@ const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject } = require('../utils/helpers');
 const keys = require('/etc/secrets/service-account.json'); // For Render
+const { fetchEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json'); // For local dev
 
 const auth = new google.auth.GoogleAuth({
@@ -82,6 +83,24 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     if (process.env.ENABLE_GOOGLE_SHEETS === 'true') {
       await saveToGoogleSheets(flatGeneral);
     }
+
+    const budgetDetails = await fetchEntry(MANIFEST_FORM_ID, flatGeneral["BudgetID"]);
+    console.log(budgetDetails)
+    const budgetFormId = budgetDetails.Entry.Number;
+    console.log('Budget Form ID:', budgetFormId);
+
+    const updatedData = {
+        Actual : {
+            People: budgetDetails.Actual.People2 + flatGeneral["Coordinator_SoulsDetails_TOTAL"],
+            ManifestContribution: budgetDetails.Actual.ManifestContribution + flatGeneral["Coordinator_VehicleDetails_CashContribution"],
+            Taxis: budgetDetails.Actual.Taxis + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
+            Buses: budgetDetails.Actual.Buses + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
+            Coasters: budgetDetails.Actual.Coasters + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
+        }
+    };
+
+    // Update Budget details
+    await updateCognitoEntry(675, budgetFormId, updatedData);
 
     console.log(`Webhook: Upserted manifest entry ${entryId} from form ${formId}`);
     res.status(200).send('Entry saved');
