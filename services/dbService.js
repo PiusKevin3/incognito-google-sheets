@@ -326,11 +326,11 @@ module.exports = {
     flat.division,
     flat.manifest,
     flat.stage_name,
-    flat.planned_people,
-    flat.planned_coasters,
-    flat.planned_buses,
-    flat.planned_taxis,
-    flat.total_cost,
+    parseInt(flat.planned_people),
+    parseInt(flat.planned_coasters),
+    parseInt(flat.planned_buses),
+    parseInt(flat.planned_taxis),
+    parseInt(flat.total_cost),
     updatedAt
   ];
 
