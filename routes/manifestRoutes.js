@@ -85,19 +85,21 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     }
 
     const budgetDetails = await fetchEntry(MANIFEST_FORM_ID, flatGeneral["BudgetID"]);
-    console.log(budgetDetails)
+
     const budgetFormId = budgetDetails.Entry.Number;
     console.log('Budget Form ID:', budgetFormId);
 
     const updatedData = {
         Actual : {
-            People: budgetDetails.Actual.People2 + flatGeneral["Coordinator_SoulsDetails_TOTAL"],
-            ManifestContribution: budgetDetails.Actual.ManifestContribution + flatGeneral["Coordinator_VehicleDetails_CashContribution"],
+            People: budgetDetails.Actual.People2 + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
+            ManifestContribution: budgetDetails.Actual.ManifestContribution + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
             Taxis: budgetDetails.Actual.Taxis + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
             Buses: budgetDetails.Actual.Buses + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
             Coasters: budgetDetails.Actual.Coasters + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
         }
     };
+
+    console.log('Updated Data:', updatedData);
 
     await dbService.updateActualBudgetData({
       stage_name: flatGeneral["StageName2"],
