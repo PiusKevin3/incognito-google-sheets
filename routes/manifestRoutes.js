@@ -14,6 +14,7 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const SHEET_ID = process.env.ACC_GOOGLE_SHEET_ID;
+const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
 
 async function saveToGoogleSheets(flatGeneral) {
   const client = await auth.getClient();
