@@ -5,7 +5,7 @@ const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject } = require('../utils/helpers');
 const keys = require('/etc/secrets/service-account.json'); // For Render
-const { fetchEntry } = require('../services/cognitoService');
+const { fetchEntry, updateCognitoEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json'); // For local dev
 
 const auth = new google.auth.GoogleAuth({
