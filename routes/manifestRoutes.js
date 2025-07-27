@@ -69,11 +69,11 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     }
 
     console.log('Request body', req.body)
-    const { formId, entryId, event } = req.body;
+    // const { formId, entryId, event } = req.body;
 
-    if (event !== 'entry.created' && event !== 'entry.updated') {
-      return res.status(200).send('Ignored event');
-    }
+    // if (event !== 'entry.created' && event !== 'entry.updated') {
+    //   return res.status(200).send('Ignored event');
+    // }
 
     const general = req.body?.General || {};
     const flatGeneral = flattenObject(general);
@@ -114,7 +114,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     // Update Budget details
     await updateCognitoEntry(675, budgetFormId, updatedData);
 
-    console.log(`Webhook: Upserted manifest entry ${entryId} from form ${formId}`);
+    console.log(`Webhook: Upserted manifest entry`);
     res.status(200).send('Entry saved');
   } catch (error) {
     console.error(`Webhook Error: ${error.message}`);
