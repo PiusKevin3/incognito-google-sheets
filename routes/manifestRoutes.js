@@ -68,6 +68,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
+    console.log('Request body', req.body)
     const { formId, entryId, event } = req.body;
 
     if (event !== 'entry.created' && event !== 'entry.updated') {
