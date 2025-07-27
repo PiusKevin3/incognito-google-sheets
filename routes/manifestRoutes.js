@@ -94,10 +94,10 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     const updatedData = {
         Actual : {
             ActualPeople: budgetDetails.Actual.ActualPeople + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
-            FinanceContribution: budgetDetails.Actual.FinanceContribution + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
-            Taxis: budgetDetails.Actual.Taxis + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
-            Buses: budgetDetails.Actual.Buses + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
-            Coasters: budgetDetails.Actual.Coasters + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
+            FinanceContribution: (budgetDetails.Actual?.FinanceContribution || 0) + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
+            Taxis: (budgetDetails.Actual?.Taxis || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
+            Buses: (budgetDetails.Actual?.Buses || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
+            Coasters: (budgetDetails.Actual?.Coasters || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
         }
     };
 
