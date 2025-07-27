@@ -104,7 +104,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     console.log('Updated Data:', updatedData);
 
     var result = await dbService.updateActualBudgetData({
-      stage_name: flatGeneral["StageName2"],
+      stage_name: budgetDetails.Details.StageName,
       actual_people: updatedData.Actual.ActualPeople,
       actual_coasters: updatedData.Actual.Coasters,
       actual_buses: updatedData.Actual.Buses,
