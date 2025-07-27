@@ -93,8 +93,8 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
 
     const updatedData = {
         Actual : {
-            People: budgetDetails.Actual.People2 + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
-            ManifestContribution: budgetDetails.Actual.ManifestContribution + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
+            People: budgetDetails.Actual.ActualPeople + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
+            FinanceContribution: budgetDetails.Actual.FinanceContribution + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
             Taxis: budgetDetails.Actual.Taxis + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
             Buses: budgetDetails.Actual.Buses + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
             Coasters: budgetDetails.Actual.Coasters + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
@@ -109,7 +109,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
       actual_coasters: updatedData.Actual.Coasters,
       actual_buses: updatedData.Actual.Buses,
       actual_taxis: updatedData.Actual.Taxis,
-      actual_cost: updatedData.Actual.ManifestContribution,
+      actual_cost: updatedData.Actual.FinanceContribution,
     }, updatedAt);
 
     // Update Budget details
