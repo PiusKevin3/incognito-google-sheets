@@ -14,7 +14,7 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const SHEET_ID = process.env.ACC_GOOGLE_SHEET_ID;
-const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
+const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;
 
 async function saveToGoogleSheets(flatGeneral) {
   const client = await auth.getClient();
@@ -86,14 +86,14 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
       await saveToGoogleSheets(flatGeneral);
     }
 
-    const budgetDetails = await fetchEntry(MANIFEST_FORM_ID, flatGeneral["BudgetID"]);
-
+    const budgetDetails = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+    console.log('Budget Details:', budgetDetails);
     const budgetFormId = budgetDetails.Entry.Number;
     console.log('Budget Form ID:', budgetFormId);
 
     const updatedData = {
         Actual : {
-            People: budgetDetails.Actual.ActualPeople + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
+            ActualPeople: budgetDetails.Actual.ActualPeople + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
             FinanceContribution: budgetDetails.Actual.FinanceContribution + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
             Taxis: budgetDetails.Actual.Taxis + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
             Buses: budgetDetails.Actual.Buses + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
