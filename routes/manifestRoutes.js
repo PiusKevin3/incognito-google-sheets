@@ -103,7 +103,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
 
     console.log('Updated Data:', updatedData);
 
-    await dbService.updateActualBudgetData({
+    var result = await dbService.updateActualBudgetData({
       stage_name: flatGeneral["StageName2"],
       actual_people: updatedData.Actual.ActualPeople,
       actual_coasters: updatedData.Actual.Coasters,
@@ -112,8 +112,10 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
       actual_cost: updatedData.Actual.FinanceContribution,
     }, updatedAt);
 
+    console.log('Update Result:', result);
+
     // Update Budget details
-    await updateCognitoEntry(675, budgetFormId, updatedData);
+    await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
 
     console.log(`Webhook: Upserted manifest entry`);
     res.status(200).send('Entry saved');
