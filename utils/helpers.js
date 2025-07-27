@@ -122,7 +122,6 @@ async function processXlsxSyncUpload(file, type) {
           // result = await upsertManifestEntry(flat);
           break;
         case 'budget':
-          console.log('budget');
           result = await upsertBudgetEntry(flat, new Date().toISOString());
           console.log(result);
           break;
