@@ -20,7 +20,6 @@ const auth = new google.auth.GoogleAuth({
 
 router.post('/submit-finance', validateApiKey, async (req, res) => {
     try {
-        console.log('Here we are')
         const client = await auth.getClient();
         const sheets = google.sheets({ version: 'v4', auth: client });
 

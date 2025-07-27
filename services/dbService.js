@@ -381,6 +381,32 @@ module.exports = {
   return db.query(query, values);
 },
 
+updateActualBudgetData: async (budget, updatedAt) => {
+  const query = `
+    UPDATE budget_entries
+    SET
+      actual_people = COALESCE($1, actual_people),
+      actual_coasters = COALESCE($2, actual_coasters),
+      actual_buses = COALESCE($3, actual_buses),
+      actual_taxis = COALESCE($4, actual_taxis),
+      actual_cost = COALESCE($5, actual_cost),
+      updated_at = $6
+    WHERE stage_name = $7;
+  `;
+
+  const values = [
+    budget.actual_people,
+    budget.actual_coasters,
+    budget.actual_buses,
+    budget.actual_taxis,
+    budget.actual_cost,
+    updatedAt,
+    budget.stage_name
+  ];
+
+  return db.query(query, values);
+},
+
   getLatestCognitoEntry: async (formId) => {
     const query = `
       SELECT *
