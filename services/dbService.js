@@ -382,6 +382,7 @@ module.exports = {
 },
 
 updateActualBudgetData: async (budget, updatedAt) => {
+  console.log('Updating budget:', budget);
   const query = `
     UPDATE budget_entries
     SET
