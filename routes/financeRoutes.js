@@ -6,7 +6,7 @@ const dbService = require('../services/dbService');
 const { flattenObject, validateApiKey } = require('../utils/helpers');
 const {parseNumeric}  = require('../utils/numericUtils');
 const keys = require('/etc/secrets/service-account.json'); // Use on render
-const { updateCognitoEntry } = require('../services/cognitoService');
+const { updateCognitoEntry, fetchEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json');
 
 const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID
@@ -89,7 +89,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         });
 
         const budget = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
-        const newContribution = parseInt(budget.Actual.FinanceContribution) + flatSection["Amount"];
+        const newContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
 
         await updateCognitoEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"], {
             Actual : {
