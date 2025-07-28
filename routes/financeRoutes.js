@@ -101,7 +101,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         // Update budget_entries in the database
         await dbService.updateActualBudgetData({
             stage_name: flatSection["StageName"],
-            actual_cost: newContribution,
+            actual_expenditure: newContribution,
         }, Date.now());
 
         // await sheets.spreadsheets.values.append({

@@ -391,8 +391,9 @@ updateActualBudgetData: async (budget, updatedAt) => {
       actual_buses = COALESCE($3, actual_buses),
       actual_taxis = COALESCE($4, actual_taxis),
       actual_cost = COALESCE($5, actual_cost),
-      updated_at = $6
-    WHERE stage_name = $7;
+      actual_expenditure = COALESCE($6, actual_expenditure),
+      updated_at = $7
+    WHERE stage_name = $8;
   `;
 
   const values = [
@@ -401,6 +402,7 @@ updateActualBudgetData: async (budget, updatedAt) => {
     budget.actual_buses,
     budget.actual_taxis,
     budget.actual_cost,
+    budget.actual_expenditure,
     updatedAt,
     budget.stage_name
   ];
