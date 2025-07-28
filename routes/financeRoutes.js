@@ -11,7 +11,7 @@ const { updateCognitoEntry } = require('../services/cognitoService');
 
 const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID
 const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
-const FINANCE_FORM_ID = process.env.FINANCE_FORM_ID;
+const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;
 
 const auth = new google.auth.GoogleAuth({
   credentials: keys,
@@ -87,6 +87,22 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
                 }
             }
         });
+
+        const budget = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+        const newContribution = parseInt(budget.Actual.FinanceContribution) + flatSection["Amount"];
+
+        await updateCognitoEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"], {
+            Actual : {
+                FinanceContribution: newContribution
+            },
+            updatedAt: Date.now()
+        });
+
+        // Update budget_entries in the database
+        await dbService.updateActualBudgetData({
+            stage_name: flatSection["StageName"],
+            actual_cost: newContribution,
+        }, Date.now());
 
         // await sheets.spreadsheets.values.append({
         //     spreadsheetId: SHEET_ID,
