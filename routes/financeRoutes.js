@@ -88,10 +88,10 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             }
         });
 
-        const budget = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+        const budget = await fetchEntry(BUDGET_FORM_ID, flatSection["BudgetID"]);
         const newContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
 
-        await updateCognitoEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"], {
+        await updateCognitoEntry(BUDGET_FORM_ID, flatSection["BudgetID"], {
             Actual : {
                 FinanceContribution: newContribution
             },
