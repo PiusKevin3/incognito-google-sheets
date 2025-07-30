@@ -352,7 +352,7 @@ module.exports = {
       $8,
       $9
     )
-    ON CONFLICT (stage_name)
+    ON CONFLICT (stage_name, manifest)
     DO UPDATE SET
       division = EXCLUDED.division,
       manifest = EXCLUDED.manifest,
@@ -382,7 +382,6 @@ module.exports = {
 },
 
 updateActualBudgetData: async (budget, updatedAt) => {
-  console.log('Updating budget:', budget);
   const query = `
     UPDATE budget_entries
     SET
