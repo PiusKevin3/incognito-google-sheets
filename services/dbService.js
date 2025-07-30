@@ -263,7 +263,6 @@ module.exports = {
       flat["Contribution"],
       flat["BookingFee"],
       flat["Event"],
-      flat["UpdatedAt"],
       updatedAt
     ];
 
