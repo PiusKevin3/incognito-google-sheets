@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { google } = require('googleapis');
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const dbService = require('../services/dbService');
 const { flattenObject, validateApiKey } = require('../utils/helpers');
-const {parseNumeric}  = require('../utils/numericUtils');
 const keys = require('/etc/secrets/service-account.json'); // Use on render
 const { updateCognitoEntry, fetchEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json');
 
-const SHEET_ID = process.env.FINANCE_GOOGLE_SHEET_ID
 const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
 const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;
 
@@ -103,6 +100,8 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             stage_name: flatSection["StageName"],
             actual_expenditure: newContribution,
         }, new Date().toISOString());
+
+        await dbService.upsertFinanceEntry(flatSection, new Date().toISOString());
 
         // await sheets.spreadsheets.values.append({
         //     spreadsheetId: SHEET_ID,
