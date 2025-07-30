@@ -6,6 +6,7 @@ const { upsertBudgetEntry } = require('../services/dbService');
 
 
 const REQUIRED_BUDGET_COLUMNS = [
+  'Code',
   'District Name|Division Name',
   'Residential',
   'Stage Name',
@@ -17,6 +18,7 @@ const REQUIRED_BUDGET_COLUMNS = [
 ];
 
 const BUDGET_COLUMN_MAPPINGS = {
+  'Code': 'code',
   'District Name|Division Name': 'division',
   'Residential': 'manifest',
   'Stage Name': 'stage_name',

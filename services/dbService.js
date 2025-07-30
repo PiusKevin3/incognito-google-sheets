@@ -332,6 +332,7 @@ module.exports = {
   upsertBudgetEntry: async (flat, updatedAt) => {
   const query = `
     INSERT INTO budget_entries (
+      code,
       division,
       manifest,
       stage_name,
@@ -350,10 +351,12 @@ module.exports = {
       $6,
       $7,
       $8,
-      $9
+      $9,
+      $10
     )
     ON CONFLICT (stage_name, manifest)
     DO UPDATE SET
+      code = EXCLUDED.code,
       division = EXCLUDED.division,
       manifest = EXCLUDED.manifest,
       stage_name = EXCLUDED.stage_name,
@@ -367,6 +370,7 @@ module.exports = {
   `;
 
   const values = [
+    flat.code,
     flat.division,
     flat.manifest,
     flat.stage_name,
