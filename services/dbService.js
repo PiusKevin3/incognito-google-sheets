@@ -228,7 +228,7 @@ module.exports = {
         $1, $2, $3, $4, $5,
         $6, $7, $8, $9,
         $10, $11, $12, $13,
-        $14, $15, $16, $17, $18, $19
+        $14, $15, $16, $17, $18, $19, $20
       )
       ON CONFLICT (stage_name, manifest_name)
       DO UPDATE SET
@@ -263,6 +263,7 @@ module.exports = {
       flat["Contribution"],
       flat["BookingFee"],
       flat["Event"],
+      flat["UpdatedAt"],
       updatedAt
     ];
 

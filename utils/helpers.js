@@ -190,7 +190,9 @@ async function validateColumns(requiredColumns, actualColumns) {
 
 module.exports = {
   flattenObject,
+  flattenXlsxObject,
   validateApiKey,
   verifyCognitoSignature,
-  processXlsxSyncUpload
+  processXlsxSyncUpload,
+  validateColumns
 };
