@@ -101,7 +101,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             actual_expenditure: newContribution,
         }, new Date().toISOString());
 
-        await dbService.upsertFinanceEntry(flatSection, new Date().toISOString());
+        await dbService.insertFinanceEntry(flatSection, new Date().toISOString());
 
         // await sheets.spreadsheets.values.append({
         //     spreadsheetId: SHEET_ID,

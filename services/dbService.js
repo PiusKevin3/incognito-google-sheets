@@ -272,47 +272,39 @@ module.exports = {
   insertFinanceEntry: async (flat, updatedAt) => {
     const query = `
       INSERT INTO finance_entries (
-        label, funding_party, amount, issued_by, received_by,
+        manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
         form_id, final_balance, manifest_name, institution_name,
         school_name, department, cost_of_vehicle, balance, stage_name,
         contribution, booking_fee, event, updated_at
       ) VALUES (
         $1, $2, $3, $4, $5,
         $6, $7, $8, $9,
-        $10, $11, $12, $13, $14,
-        $15, $16, $17, $18
+        $10, $11, $12, $13,
+        $14, $15, $16, $17, $18, $19, $20
       )
-      ON CONFLICT (form_id)
-      DO NOTHING
       RETURNING *;
     `;
 
-    // Clean numeric values
-    flat["Section_Amount"] = parseNumeric(flat["Section_Amount"]);
-    flat["Section_Balance"] = parseNumeric(flat["Section_Balance"]);
-    flat["Section_FinalBalance"] = parseNumeric(flat["Section_FinalBalance"]);
-    flat["Section_CostOfVehicle"] = parseNumeric(flat["Section_CostOfVehicle"]);
-    flat["Section_Contribution"] = parseNumeric(flat["Section_Contribution"]);
-    flat["Section_BookingFee"] = parseNumeric(flat["Section_BookingFee"]);
-
     const values = [
-      flat["Section_AccountabilityEntry_Label"],
-      flat["Section_FundingParty"],
-      flat["Section_Amount"],
-      flat["Section_IssuedBy"],
-      flat["Section_ReceivedBy"],
-      flat["Section_FormID"],
-      flat["Section_FinalBalance"],
-      flat["Section_ManifestName"],
-      flat["Section_InstitutionName"],
-      flat["Section_SchoolName"],
-      flat["Section_Department"],
-      flat["Section_CostOfVehicle"],
-      flat["Section_Balance"],
-      flat["Section_StageName"],
-      flat["Section_Contribution"],
-      flat["Section_BookingFee"],
-      flat["Section_Event"],
+      flat["FormID"],
+      flat["BudgetID"],
+      flat["AccountabilityEntry_Label"],
+      flat["FundingParty"],
+      parseNumeric(flat["Amount"]),
+      flat["IssuedBy"],
+      flat["ReceivedBy"],
+      flat["FormID"],
+      parseNumeric(flat["FinalBalance"]),
+      flat["ManifestName"],
+      flat["InstitutionName"],
+      flat["SchoolName"],
+      flat["Department"],
+      flat["CostOfVehicle"],
+      parseNumeric(flat["Balance"]),
+      flat["StageName"],
+      parseNumeric(flat["Contribution"]),
+      parseNumeric(flat["BookingFee"]),
+      flat["Event"],
       updatedAt
     ];
 
