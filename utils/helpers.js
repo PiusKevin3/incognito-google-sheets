@@ -42,6 +42,7 @@ function flattenObject(obj, prefix = '') {
 
 function validateApiKey(req, res, next) {
   const providedApiKey = req.query.apiKey;
+  console.log(providedApiKey, process.env.API_KEY)
   if (providedApiKey !== process.env.API_KEY) {
     return res.status(401).json({
       success: false,
@@ -130,23 +131,23 @@ async function processXlsxSyncUpload(file, type) {
           break;
       }
 
-      if (result && typeof result === 'object' && 'inserted' in result) {
-        results.push(result);
-        continue;
-      }
-
-      if (result && typeof result === 'object' && 'updated' in result) {
+      // Handle database query result properly
+      if (result && result.rows && result.rows.length > 0) {
+        // For upsert operations, we can't easily distinguish between insert and update
+        // from the PostgreSQL result alone, so we'll mark all successful operations as "inserted"
+        // This is a common pattern for upsert operations
         results.push({
-          updated: true,
-          reason: 'Updated',
-          serviceResponse: result
+          inserted: true,
+          reason: 'Record upserted successfully',
+          serviceResponse: result.rows[0]
         });
         continue;
       }
 
+      // If we get here, the operation didn't return any rows
       results.push({
         inserted: false,
-        reason: 'Unexpected response from service',
+        reason: 'No rows returned from database operation',
         serviceResponse: result
       });
     } catch (serviceErr) {
