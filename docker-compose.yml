@@ -11,13 +11,8 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    environment:
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_HOST=db
-      - PG_DATABASE=cognito_entries_db
-      - PG_PORT=5432
-      - PG_SSL=false
+    env_file:
+      - .env
     command: npm start
 
   db:
@@ -26,10 +21,8 @@ services:
     restart: always
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: incognito_db
+    env_file:
+      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
 
