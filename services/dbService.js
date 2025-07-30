@@ -220,7 +220,7 @@ module.exports = {
   upsertFinanceEntry: async (flat, updatedAt) => {
     const query = `
       INSERT INTO finance_entries (
-        budget_id,label, funding_party, amount, issued_by, received_by,
+        manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
         form_id, final_balance, manifest_name, institution_name,
         school_name, department, cost_of_vehicle, balance, stage_name,
         contribution, booking_fee, event, updated_at
@@ -228,16 +228,23 @@ module.exports = {
         $1, $2, $3, $4, $5,
         $6, $7, $8, $9,
         $10, $11, $12, $13,
-        $14, $15, $16, $17, $18
+        $14, $15, $16, $17, $18, $19
       )
       ON CONFLICT (stage_name, manifest_name)
       DO UPDATE SET
+        manifest_entry_id = EXCLUDED.manifest_entry_id,
+        budget_entry_id = EXCLUDED.budget_entry_id,
+        label = EXCLUDED.label,
+        funding_party = EXCLUDED.funding_party,
+        issued_by = EXCLUDED.issued_by,
+        received_by = EXCLUDED.received_by,
         amount = EXCLUDED.amount,
         updated_at = EXCLUDED.updated_at
       RETURNING *;
     `;
 
     const values = [
+      flat["FormID"],
       flat["BudgetID"],
       flat["AccountabilityEntry_Label"],
       flat["FundingParty"],
