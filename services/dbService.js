@@ -220,17 +220,17 @@ module.exports = {
   upsertFinanceEntry: async (flat, updatedAt) => {
     const query = `
       INSERT INTO finance_entries (
-        label, funding_party, amount, issued_by, received_by,
+        budget_id,label, funding_party, amount, issued_by, received_by,
         form_id, final_balance, manifest_name, institution_name,
         school_name, department, cost_of_vehicle, balance, stage_name,
         contribution, booking_fee, event, updated_at
       ) VALUES (
         $1, $2, $3, $4, $5,
         $6, $7, $8, $9,
-        $10, $11, $12, $13, $14,
-        $15, $16, $17, $18
+        $10, $11, $12, $13,
+        $14, $15, $16, $17, $18
       )
-      ON CONFLICT (id)
+      ON CONFLICT (stage_name, manifest_name)
       DO UPDATE SET
         amount = EXCLUDED.amount,
         updated_at = EXCLUDED.updated_at
@@ -238,6 +238,7 @@ module.exports = {
     `;
 
     const values = [
+      flat["BudgetID"],
       flat["AccountabilityEntry_Label"],
       flat["FundingParty"],
       flat["Amount"],
