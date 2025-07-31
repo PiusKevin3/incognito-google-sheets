@@ -6,6 +6,7 @@ module.exports = {
   upsertManifestEntry: async (flat, updatedAt) => {
     const query = `
       INSERT INTO manifest_entries (
+        budget_entry_id,
         form_id,
         event,
         department,
@@ -65,7 +66,8 @@ module.exports = {
         $28,
         $29,
         $30,
-        $31
+        $31,
+        $32
       )
       ON CONFLICT (form_id)
       DO UPDATE SET
@@ -76,6 +78,7 @@ module.exports = {
     `;
 
     const values = [
+      flat["BudgetID"],
       flat["ID1"],
       flat["Event"],
       flat["Department"],
