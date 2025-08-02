@@ -24,6 +24,25 @@ module.exports = {
     return response.json();
   },
 
+  
+  getFormEntriesData: async (formId, viewId,formAccessToken) => {
+
+  const url = `https://www.cognitoforms.com/f/api/odata/Forms(${formId})/Views(${viewId})/Entries?access_token=${formAccessToken}`;
+
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch entries: ${response.statusText}`);
+  }
+
+  return response.json();
+},
+
+
   updateCognitoEntry: async (formId, entryId, updatedFields) => {
     try {
       const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${entryId}`, {
