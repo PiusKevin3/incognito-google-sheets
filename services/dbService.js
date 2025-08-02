@@ -220,7 +220,7 @@ module.exports = {
   },
 
 
-  upsertFinanceEntry: async (flat, updatedAt) => {
+  upsertFinanceEntryDeprecated: async (flat, updatedAt) => {
     const query = `
       INSERT INTO finance_entries (
         manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
@@ -482,6 +482,13 @@ updateActualBudgetData: async (budget, updatedAt) => {
 
   findFinanceByFormID: async (formId) => {
     const query = `SELECT * FROM finance_entries WHERE form_id = $1 LIMIT 1`;
+    const result = await db.query(query, [formId]);
+    // console.log(result);
+
+    return result.rows[0] || null;
+  },
+  findBudgetByFormID: async (formId) => {
+    const query = `SELECT * FROM budget_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);
     // console.log(result);
 
