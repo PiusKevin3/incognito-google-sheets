@@ -21,9 +21,11 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         const sheets = google.sheets({ version: 'v4', auth: client });
 
         const section = req.body.Section || {};
+        const entry = req.body.Entry || {};
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
+        const flatEntry = flattenObject(entry);
         // console.log('🧾 Data to be sent to the Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
@@ -101,7 +103,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             actual_expenditure: newContribution,
         }, new Date().toISOString());
 
-        await dbService.insertFinanceEntry(flatSection, new Date().toISOString());
+        await dbService.upsertFinanceEntry({...flatSection, ID: flatEntry["Number"]}, new Date().toISOString());
 
         // await sheets.spreadsheets.values.append({
         //     spreadsheetId: SHEET_ID,

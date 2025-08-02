@@ -272,48 +272,80 @@ module.exports = {
     return db.query(query, values);
   },
 
-  insertFinanceEntry: async (flat, updatedAt) => {
+  upsertFinanceEntry: async (flat, updatedAt) => {
     const query = `
       INSERT INTO finance_entries (
-        manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
+        entry_id, manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
         form_id, final_balance, manifest_name, institution_name,
         school_name, department, cost_of_vehicle, balance, stage_name,
         contribution, booking_fee, event, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5,
-        $6, $7, $8, $9,
-        $10, $11, $12, $13,
-        $14, $15, $16, $17, $18, $19, $20
+        $1, $2, $3, $4, $5, $6, $7, $8, $9,
+        $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
       )
+      ON CONFLICT (entry_id)
+      DO UPDATE SET
+        manifest_entry_id = COALESCE(EXCLUDED.manifest_entry_id, finance_entries.manifest_entry_id),
+        budget_entry_id = COALESCE(EXCLUDED.budget_entry_id, finance_entries.budget_entry_id),
+        label = COALESCE(EXCLUDED.label, finance_entries.label),
+        funding_party = COALESCE(EXCLUDED.funding_party, finance_entries.funding_party),
+        amount = COALESCE(EXCLUDED.amount, finance_entries.amount),
+        issued_by = COALESCE(EXCLUDED.issued_by, finance_entries.issued_by),
+        received_by = COALESCE(EXCLUDED.received_by, finance_entries.received_by),
+        final_balance = COALESCE(EXCLUDED.final_balance, finance_entries.final_balance),
+        manifest_name = COALESCE(EXCLUDED.manifest_name, finance_entries.manifest_name),
+        institution_name = COALESCE(EXCLUDED.institution_name, finance_entries.institution_name),
+        school_name = COALESCE(EXCLUDED.school_name, finance_entries.school_name),
+        department = COALESCE(EXCLUDED.department, finance_entries.department),
+        cost_of_vehicle = COALESCE(EXCLUDED.cost_of_vehicle, finance_entries.cost_of_vehicle),
+        balance = COALESCE(EXCLUDED.balance, finance_entries.balance),
+        stage_name = COALESCE(EXCLUDED.stage_name, finance_entries.stage_name),
+        contribution = COALESCE(EXCLUDED.contribution, finance_entries.contribution),
+        booking_fee = COALESCE(EXCLUDED.booking_fee, finance_entries.booking_fee),
+        event = COALESCE(EXCLUDED.event, finance_entries.event),
+        updated_at = EXCLUDED.updated_at
       RETURNING *;
     `;
 
     const values = [
-      flat["FormID"],
-      flat["BudgetID"],
-      flat["AccountabilityEntry_Label"],
-      flat["FundingParty"],
-      parseNumeric(flat["Amount"]),
-      flat["IssuedBy"],
-      flat["ReceivedBy"],
-      flat["FormID"],
-      parseNumeric(flat["FinalBalance"]),
-      flat["ManifestName"],
-      flat["InstitutionName"],
-      flat["SchoolName"],
-      flat["Department"],
-      flat["CostOfVehicle"],
-      parseNumeric(flat["Balance"]),
-      flat["StageName"],
-      parseNumeric(flat["Contribution"]),
-      parseNumeric(flat["BookingFee"]),
-      flat["Event"],
-      updatedAt
+      flat["ID"],                    // entry_id
+      flat["FormID"],                // manifest_entry_id (formID corresponds to manifest_entry_id)
+      flat["BudgetID"],              // budget_entry_id
+      flat["AccountabilityEntry_Label"], // label
+      flat["FundingParty"],          // funding_party
+      parseNumeric(flat["Amount"]),  // amount
+      flat["IssuedBy"],              // issued_by
+      flat["ReceivedBy"],            // received_by
+      flat["FormID"],                // form_id
+      parseNumeric(flat["FinalBalance"]), // final_balance
+      flat["ManifestName"],          // manifest_name
+      flat["InstitutionName"],       // institution_name
+      flat["SchoolName"],            // school_name
+      flat["Department"],            // department
+      flat["CostOfVehicle"],         // cost_of_vehicle
+      parseNumeric(flat["Balance"]), // balance
+      flat["StageName"],             // stage_name
+      parseNumeric(flat["Contribution"]), // contribution
+      parseNumeric(flat["BookingFee"]), // booking_fee
+      flat["Event"],                 // event
+      updatedAt                      // updated_at
     ];
 
-    console.log(values);
+    console.log('Upserting finance entry with entry_id:', flat["ID"]);
+    console.log('Values:', values);
 
     return db.query(query, values);
+  },
+
+  updateFinanceEntry: async (flat, updatedAt) => {
+    const query = `
+      UPDATE finance_entries
+      SET
+        contribution = $1,
+        updated_at = $2
+      WHERE stage_name = $3 AND manifest_name = $4
+      RETURNING *;
+    `;
   },
 
   upsertCognitoEntry: async (formId, entryId, entryData, updatedAt) => {

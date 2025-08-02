@@ -33,7 +33,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
     entry.Section_BookingFee = parseNumeric(entry.Section_BookingFee);
 
     // Insert new entry
-    const result = await dbService.insertFinanceEntry(entry, updatedAt);
+    const result = await dbService.upsertFinanceEntry(entry, updatedAt);
 
     console.log(`✅ Inserted new finance entry: ${formId}`);
 
@@ -43,7 +43,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
             data: result.rows[0],
         };
   } catch (err) {
-    console.error(`❌ Error in insertFinanceEntry:`, err.message);
+    console.error(`❌ Error in upsertFinanceEntry:`, err.message);
 
       return {
             inserted: false,
