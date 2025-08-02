@@ -22,7 +22,8 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         const section = req.body.Section || {};
         const entry = req.body.Entry || {};
-        const operation = req.body.operation || 'submit'; // New parameter: 'update' or 'submit'
+        const operation = req.body.operation; // New parameter: 'update' or 'submit'
+        console.log('Operation:', operation);
 
         // Validate operation type
         if (!['update', 'submit'].includes(operation)) {
