@@ -22,7 +22,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         const section = req.body.Section || {};
         const entry = req.body.Entry || {};
-        const operation = req.body.operation; // New parameter: 'update' or 'submit'
+        const operation = req.query.operation || 'submit'; // New parameter: 'update' or 'submit'
         console.log('Operation:', operation);
 
         // Validate operation type
