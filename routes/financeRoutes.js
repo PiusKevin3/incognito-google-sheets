@@ -93,7 +93,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
                 break;
             case 'update':
                 const existingFinanceEntry = await dbService.findFinanceByFormID(flatSection["FormID"]);
-                const existingBudgetEntry = await dbService.findBudgetByFormID(flatSection["BudgetID"]);
+                // const existingBudgetEntry = await dbService.findBudgetByFormID(flatSection["BudgetID"]);
 
                 if (existingFinanceEntry) {
                     const oldFinanceAmount = parseInt(existingFinanceEntry.amount) || 0;
