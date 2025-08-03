@@ -375,6 +375,8 @@ module.exports = {
       planned_coasters,
       planned_buses,
       planned_taxis,
+      cost_per_head,
+      contribution,
       total_cost,
       updated_at
     ) VALUES (
@@ -387,7 +389,9 @@ module.exports = {
       $7,
       $8,
       $9,
-      $10
+      $10,
+      $11,
+      $12
     )
     ON CONFLICT (stage_name, manifest)
     DO UPDATE SET
@@ -399,7 +403,9 @@ module.exports = {
       planned_coasters = EXCLUDED.planned_coasters,
       planned_buses = EXCLUDED.planned_buses,
       planned_taxis = EXCLUDED.planned_taxis,
+      cost_per_head = EXCLUDED.cost_per_head,
       total_cost = EXCLUDED.total_cost,
+      contribution = EXCLUDED.contribution,
       updated_at = EXCLUDED.updated_at
     RETURNING *;
   `;
@@ -413,7 +419,9 @@ module.exports = {
     parseInt(flat.planned_coasters),
     parseInt(flat.planned_buses),
     parseInt(flat.planned_taxis),
+    parseInt(flat.cost_per_head),
     parseInt(flat.total_cost),
+    parseInt(flat.contribution),
     updatedAt
   ];
 

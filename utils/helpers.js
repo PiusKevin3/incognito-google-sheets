@@ -15,6 +15,7 @@ const REQUIRED_BUDGET_COLUMNS = [
   'Number of Coasters',
   'Number of Buses',
   'Total Cost',
+  'Cost Per Head'
 ];
 
 const BUDGET_COLUMN_MAPPINGS = {
@@ -26,7 +27,8 @@ const BUDGET_COLUMN_MAPPINGS = {
   'Number of Taxis': 'planned_taxis',
   'Number of Coasters': 'planned_coasters',
   'Number of Buses': 'planned_buses',
-  'Total Cost': 'total_cost'
+  'Total Cost': 'total_cost',
+  'Cost Per Head': 'cost_per_head'
 };
 
 function flattenObject(obj, prefix = '') {
