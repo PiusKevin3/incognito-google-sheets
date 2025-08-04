@@ -395,8 +395,7 @@ module.exports = {
         $11,
         $12,
         $13,
-        $14,
-        $15
+        $14
       )
       ON CONFLICT (stage_name, manifest)
       DO UPDATE SET
