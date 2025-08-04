@@ -380,7 +380,6 @@ module.exports = {
         total_cost,
         coaster_campaign,
         manifest_pledge,
-        manifest_contribution,
         updated_at
       ) VALUES (
         $1,
@@ -414,7 +413,6 @@ module.exports = {
         contribution = COALESCE(EXCLUDED.contribution, budget_entries.contribution),
         coaster_campaign = COALESCE(EXCLUDED.coaster_campaign, budget_entries.coaster_campaign),
         manifest_pledge = COALESCE(EXCLUDED.manifest_pledge, budget_entries.manifest_pledge),
-        contribution = COALESCE(EXCLUDED.contribution, budget_entries.contribution),
         updated_at = EXCLUDED.updated_at
       RETURNING *;
     `;
@@ -433,7 +431,6 @@ module.exports = {
       parseInt(flat.contribution),
       parseInt(flat.coaster_campaign),
       parseInt(flat.manifest_pledge),
-      parseInt(flat.contribution),
       updatedAt
     ];
 
