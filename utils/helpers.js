@@ -185,11 +185,34 @@ async function processXlsxSyncUpload(file, type) {
         serviceResponse: result
       });
     } catch (serviceErr) {
-      results.push({
+      // Enhanced error handling with column and row information
+      const errorInfo = {
         inserted: false,
         reason: 'Service error',
-        error: serviceErr.message
-      });
+        error: serviceErr.message,
+        rowData: {
+          code: row['Code'] || 'N/A',
+          stageName: row['Stage Name'] || 'N/A',
+          department: row['Department'] || 'N/A'
+        }
+      };
+
+      // Try to extract column information from the error message
+      if (serviceErr.message) {
+        // Look for common database error patterns
+        const columnMatch = serviceErr.message.match(/column "([^"]+)"/i);
+        if (columnMatch) {
+          errorInfo.problematicColumn = columnMatch[1];
+        }
+        
+        // Look for constraint violation patterns
+        const constraintMatch = serviceErr.message.match(/constraint "([^"]+)"/i);
+        if (constraintMatch) {
+          errorInfo.constraintViolation = constraintMatch[1];
+        }
+      }
+
+      results.push(errorInfo);
     }
   }
 
