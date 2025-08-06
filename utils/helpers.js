@@ -103,7 +103,7 @@ async function processXlsxSyncUpload(file, type) {
   const sheetName = workbook.SheetNames[0];
   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
   const actualColumns = sheetData.length > 0 ? sheetData[0]: [];
-
+  console.log(actualColumns);
   if (!actualColumns.includes('Residential') || !actualColumns.includes('Institution') || !actualColumns.includes('School')) {
     throw new Error('Missing Residential, Institution, or School columns');
   }
