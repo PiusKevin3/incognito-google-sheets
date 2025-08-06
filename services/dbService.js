@@ -429,8 +429,8 @@ module.exports = {
       parseInt(flat.cost_per_head),
       parseInt(flat.total_cost),
       parseInt(flat.contribution),
-      parseInt(flat.coaster_campaign),
-      parseInt(flat.manifest_pledge),
+      parseInt(flat.coaster_campaign) ?? null,
+      parseInt(flat.manifest_pledge) ?? null,
       updatedAt
     ];
 
