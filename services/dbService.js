@@ -365,9 +365,9 @@ module.exports = {
   },
 
   upsertBudgetEntry: async (flat, updatedAt) => {
-    console.log(flat);
     const query = `
       INSERT INTO budget_entries (
+        department,
         code,
         division,
         manifest,
@@ -396,10 +396,12 @@ module.exports = {
         $11,
         $12,
         $13,
-        $14
+        $14,
+        $15
       )
       ON CONFLICT (stage_name, manifest)
       DO UPDATE SET
+        department = COALESCE(EXCLUDED.department, budget_entries.department),
         code = COALESCE(EXCLUDED.code, budget_entries.code),
         division = COALESCE(EXCLUDED.division, budget_entries.division),
         manifest = COALESCE(EXCLUDED.manifest, budget_entries.manifest),
@@ -418,6 +420,7 @@ module.exports = {
     `;
 
     const values = [
+      flat.department,
       flat.code,
       flat.division,
       flat.manifest,
