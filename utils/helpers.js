@@ -19,12 +19,15 @@ const REQUIRED_BUDGET_COLUMNS = [
   'Coaster Campaign',
   'Manifest Pledge',
   'Manifest Contribution',
+  'Department'
 ];
 
 const BUDGET_COLUMN_MAPPINGS = {
   'Code': 'code',
   'District Name|Division Name': 'division',
   'Residential': 'manifest',
+  'Institution': 'institutions',
+  'School': 'schools',
   'Stage Name': 'stage_name',
   'TargetPeople': 'planned_people',
   'Number of Taxis': 'planned_taxis',
@@ -34,7 +37,8 @@ const BUDGET_COLUMN_MAPPINGS = {
   'Cost Per Head': 'cost_per_head',
   'Coaster Campaign': 'coaster_campaign',
   'Manifest Pledge': 'manifest_pledge',
-  'Manifest Contribution': 'contribution'
+  'Manifest Contribution': 'contribution',
+  'Department': 'department'
 };
 
 function flattenObject(obj, prefix = '') {
@@ -99,6 +103,26 @@ async function processXlsxSyncUpload(file, type) {
   const sheetName = workbook.SheetNames[0];
   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
   const actualColumns = sheetData.length > 0 ? sheetData[0]: [];
+
+  if (!actualColumns.includes('Residential') || !actualColumns.includes('Institution') || !actualColumns.includes('School')) {
+    throw new Error('Missing Residential, Institution, or School columns');
+  }
+
+  const department = actualColumns['Department'];
+  const institution = actualColumns['Institution'];
+  const residential = actualColumns['Residential'];
+  const school = actualColumns['School'];
+
+  if (department && department.toString().toLowerCase().includes('institution')) {
+    // Use Institution value for Residential
+    actualColumns['Residential'] = institution;
+  } else if (department && department.toString().toLowerCase().includes('school')) {
+    // Use School value for Residential
+    actualColumns['Residential'] = school;
+  } else {
+    // Default: use Residential
+    actualColumns['Residential'] = residential
+  }
 
   await validateColumns(REQUIRED_BUDGET_COLUMNS, actualColumns);
 
