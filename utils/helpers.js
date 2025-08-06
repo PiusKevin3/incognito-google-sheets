@@ -185,7 +185,6 @@ async function processXlsxSyncUpload(file, type) {
         serviceResponse: result
       });
     } catch (serviceErr) {
-      console.log(serviceErr);
       // Enhanced error handling with column and row information
       const errorInfo = {
         inserted: false,

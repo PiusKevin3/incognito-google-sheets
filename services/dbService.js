@@ -365,6 +365,7 @@ module.exports = {
   },
 
   upsertBudgetEntry: async (flat, updatedAt) => {
+    console.log(flat);
     const query = `
       INSERT INTO budget_entries (
         code,
