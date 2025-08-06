@@ -11,10 +11,14 @@
             background: #f4f6f8;
         }
 
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
         form#uploadForm {
             background: white;
-            max-width: 400px;
-            margin: 0 auto;
+            margin-bottom: 20px;
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
@@ -37,11 +41,14 @@
             font-size: 14px;
         }
 
-        form#uploadForm button[type="submit"] {
+        .button-group {
+            display: flex;
+            gap: 10px;
             margin-top: 20px;
-            width: 100%;
-            background-color: #28a745;
-            /* Green */
+        }
+
+        .button {
+            flex: 1;
             color: white;
             padding: 12px;
             font-size: 16px;
@@ -49,12 +56,32 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        form#uploadForm button[type="submit"]:hover {
+        .button-primary {
+            background-color: #28a745;
+        }
+
+        .button-primary:hover {
             background-color: #218838;
-            /* Darker green on hover */
+        }
+
+        .button-secondary {
+            background-color: #007bff;
+        }
+
+        .button-secondary:hover {
+            background-color: #0069d9;
+        }
+
+        .button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         /* Spinner Styles */
@@ -66,12 +93,12 @@
 
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border-left-color: #28a745;
+            border-left-color: white;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin-right: 8px;
         }
 
         @keyframes spin {
@@ -89,57 +116,76 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
             white-space: pre-wrap;
             display: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 24px;
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <center>
+            <h2>PMI Transport Department Cognito Excel Upload</h2>
+        </center>
 
-    <center>
-        <h2>PMI Transport Department Cognito Excel Upload</h2>
-    </center>
+        <form id="uploadForm">
+            <label for="type">Upload Type</label>
+            <select id="type" name="type" required>
+                <option value="">-- Select Type --</option>
+                <option value="finance">Finance</option>
+                <option value="manifest">Manifest</option>
+                <option value="budget">Budget</option>
+            </select>
 
-    <form id="uploadForm">
-        <label for="type">Upload Type</label>
-        <select id="type" name="type" required>
-            <option value="">-- Select Type --</option>
-            <option value="finance">Finance</option>
-            <option value="manifest">Manifest</option>
-            <option value="budget">Budget</option>
-        </select>
+            <label for="file">Choose Excel File (.xlsx)</label>
+            <input type="file" id="file" name="file" accept=".xlsx" required />
 
-        <label for="file">Choose Excel File (.xlsx)</label>
-        <input type="file" id="file" name="file" accept=".xlsx" required />
+            <div class="button-group">
+                <button type="submit" id="uploadButton" class="button button-primary">
+                    <span id="uploadButtonText">Upload and Sync</span>
+                    <div id="uploadSpinner" class="spinner" style="display: none;"></div>
+                </button>
+                <button type="button" id="syncButton" class="button button-secondary">
+                    <span id="syncButtonText">Sync Database</span>
+                    <div id="syncSpinner" class="spinner" style="display: none;"></div>
+                </button>
+            </div>
+        </form>
 
-        <button type="submit" id="submitButton">Upload and Sync with DB Data</button>
-
-        <!-- Spinner Element -->
-        <div class="spinner-container" id="spinner">
-            <div class="spinner"></div>
-            <p>Processing your file, please wait...</p>
-        </div>
-    </form>
-
-    <div class="result" id="result"></div>
+        <div class="result" id="result"></div>
+    </div>
 
     <script>
+        // Upload form handler
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Show spinner, hide button
-            const spinner = document.getElementById('spinner');
-            const submitButton = document.getElementById('submitButton');
+            const uploadButton = document.getElementById('uploadButton');
+            const uploadButtonText = document.getElementById('uploadButtonText');
+            const uploadSpinner = document.getElementById('uploadSpinner');
             const resultDiv = document.getElementById('result');
 
-            spinner.style.display = 'block';
-            submitButton.disabled = true;
+            // Show loading state
+            uploadButton.disabled = true;
+            uploadButtonText.textContent = 'Uploading...';
+            uploadSpinner.style.display = 'block';
             resultDiv.style.display = 'none';
-            resultDiv.innerText = '';
+            resultDiv.className = 'result';
 
             const formData = new FormData();
             formData.append('type', document.getElementById('type').value);
@@ -154,17 +200,68 @@
                 const result = await response.json();
                 resultDiv.innerText = JSON.stringify(result, null, 2);
                 resultDiv.style.display = 'block';
+                resultDiv.classList.add(response.ok ? 'success' : 'error');
             } catch (err) {
                 resultDiv.innerText = 'Error: ' + err.message;
                 resultDiv.style.display = 'block';
+                resultDiv.classList.add('error');
             } finally {
-                // Hide spinner, enable button
-                spinner.style.display = 'none';
-                submitButton.disabled = false;
+                // Reset button state
+                uploadButton.disabled = false;
+                uploadButtonText.textContent = 'Upload and Sync';
+                uploadSpinner.style.display = 'none';
+            }
+        });
+
+        // Sync button handler
+        document.getElementById('syncButton').addEventListener('click', async () => {
+            const syncButton = document.getElementById('syncButton');
+            const syncButtonText = document.getElementById('syncButtonText');
+            const syncSpinner = document.getElementById('syncSpinner');
+            const resultDiv = document.getElementById('result');
+
+            // Show loading state
+            syncButton.disabled = true;
+            syncButtonText.textContent = 'Syncing...';
+            syncSpinner.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultDiv.className = 'result';
+
+            const type = document.getElementById('type').value;
+            if (!type) {
+                resultDiv.innerText = 'Please select an upload type first';
+                resultDiv.style.display = 'block';
+                resultDiv.classList.add('error');
+                syncButton.disabled = false;
+                syncButtonText.textContent = 'Sync Database';
+                syncSpinner.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/sync-cognito', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ type })
+                });
+
+                const result = await response.json();
+                resultDiv.innerText = JSON.stringify(result, null, 2);
+                resultDiv.style.display = 'block';
+                resultDiv.classList.add(response.ok ? 'success' : 'error');
+            } catch (err) {
+                resultDiv.innerText = 'Error: ' + err.message;
+                resultDiv.style.display = 'block';
+                resultDiv.classList.add('error');
+            } finally {
+                // Reset button state
+                syncButton.disabled = false;
+                syncButtonText.textContent = 'Sync Database';
+                syncSpinner.style.display = 'none';
             }
         });
     </script>
-
 </body>
-
 </html>

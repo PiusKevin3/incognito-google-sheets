@@ -1,4 +1,5 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const axios = require('axios')
 
 module.exports = {
   getForms: async () => {
@@ -23,6 +24,32 @@ module.exports = {
 
     return response.json();
   },
+
+  getFormEntriesData: async (formId, viewId, formAccessToken, filter = null) => {
+   var url = `https://www.cognitoforms.com/api/odata/Forms(675)/Views(1)/Entries?access_token=${formAccessToken}`;
+
+    if (filter) {
+      url += `&$filter=${filter}`;
+    }
+
+    console.log(formId, viewId, formAccessToken, url);
+   
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'PostmanRuntime/7.45.0',
+        'Accept': 'application/json;odata.metadata=minimal',
+        'Postman-Token': '29ed4d31-8179-4329-812c-5ab3291c2de9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
+      }
+    });
+
+   if (!response.ok) {
+     throw new Error(`Failed to fetch entries: ${response.statusText}`);
+   }
+
+   return response.json();
+ },
 
   updateCognitoEntry: async (formId, entryId, updatedFields) => {
     try {
