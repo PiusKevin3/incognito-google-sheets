@@ -138,6 +138,7 @@ router.post('/update', async (req, res) => {
     const updatedAt = new Date(req.body.updated_at || req.body.created_at || Date.now());
 
     const Id = flatGeneral["ID1"];
+    console.log('Id:', Id);
     const budgetFormId = flatGeneral["BudgetID"];
 
     const existingManifestEntry = await dbService.findManifestByFormID(Id);

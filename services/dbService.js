@@ -515,7 +515,7 @@ updateActualBudgetData: async (budget, updatedAt) => {
     return result.rows[0] || null;
   },
   findManifestByFormID: async (formId) => {
-    const query = `SELECT * FROM manifest_entries WHERE entry_id = $1 LIMIT 1`;
+    const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);  //  ensure it's a string
     // console.log(result);
 
