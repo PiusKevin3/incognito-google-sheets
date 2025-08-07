@@ -125,4 +125,81 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
   }
 });
 
+router.post('/update', async (req, res) => {
+  try {
+    const hasApiKey = req.query.apiKey === process.env.API_KEY;
+
+    if (!hasApiKey) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
+    }
+
+    const general = req.body?.General || {};
+    const flatGeneral = flattenObject(general);
+    const updatedAt = new Date(req.body.updated_at || req.body.created_at || Date.now());
+
+    const Id = flatGeneral["ID1"];
+    const budgetFormId = flatGeneral["BudgetID"];
+
+    const existingManifestEntry = await dbService.findManifestByFormID(Id);
+
+    if (!existingManifestEntry) {
+      return res.status(404).json({ success: false, message: 'Manifest entry not found' });
+    }
+
+    // Updating budget details
+    const budgetDetails = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+    console.log('Budget Details:', budgetDetails);
+    const oldActualPeople = existingManifestEntry.Actual?.ActualPeople || 0;
+    const currentActualPeople = budgetDetails.Actual?.ActualPeople || 0;
+    const newActualPeople = flatGeneral["Coordinator_SoulsDetails_TOTAL"];
+    const newActualPeopleForBudget = (currentActualPeople - oldActualPeople) + newActualPeople;
+
+    const oldTaxis = existingManifestEntry.Actual?.Taxis || 0;
+    const currentTaxis = budgetDetails.Actual?.Taxis || 0;
+    const newTaxis = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0;
+    const newTaxisForBudget = (currentTaxis - oldTaxis) + newTaxis;
+
+    const oldBuses = existingManifestEntry.Actual?.Buses || 0;
+    const currentBuses = budgetDetails.Actual?.Buses || 0;
+    const newBuses = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0;
+    const newBusesForBudget = (currentBuses - oldBuses) + newBuses;
+
+    const oldCoasters = existingManifestEntry.Actual?.Coasters || 0;
+    const currentCoasters = budgetDetails.Actual?.Coasters || 0;
+    const newCoasters = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0;
+    const newCoastersForBudget = (currentCoasters - oldCoasters) + newCoasters;
+    console.log(newActualPeopleForBudget, newTaxisForBudget, newBusesForBudget, newCoastersForBudget);
+    const updatedData = {
+      Actual: {
+        ActualPeople: newActualPeopleForBudget,
+        Taxis: newTaxisForBudget,
+        Buses: newBusesForBudget,
+        Coasters: newCoastersForBudget,
+      }
+    } 
+
+    console.log('Updated Data:', updatedData);
+
+    // Updating budget database
+    var result = await dbService.updateActualBudgetData({
+      stage_name: budgetDetails.Details.StageName,
+      actual_people: updatedData.Actual.ActualPeople,
+      actual_coasters: updatedData.Actual.Coasters,
+      actual_buses: updatedData.Actual.Buses,
+      actual_taxis: updatedData.Actual.Taxis,
+    }, updatedAt);
+
+    // Updating budget cognito entry
+    await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
+
+    // Update manifest entry
+    await dbService.upsertManifestEntry(Id, flatGeneral, updatedAt);
+
+    console.log('Update Result:', result);
+  } catch (error) {
+    console.error(`Webhook Error: ${error.message}`);
+    res.status(500).send('Error processing webhook');
+  }
+});
+
 module.exports = router;
