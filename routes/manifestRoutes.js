@@ -188,7 +188,7 @@ router.post('/update', async (req, res) => {
       actual_coasters: updatedData.Actual.Coasters,
       actual_buses: updatedData.Actual.Buses,
       actual_taxis: updatedData.Actual.Taxis,
-    }, updatedAt);
+    }, new Date().toISOString());
 
     // Updating budget cognito entry
     await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
