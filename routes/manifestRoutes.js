@@ -133,6 +133,21 @@ router.post('/update', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
+    // ✅ Check if this is a webhook call or direct API call
+    const isWebhookCall = req.headers['x-cognito-forms-webhook'] || req.body.event;
+    
+    // ✅ Only process specific events to avoid recursion
+    if (isWebhookCall) {
+      const event = req.body.event;
+      console.log('🔍 Webhook event:', event);
+      
+      // Only process certain events, ignore others
+      if (event !== 'entry.updated' && event !== 'entry.created') {
+        console.log('⏭️ Skipping event:', event);
+        return res.status(200).json({ success: true, message: 'Event ignored' });
+      }
+    }
+
     const general = req.body?.General || {};
     const flatGeneral = flattenObject(general);
     const updatedAt = new Date(req.body.updated_at || req.body.created_at || Date.now());
@@ -190,8 +205,13 @@ router.post('/update', async (req, res) => {
       actual_taxis: updatedData.Actual.Taxis,
     }, new Date().toISOString());
 
-    // Updating budget cognito entry
-    await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
+    // ✅ Only update Cognito if this is NOT a webhook call
+    if (!isWebhookCall) {
+      // Updating budget cognito entry
+      await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
+    } else {
+      console.log('⏭️ Skipping Cognito update to prevent recursion');
+    }
     console.log('FLAT GENERAL:', flatGeneral);
     // Update manifest entry
     await dbService.updateManifestEntry(flatGeneral, updatedAt);
