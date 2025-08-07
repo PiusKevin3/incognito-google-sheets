@@ -135,7 +135,8 @@ router.post('/update', async (req, res) => {
 
     // ✅ Check if this is a webhook call or direct API call
     const isWebhookCall = req.headers['x-cognito-forms-webhook'] || req.body.event;
-    
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
     // ✅ Only process specific events to avoid recursion
     if (isWebhookCall) {
       const event = req.body.event;
