@@ -117,8 +117,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     // Update Budget details
     await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
 
-    console.log(`Webhook: Upserted manifest entry`);
-    res.status(200).send('Entry saved');
+    return res.status(200).json({ success: true, message: 'Entry saved' });
   } catch (error) {
     console.error(`Webhook Error: ${error.message}`);
     res.status(500).send('Error processing webhook');
