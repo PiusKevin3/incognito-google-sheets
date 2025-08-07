@@ -194,7 +194,7 @@ router.post('/update', async (req, res) => {
     await updateCognitoEntry(BUDGET_FORM_ID, budgetFormId, updatedData);
     console.log('FLAT GENERAL:', flatGeneral);
     // Update manifest entry
-    await dbService.upsertManifestEntry(flatGeneral, updatedAt);
+    await dbService.updateManifestEntry(flatGeneral, updatedAt);
 
     console.log('Update Result:', result);
   } catch (error) {
