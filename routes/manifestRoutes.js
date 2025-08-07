@@ -103,7 +103,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
 
     console.log('Updated Data:', updatedData);
 
-    var result = await dbService.updateActualBudgetData({
+    const result = await dbService.updateActualBudgetData({
       stage_name: budgetDetails.Details.StageName,
       actual_people: updatedData.Actual.ActualPeople,
       actual_coasters: updatedData.Actual.Coasters,
@@ -174,8 +174,35 @@ router.post('/update', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Manifest entry not found' });
     }
 
+    var manifestName;
+
+    switch (flatGeneral["Department"]) {
+      case "Manifests":
+        manifestName = flatGeneral["Manifest"];
+        break;
+      case "Institutions":
+        manifestName = flatGeneral["Institutions"];
+        break;
+      case "Schools":
+        manifestName = flatGeneral["Schools"];
+        break;
+      case "UpCountry":
+        manifestName = flatGeneral["UpCountry"];
+        break;
+      case "Hospitals":
+        manifestName = flatGeneral["Hospitals"];
+        break;
+      case "Masterclass":
+        manifestName = flatGeneral["Masterclass"];
+        break;
+      default:
+        manifestName = flatGeneral["Manifest"];
+        break;
+    }
+
     // Updating budget details
-    const budgetDetails = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+    const budgetDetails = await dbService.findBudgetByFormID(flatGeneral["StageName2"], manifestName);
+
     console.log('Budget Details:', budgetDetails);
 
     var newActualPeopleForBudget;
@@ -186,7 +213,7 @@ router.post('/update', async (req, res) => {
     switch (operation) {
       case 'submit':
         // Add the new values to existing budget totals
-        const currentActualPeople = budgetDetails.Actual?.ActualPeople || 0;
+        const currentActualPeople = parseInt(budgetDetails.souls_total || 0);
         const newActualPeople = parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0;
         newActualPeopleForBudget = currentActualPeople + newActualPeople;
 
@@ -207,43 +234,43 @@ router.post('/update', async (req, res) => {
 
       case 'update':
         // Calculate: current_budget_totals - old_manifest_values + new_manifest_values
-        const oldActualPeople = existingManifestEntry.Actual?.ActualPeople || 0;
-        const currentActualPeopleUpdate = budgetDetails.Actual?.ActualPeople || 0;
+        const oldActualPeople = existingManifestEntry.souls_total || 0;
+        const currentActualPeopleUpdate = budgetDetails.actual_people || 0;
         const newActualPeopleUpdate = parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0;
         newActualPeopleForBudget = (currentActualPeopleUpdate - oldActualPeople) + newActualPeopleUpdate;
 
-        const oldTaxis = existingManifestEntry.Actual?.Taxis || 0;
-        const currentTaxisUpdate = budgetDetails.Actual?.Taxis || 0;
-        const newTaxisUpdate = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0;
-        newTaxisForBudget = (currentTaxisUpdate - oldTaxis) + newTaxisUpdate;
+        // const oldTaxis = existingManifestEntry.Actual?.Taxis || 0;
+        // const currentTaxisUpdate = budgetDetails.Actual?.Taxis || 0;
+        // const newTaxisUpdate = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0;
+        // newTaxisForBudget = (currentTaxisUpdate - oldTaxis) + newTaxisUpdate;
 
-        const oldBuses = existingManifestEntry.Actual?.Buses || 0;
-        const currentBusesUpdate = budgetDetails.Actual?.Buses || 0;
-        const newBusesUpdate = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0;
-        newBusesForBudget = (currentBusesUpdate - oldBuses) + newBusesUpdate;
+        // const oldBuses = existingManifestEntry.Actual?.Buses || 0;
+        // const currentBusesUpdate = budgetDetails.Actual?.Buses || 0;
+        // const newBusesUpdate = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0;
+        // newBusesForBudget = (currentBusesUpdate - oldBuses) + newBusesUpdate;
 
-        const oldCoasters = existingManifestEntry.Actual?.Coasters || 0;
-        const currentCoastersUpdate = budgetDetails.Actual?.Coasters || 0;
-        const newCoastersUpdate = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0;
-        newCoastersForBudget = (currentCoastersUpdate - oldCoasters) + newCoastersUpdate;
+        // const oldCoasters = existingManifestEntry.Actual?.Coasters || 0;
+        // const currentCoastersUpdate = budgetDetails.Actual?.Coasters || 0;
+        // const newCoastersUpdate = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0;
+        // newCoastersForBudget = (currentCoastersUpdate - oldCoasters) + newCoastersUpdate;
 
         console.log('Update operation - Budget adjustment:', {
           oldActualPeople,
           currentActualPeopleUpdate,
           newActualPeopleUpdate,
           newActualPeopleForBudget,
-          oldTaxis,
-          currentTaxisUpdate,
-          newTaxisUpdate,
-          newTaxisForBudget,
-          oldBuses,
-          currentBusesUpdate,
-          newBusesUpdate,
-          newBusesForBudget,
-          oldCoasters,
-          currentCoastersUpdate,
-          newCoastersUpdate,
-          newCoastersForBudget
+          // oldTaxis,
+          // currentTaxisUpdate,
+          // newTaxisUpdate,
+          // newTaxisForBudget,
+          // oldBuses,
+          // currentBusesUpdate,
+          // newBusesUpdate,
+          // newBusesForBudget,
+          // oldCoasters,
+          // currentCoastersUpdate,
+          // newCoastersUpdate,
+          // newCoastersForBudget
         });
         break;
 
@@ -254,37 +281,37 @@ router.post('/update', async (req, res) => {
         const newActualPeopleDefault = parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0;
         newActualPeopleForBudget = (currentActualPeopleDefault - oldActualPeopleDefault) + newActualPeopleDefault;
 
-        const oldTaxisDefault = existingManifestEntry.Actual?.Taxis || 0;
-        const currentTaxisDefault = budgetDetails.Actual?.Taxis || 0;
-        const newTaxisDefault = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0;
-        newTaxisForBudget = (currentTaxisDefault - oldTaxisDefault) + newTaxisDefault;
+        // const oldTaxisDefault = existingManifestEntry.Actual?.Taxis || 0;
+        // const currentTaxisDefault = budgetDetails.Actual?.Taxis || 0;
+        // const newTaxisDefault = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0;
+        // newTaxisForBudget = (currentTaxisDefault - oldTaxisDefault) + newTaxisDefault;
 
-        const oldBusesDefault = existingManifestEntry.Actual?.Buses || 0;
-        const currentBusesDefault = budgetDetails.Actual?.Buses || 0;
-        const newBusesDefault = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0;
-        newBusesForBudget = (currentBusesDefault - oldBusesDefault) + newBusesDefault;
+        // const oldBusesDefault = existingManifestEntry.Actual?.Buses || 0;
+        // const currentBusesDefault = budgetDetails.Actual?.Buses || 0;
+        // const newBusesDefault = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0;
+        // newBusesForBudget = (currentBusesDefault - oldBusesDefault) + newBusesDefault;
 
-        const oldCoastersDefault = existingManifestEntry.Actual?.Coasters || 0;
-        const currentCoastersDefault = budgetDetails.Actual?.Coasters || 0;
-        const newCoastersDefault = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0;
-        newCoastersForBudget = (currentCoastersDefault - oldCoastersDefault) + newCoastersDefault;
+        // const oldCoastersDefault = existingManifestEntry.Actual?.Coasters || 0;
+        // const currentCoastersDefault = budgetDetails.Actual?.Coasters || 0;
+        // const newCoastersDefault = flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0;
+        // newCoastersForBudget = (currentCoastersDefault - oldCoastersDefault) + newCoastersDefault;
 
         console.log('Default operation - Using update behavior');
     }
 
     console.log('Final calculated values:', {
       newActualPeopleForBudget,
-      newTaxisForBudget,
-      newBusesForBudget,
-      newCoastersForBudget
+      // newTaxisForBudget,
+      // newBusesForBudget,
+      // newCoastersForBudget
     });
 
     const updatedData = {
       Actual: {
         ActualPeople: newActualPeopleForBudget,
-        Taxis: newTaxisForBudget,
-        Buses: newBusesForBudget,
-        Coasters: newCoastersForBudget,
+        // Taxis: newTaxisForBudget,
+        // Buses: newBusesForBudget,
+        // Coasters: newCoastersForBudget,
       }
     };
 

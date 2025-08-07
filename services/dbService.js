@@ -583,9 +583,9 @@ module.exports = {
 
     return result.rows[0] || null;
   },
-  findBudgetByFormID: async (formId) => {
-    const query = `SELECT * FROM budget_entries WHERE form_id = $1 LIMIT 1`;
-    const result = await db.query(query, [formId]);
+  findBudgetByFormID: async (stageName, manifest) => {
+    const query = `SELECT * FROM budget_entries WHERE stage_name = $1 AND manifest = $2 LIMIT 1`;
+    const result = await db.query(query, [stageName, manifest]);
     // console.log(result);
 
     return result.rows[0] || null;
