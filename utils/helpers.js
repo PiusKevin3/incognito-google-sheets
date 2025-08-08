@@ -102,48 +102,81 @@ async function processXlsxSyncUpload(file, type) {
   const workbook = xlsx.readFile(file.path);
   const sheetName = workbook.SheetNames[0];
   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-  const actualColumns = sheetData.length > 0 ? sheetData[0]: [];
-  console.log(actualColumns);
-  if (!actualColumns.includes('Residential') || !actualColumns.includes('Institution') || !actualColumns.includes('School')) {
+  
+  // Get headers and filter out empty columns
+  const headers = sheetData.length > 0 ? 
+    sheetData[0].filter((header, index) => {
+      // Check if any row has data in this column
+      return sheetData.some((row, rowIndex) => rowIndex > 0 && row[index] !== undefined && row[index] !== null && row[index] !== '');
+    }) : [];
+  
+  console.log('Active Columns:', headers);
+
+  // Validate required columns
+  if (!headers.includes('Residential') || !headers.includes('Institution') || !headers.includes('School')) {
     throw new Error('Missing Residential, Institution, or School columns');
   }
 
-  const department = actualColumns['Department'];
-  const institution = actualColumns['Institution'];
-  const residential = actualColumns['Residential'];
-  const school = actualColumns['School'];
+  // Process department mapping logic
+  const departmentIndex = headers.indexOf('Department');
+  const institutionIndex = headers.indexOf('Institution');
+  const residentialIndex = headers.indexOf('Residential');
+  const schoolIndex = headers.indexOf('School');
 
-  if (department && department.toString().toLowerCase().includes('institution')) {
-    // Use Institution value for Residential
-    actualColumns['Residential'] = institution;
-  } else if (department && department.toString().toLowerCase().includes('school')) {
-    // Use School value for Residential
-    actualColumns['Residential'] = school;
-  } else {
-    // Default: use Residential
-    actualColumns['Residential'] = residential
+  // Create data objects only for non-empty rows
+  const dataObjects = [];
+  for (let i = 1; i < sheetData.length; i++) {
+    const row = sheetData[i];
+    
+    // Skip completely empty rows
+    if (!row || row.every(cell => cell === undefined || cell === null || cell === '')) {
+      continue;
+    }
+
+    const obj = {};
+    let hasData = false;
+    
+    headers.forEach((header, headerIndex) => {
+      const originalIndex = sheetData[0].indexOf(header);
+      const value = row[originalIndex];
+      
+      // Only include non-empty values
+      if (value !== undefined && value !== null && value !== '') {
+        obj[header] = value;
+        hasData = true;
+      }
+    });
+
+    // Apply department mapping logic
+    if (obj.Department) {
+      const department = obj.Department.toString().toLowerCase();
+      if (department.includes('institution') && obj.Institution) {
+        obj.Residential = obj.Institution;
+      } else if (department.includes('school') && obj.School) {
+        obj.Residential = obj.School;
+      }
+    }
+
+    if (hasData) {
+      dataObjects.push(obj);
+    }
   }
 
-  await validateColumns(REQUIRED_BUDGET_COLUMNS, actualColumns);
+  await validateColumns(REQUIRED_BUDGET_COLUMNS, headers);
 
   const results = [];
 
-  const headers = sheetData[0];
-  const dataRows = sheetData.slice(1);
-  const dataObjects = dataRows.map(row => {
-    const obj = {};
-    headers.forEach((header, i) => {
-      obj[header] = row[i];
-    });
-    return obj;
-  });
-
-  // console.log(dataObjects);
-
   for (const row of dataObjects) {
-    const flat = flattenXlsxObject(row, '', BUDGET_COLUMN_MAPPINGS);
-    // console.log("Flattened row:", flat);
+    // Create a filtered flat object with only non-empty values
+    const filteredRow = {};
+    for (const key in row) {
+      if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+        filteredRow[key] = row[key];
+      }
+    }
 
+    const flat = flattenXlsxObject(filteredRow, '', BUDGET_COLUMN_MAPPINGS);
+    
     try {
       let result;
 
@@ -157,19 +190,29 @@ async function processXlsxSyncUpload(file, type) {
           // result = await upsertManifestEntry(flat);
           break;
         case 'budget':
-          result = await upsertBudgetEntry(flat, new Date().toISOString());
-          console.log(result);
+          // Only proceed if we have required fields
+          if (flat.stage_name && flat.manifest) {
+            result = await upsertBudgetEntry(flat, new Date().toISOString());
+            console.log(result);
+          } else {
+            results.push({
+              inserted: false,
+              reason: 'Skipped - Missing required fields (stage_name or manifest)',
+              rowData: {
+                code: flat.code || 'N/A',
+                stageName: flat.stage_name || 'N/A',
+                department: flat.department || 'N/A'
+              }
+            });
+            continue;
+          }
           break;
         default:
           result = null;
           break;
       }
 
-      // Handle database query result properly
       if (result && result.rows && result.rows.length > 0) {
-        // For upsert operations, we can't easily distinguish between insert and update
-        // from the PostgreSQL result alone, so we'll mark all successful operations as "inserted"
-        // This is a common pattern for upsert operations
         results.push({
           inserted: true,
           reason: 'Record upserted successfully',
@@ -178,14 +221,12 @@ async function processXlsxSyncUpload(file, type) {
         continue;
       }
 
-      // If we get here, the operation didn't return any rows
       results.push({
         inserted: false,
         reason: 'No rows returned from database operation',
         serviceResponse: result
       });
     } catch (serviceErr) {
-      // Enhanced error handling with column and row information
       const errorInfo = {
         inserted: false,
         reason: 'Service error',
@@ -197,15 +238,12 @@ async function processXlsxSyncUpload(file, type) {
         }
       };
 
-      // Try to extract column information from the error message
       if (serviceErr.message) {
-        // Look for common database error patterns
         const columnMatch = serviceErr.message.match(/column "([^"]+)"/i);
         if (columnMatch) {
           errorInfo.problematicColumn = columnMatch[1];
         }
         
-        // Look for constraint violation patterns
         const constraintMatch = serviceErr.message.match(/constraint "([^"]+)"/i);
         if (constraintMatch) {
           errorInfo.constraintViolation = constraintMatch[1];
@@ -219,10 +257,10 @@ async function processXlsxSyncUpload(file, type) {
   return {
     message: `Sync complete for ${type}`,
     summary: {
-      total: results.length,
+      total: dataObjects.length,
+      processed: results.length,
       inserted: results.filter(r => r.inserted).length,
-      updated: results.filter(r => r.updated).length,
-      skipped: results.filter(r => !r.inserted && !r.updated).length,
+      skipped: results.filter(r => !r.inserted).length,
     },
     details: results,
   };
