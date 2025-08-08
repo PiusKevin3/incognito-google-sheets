@@ -46,7 +46,7 @@ function mapCognitoToBudgetEntry(cognitoData) {
       department: cognitoData.Details_Department,
       code: cognitoData.Details_Code,
       division: cognitoData.Details_Division,
-      manifest: cognitoData.Details_Manifests,
+      manifest: cognitoData.Details_Manifests || cognitoData.Details_Institutions || cognitoData.Details_Schools,
       stage_name: cognitoData.Details_StageName,
       planned_people: cognitoData.Planned_PlannedPeople,
       planned_coasters: cognitoData.Planned_PlannedCoasters,
