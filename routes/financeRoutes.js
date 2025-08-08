@@ -47,9 +47,7 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             !flatSection["ReceivedBy"] ||
             !flatSection["FormID"] ||
             !flatSection["FinalBalance"] ||
-            !flatSection["ManifestName"] ||
-            !flatSection["InstitutionName"] ||
-            !flatSection["SchoolName"] ||
+            (!flatSection["ManifestName"] && !flatSection["InstitutionName"] && !flatSection["SchoolName"]) ||
             !flatSection["Department"] ||
             !flatSection["CostOfVehicle"] ||
             !flatSection["Balance"] ||
