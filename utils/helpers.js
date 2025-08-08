@@ -249,5 +249,6 @@ module.exports = {
   validateApiKey,
   verifyCognitoSignature,
   processXlsxSyncUpload,
-  validateColumns
+  validateColumns,
+  BUDGET_COLUMN_MAPPINGS
 };

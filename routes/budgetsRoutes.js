@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { validateApiKey, flattenObject } = require('../utils/helpers');
+const { validateApiKey, flattenObject, flattenXlsxObject, BUDGET_COLUMN_MAPPINGS } = require('../utils/helpers');
 const { updateCognitoEntry } = require('../services/cognitoService');
 const dbService = require('../services/dbService');
 
@@ -31,8 +31,8 @@ router.post('/update-budget-manifest', validateApiKey, async (req, res) => {
     try {
         const flatGeneral = flattenObject(req.body);
         const updatedAt = new Date(req.body.updated_at || req.body.created_at || Date.now());
-        console.log('Flat General:', flatGeneral);
-        await dbService.upsertBudgetEntry(flatGeneral, updatedAt);
+        console.log(flattenXlsxObject(flatGeneral, '', BUDGET_COLUMN_MAPPINGS));
+        await dbService.upsertBudgetEntry(flattenXlsxObject(flatGeneral, '', BUDGET_COLUMN_MAPPINGS), updatedAt);
 
         return res.status(200).send('Budget updated');
     } catch (error) {
