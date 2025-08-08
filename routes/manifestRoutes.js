@@ -320,7 +320,7 @@ router.post('/update', async (req, res) => {
 
     // Updating budget database
     var result = await dbService.updateActualBudgetData({
-      stage_name: latGeneral["StageName"],
+      stage_name: flatGeneral["StageName"],
       actual_people: updatedData.Actual.ActualPeople,
       // actual_coasters: updatedData.Actual.Coasters,
       // actual_buses: updatedData.Actual.Buses,
