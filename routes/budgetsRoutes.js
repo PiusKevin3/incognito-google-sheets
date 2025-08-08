@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { validateApiKey } = require('../utils/helpers');
+const { validateApiKey, flattenObject } = require('../utils/helpers');
 const { updateCognitoEntry } = require('../services/cognitoService');
 const dbService = require('../services/dbService');
 
