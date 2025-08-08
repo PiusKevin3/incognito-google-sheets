@@ -372,23 +372,104 @@ module.exports = {
     RETURNING *;
   `;
 
-  const values = [
-    flat.code,
-    flat.division,
-    flat.manifest,
-    flat.stage_name,
-    parseInt(flat.planned_people),
-    parseInt(flat.planned_coasters),
-    parseInt(flat.planned_buses),
-    parseInt(flat.planned_taxis),
-    parseInt(flat.total_cost),
-    updatedAt
-  ];
+    const values = [
+      flat.department,
+      flat.code,
+      flat.division,
+      flat.manifest,
+      flat.stage_name,
+      flat.planned_people ? parseInt(flat.planned_people) : null,
+      flat.planned_coasters ? parseInt(flat.planned_coasters) : null,
+      flat.planned_buses ? parseInt(flat.planned_buses) : null,
+      flat.planned_taxis ? parseInt(flat.planned_taxis) : null,
+      flat.cost_per_head ? parseInt(flat.cost_per_head) : null,
+      flat.total_cost ? parseInt(flat.total_cost) : null,
+      flat.contribution ? parseInt(flat.contribution) : null,
+      flat.coaster_campaign ? parseInt(flat.coaster_campaign) : null,
+      flat.manifest_pledge ? parseInt(flat.manifest_pledge) : null,
+      updatedAt
+    ];
 
-  return db.query(query, values);
-},
+    return db.query(query, values);
+  },
 
-updateActualBudgetData: async (budget, updatedAt) => {
+  updateManifestEntry: async (flat, updatedAt) => {
+    const query = `
+      UPDATE manifest_entries SET
+        budget_entry_id = $2,
+        event = $3,
+        department = $4,
+        manifests = $5,
+        institutions = $6,
+        hospitals = $7,
+        masterclass = $8,
+        schools = $9,
+        up_country = $10,
+        stage_name = $11,
+        coordinator_name = $12,
+        coordinator_contact = $13,
+        driver_name = $14,
+        driver_contact = $15,
+        driver_nin_permit = $16,
+        driver_vehicle_type = $17,
+        driver_number_plate = $18,
+        vehicle_cost = $19,
+        vehicle_contribution = $20,
+        vehicle_booking_fee = $21,
+        vehicle_balance = $22,
+        cost_per_head = $23,
+        souls_total = $24,
+        souls_residents = $25,
+        souls_residents_firsttimers = $26,
+        souls_institutions = $27,
+        souls_institutions_firsttimers = $28,
+        souls_schools = $29,
+        souls_schools_firsttimers = $30,
+        verifier_name = $31,
+        updated_at = $32
+      WHERE form_id = $1
+      RETURNING *;
+    `;
+  
+    const values = [
+      flat["ID1"], // $1 — used in WHERE
+      flat["BudgetID"],
+      flat["Event"],
+      flat["Department"],
+      flat["Manifests"],
+      flat["Institutions"],
+      flat["Hospitals"],
+      flat["Masterclass"],
+      flat["Schools"],
+      flat["UpCountry"],
+      flat["StageName2"],
+      flat["Coordinator_Name"],
+      flat["Coordinator_Contact"],
+      flat["Coordinator_DriversDetails_Name"],
+      flat["Coordinator_DriversDetails_Contact"],
+      flat["Coordinator_DriversDetails_NINPermitNo"],
+      flat["Coordinator_DriversDetails_VehicleType"],
+      flat["Coordinator_DriversDetails_NumberPlate"],
+      flat["Coordinator_VehicleDetails_CostOfVehicle2"],
+      flat["Coordinator_VehicleDetails_CashContribution"],
+      flat["Coordinator_VehicleDetails_BookingFee"],
+      flat["Coordinator_VehicleDetails_Balance"],
+      flat["Coordinator_VehicleDetails_CostPerHead"],
+      flat["Coordinator_SoulsDetails_TOTAL"],
+      flat["Coordinator_SoulsDetails_Residents_NoOfPeople"],
+      flat["Coordinator_SoulsDetails_Residents_FirstTimers"],
+      flat["Coordinator_SoulsDetails_Institutions_NoOfPeople"],
+      flat["Coordinator_SoulsDetails_Institutions_FirstTimers"],
+      flat["Coordinator_SoulsDetails_Schools_NoOfPeople"],
+      flat["Coordinator_SoulsDetails_Schools_FirstTimers"],
+      flat["Coordinator_VehicleDetails_VerifierName"],
+      updatedAt,
+    ];
+  
+    return db.query(query, values);
+  },
+
+  updateActualBudgetData: async (budget, updatedAt) => {
   const query = `
     UPDATE budget_entries
     SET
@@ -451,6 +532,13 @@ updateActualBudgetData: async (budget, updatedAt) => {
   findFinanceByFormID: async (formId) => {
     const query = `SELECT * FROM finance_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);
+    // console.log(result);
+
+    return result.rows[0] || null;
+  },
+  findBudgetByFormID: async (stageName, manifest) => {
+    const query = `SELECT * FROM budget_entries WHERE stage_name = $1 AND manifest = $2 LIMIT 1`;
+    const result = await db.query(query, [stageName, manifest]);
     // console.log(result);
 
     return result.rows[0] || null;

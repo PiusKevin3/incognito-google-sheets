@@ -90,28 +90,66 @@ async function processXlsxSyncUpload(file, type) {
   const workbook = xlsx.readFile(file.path);
   const sheetName = workbook.SheetNames[0];
   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-  const actualColumns = sheetData.length > 0 ? sheetData[0]: [];
+  
+  // Get all headers (including empty columns)
+  const headers = sheetData.length > 0 ? sheetData[0] : [];
+  console.log('All Columns:', headers);
 
-  await validateColumns(REQUIRED_BUDGET_COLUMNS, actualColumns);
+  // Validate required columns - now including Institution
+  const requiredColumns = ['Residential', 'School', 'Institution'];
+  const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+  
+  // Check if we have either Institution or Division/District column
+  const hasInstitutionEquivalent = headers.some(h => h.includes('Division') || h.includes('District'));
+  if (missingColumns.length > 0 && !hasInstitutionEquivalent) {
+    throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+  }
+
+  // Create data objects only for non-empty rows
+  const dataObjects = [];
+  for (let i = 1; i < sheetData.length; i++) {
+    const row = sheetData[i];
+    
+    // Skip completely empty rows
+    if (!row || row.every(cell => cell === undefined || cell === null || cell === '')) {
+      continue;
+    }
+
+    const obj = {};
+    let hasData = false;
+    
+    // Include all columns, even if empty
+    headers.forEach((header, index) => {
+      obj[header] = row[index]; // Will be undefined if column doesn't exist in row
+      if (row[index] !== undefined && row[index] !== null && row[index] !== '') {
+        hasData = true;
+      }
+    });
+
+    // Apply department mapping logic
+    if (obj.Department) {
+      const department = obj.Department.toString().toLowerCase();
+      // Use Institution column if available, otherwise look for Division/District      
+      if (department.includes('institution') && obj.Institution) {
+        obj.Residential = obj.Institution;
+      } else if (department.includes('school') && obj.School) {
+        obj.Residential = obj.School;
+      }
+    }
+
+    if (hasData) {
+      dataObjects.push(obj);
+    }
+  }
+
+  await validateColumns(REQUIRED_BUDGET_COLUMNS, headers);
 
   const results = [];
 
-  const headers = sheetData[0];
-  const dataRows = sheetData.slice(1);
-  const dataObjects = dataRows.map(row => {
-    const obj = {};
-    headers.forEach((header, i) => {
-      obj[header] = row[i];
-    });
-    return obj;
-  });
-
-  // console.log(dataObjects);
-
   for (const row of dataObjects) {
+    // Create flat object with all columns (empty values will be undefined)
     const flat = flattenXlsxObject(row, '', BUDGET_COLUMN_MAPPINGS);
-    // console.log("Flattened row:", flat);
-
+    
     try {
       let result;
 
@@ -125,49 +163,80 @@ async function processXlsxSyncUpload(file, type) {
           // result = await upsertManifestEntry(flat);
           break;
         case 'budget':
-          result = await upsertBudgetEntry(flat, new Date().toISOString());
-          console.log(result);
+          // Only proceed if we have required fields
+          if (flat.stage_name && (flat.manifest || flat.institutions || flat.schools)) {
+            // Filter out undefined/null/empty values before upsert
+            const filteredFlat = Object.fromEntries(
+              Object.entries(flat).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+            );
+            result = await upsertBudgetEntry(filteredFlat, new Date().toISOString());
+            console.log(result);
+          } else {
+            results.push({
+              inserted: false,
+              reason: 'Skipped - Missing required fields (stage_name or manifest)',
+              rowData: {
+                code: flat.code || 'N/A',
+                stageName: flat.stage_name || 'N/A',
+                department: flat.department || 'N/A'
+              }
+            });
+            continue;
+          }
           break;
         default:
           result = null;
           break;
       }
 
-      // Handle database query result properly
-      if (result && result.rows && result.rows.length > 0) {
-        // For upsert operations, we can't easily distinguish between insert and update
-        // from the PostgreSQL result alone, so we'll mark all successful operations as "inserted"
-        // This is a common pattern for upsert operations
+      if (result?.rows?.length > 0) {
         results.push({
           inserted: true,
           reason: 'Record upserted successfully',
           serviceResponse: result.rows[0]
         });
-        continue;
+      } else {
+        results.push({
+          inserted: false,
+          reason: 'No rows returned from database operation',
+          serviceResponse: result
+        });
       }
-
-      // If we get here, the operation didn't return any rows
-      results.push({
-        inserted: false,
-        reason: 'No rows returned from database operation',
-        serviceResponse: result
-      });
     } catch (serviceErr) {
-      results.push({
+      const errorInfo = {
         inserted: false,
         reason: 'Service error',
-        error: serviceErr.message
-      });
+        error: serviceErr.message,
+        rowData: {
+          code: row['Code'] || 'N/A',
+          stageName: row['Stage Name'] || 'N/A',
+          department: row['Department'] || 'N/A'
+        }
+      };
+
+      if (serviceErr.message) {
+        const columnMatch = serviceErr.message.match(/column "([^"]+)"/i);
+        if (columnMatch) {
+          errorInfo.problematicColumn = columnMatch[1];
+        }
+        
+        const constraintMatch = serviceErr.message.match(/constraint "([^"]+)"/i);
+        if (constraintMatch) {
+          errorInfo.constraintViolation = constraintMatch[1];
+        }
+      }
+
+      results.push(errorInfo);
     }
   }
 
   return {
     message: `Sync complete for ${type}`,
     summary: {
-      total: results.length,
+      totalRows: sheetData.length - 1, // Subtract header row
+      processed: dataObjects.length,
       inserted: results.filter(r => r.inserted).length,
-      updated: results.filter(r => r.updated).length,
-      skipped: results.filter(r => !r.inserted && !r.updated).length,
+      skipped: results.filter(r => !r.inserted).length,
     },
     details: results,
   };
@@ -187,12 +256,12 @@ async function validateColumns(requiredColumns, actualColumns) {
   }
 }
 
-
 module.exports = {
   flattenObject,
   flattenXlsxObject,
   validateApiKey,
   verifyCognitoSignature,
   processXlsxSyncUpload,
-  validateColumns
+  validateColumns,
+  BUDGET_COLUMN_MAPPINGS
 };
