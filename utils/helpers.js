@@ -141,12 +141,9 @@ async function processXlsxSyncUpload(file, type) {
     // Apply department mapping logic
     if (obj.Department) {
       const department = obj.Department.toString().toLowerCase();
-      // Use Institution column if available, otherwise look for Division/District
-      const institutionCol = headers.includes('Institution') ? 'Institution' : 
-                           headers.find(h => h.includes('Division') || h.includes('District'));
-      
-      if (department.includes('institution') && institutionCol && obj[institutionCol]) {
-        obj.Residential = obj[institutionCol];
+      // Use Institution column if available, otherwise look for Division/District      
+      if (department.includes('institution') && obj.Institution) {
+        obj.Residential = obj.Institution;
       } else if (department.includes('school') && obj.School) {
         obj.Residential = obj.School;
       }
