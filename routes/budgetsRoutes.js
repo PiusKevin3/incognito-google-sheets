@@ -34,7 +34,7 @@ router.post('/update-budget-manifest', validateApiKey, async (req, res) => {
 
         await dbService.upsertBudgetEntry(flatGeneral, updatedAt);
 
-        res.status(200).send('Budget updated');
+        return res.status(200).send('Budget updated');
     } catch (error) {
         console.error(`Error updating budget: ${error.message}`);
         res.status(500).send('Error updating budget');
