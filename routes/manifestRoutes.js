@@ -320,11 +320,11 @@ router.post('/update', async (req, res) => {
 
     // Updating budget database
     var result = await dbService.updateActualBudgetData({
-      stage_name: budgetDetails.Details.StageName,
+      stage_name: latGeneral["StageName"],
       actual_people: updatedData.Actual.ActualPeople,
-      actual_coasters: updatedData.Actual.Coasters,
-      actual_buses: updatedData.Actual.Buses,
-      actual_taxis: updatedData.Actual.Taxis,
+      // actual_coasters: updatedData.Actual.Coasters,
+      // actual_buses: updatedData.Actual.Buses,
+      // actual_taxis: updatedData.Actual.Taxis,
     }, new Date().toISOString());
 
     // ✅ Only update Cognito if this is NOT a webhook call
