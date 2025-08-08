@@ -202,7 +202,7 @@ router.post('/update', async (req, res) => {
 
     // Updating budget details
     const budgetDetails = await dbService.findBudgetByFormID(flatGeneral["StageName2"], manifestName);
-
+    console.log('Stage Name:', flatGeneral["StageName2"]);
     console.log('Budget Details:', budgetDetails);
 
     var newActualPeopleForBudget;
