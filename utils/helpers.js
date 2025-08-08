@@ -179,7 +179,7 @@ async function processXlsxSyncUpload(file, type) {
           break;
         case 'budget':
           // Only proceed if we have required fields
-          if (flat.stage_name && flat.manifest) {
+          if (flat.stage_name && (flat.manifest || flat.institutions || flat.schools)) {
             // Filter out undefined/null/empty values before upsert
             const filteredFlat = Object.fromEntries(
               Object.entries(flat).filter(([_, v]) => v !== undefined && v !== null && v !== '')
@@ -270,7 +270,6 @@ async function validateColumns(requiredColumns, actualColumns) {
     throw new Error(`Missing columns: ${missingColumns.join(', ')}`);
   }
 }
-
 
 module.exports = {
   flattenObject,
