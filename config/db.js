@@ -3,28 +3,28 @@ const fs = require('fs');
 const path = require('path');
 
 // Define SSL configuration based on environment
-let sslConfig;
+// let sslConfig;
 
-  try {
-    // First try the direct path approach like service-account.json
-    let caCert;
+//   try {
+//     // First try the direct path approach like service-account.json
+//     let caCert;
 
-    // This approach matches how service-account.json is loaded in financeRoutes.js
-    if (fs.existsSync('/etc/secrets/ca-certificate.crt')) {
-      caCert = fs.readFileSync('/etc/secrets/ca-certificate.crt').toString();
-      sslConfig = {
-        ca: caCert,
-        rejectUnauthorized: true
-      };
-      console.log('Successfully loaded CA certificate from /etc/secrets/');
-    } else {
-      console.log('CA certificate not found, using fallback SSL config');
-      sslConfig = { rejectUnauthorized: false };
-    }
-  } catch (error) {
-    console.error('Error loading CA certificate:', error);
-    sslConfig = { rejectUnauthorized: false };
-  }
+//     // This approach matches how service-account.json is loaded in financeRoutes.js
+//     if (fs.existsSync('/etc/secrets/ca-certificate.crt')) {
+//       caCert = fs.readFileSync('/etc/secrets/ca-certificate.crt').toString();
+//       sslConfig = {
+//         ca: caCert,
+//         rejectUnauthorized: true
+//       };
+//       console.log('Successfully loaded CA certificate from /etc/secrets/');
+//     } else {
+//       console.log('CA certificate not found, using fallback SSL config');
+//       sslConfig = { rejectUnauthorized: false };
+//     }
+//   } catch (error) {
+//     console.error('Error loading CA certificate:', error);
+//     sslConfig = { rejectUnauthorized: false };
+//   }
 
 
 const pool = new Pool({
