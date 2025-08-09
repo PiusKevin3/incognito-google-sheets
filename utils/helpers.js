@@ -139,7 +139,7 @@ async function processXlsxSyncUpload(file, type) {
         hasData = true;
       }
     });
-
+    console.log(obj)
     // Apply department mapping logic
     if (obj.Department) {
       const department = obj.Department.toString().toLowerCase();

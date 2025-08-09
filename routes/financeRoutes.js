@@ -39,24 +39,24 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         // console.log('🧾 Data to be sent to the Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
-        if (
-            !flatSection["AccountabilityEntry_Label"] ||
-            !flatSection["FundingParty"] ||
-            !flatSection["Amount"] ||
-            !flatSection["IssuedBy"] ||
-            !flatSection["ReceivedBy"] ||
-            !flatSection["FormID"] ||
-            !flatSection["FinalBalance"] ||
-            (!flatSection["ManifestName"] && !flatSection["InstitutionName"] && !flatSection["SchoolName"]) ||
-            !flatSection["Department"] ||
-            !flatSection["CostOfVehicle"] ||
-            !flatSection["Balance"] ||
-            !flatSection["StageName"] ||
-            !flatSection["Contribution"]
-        ) {
-            console.log('Missing one or more required fields in request body:', flatSection);
-            return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
-        }
+        // if (
+        //     !flatSection["AccountabilityEntry_Label"] ||
+        //     !flatSection["FundingParty"] ||
+        //     !flatSection["Amount"] ||
+        //     !flatSection["IssuedBy"] ||
+        //     !flatSection["ReceivedBy"] ||
+        //     !flatSection["FormID"] ||
+        //     !flatSection["FinalBalance"] ||
+        //     (!flatSection["ManifestName"] && !flatSection["InstitutionName"] && !flatSection["SchoolName"]) ||
+        //     !flatSection["Department"] ||
+        //     !flatSection["CostOfVehicle"] ||
+        //     !flatSection["Balance"] ||
+        //     !flatSection["StageName"] ||
+        //     !flatSection["Contribution"]
+        // ) {
+        //     console.log('Missing one or more required fields in request body:', flatSection);
+        //     return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
+        // }
 
         // Construct the values to append in the order you want
         const values = [[
