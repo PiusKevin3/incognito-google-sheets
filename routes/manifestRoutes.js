@@ -92,15 +92,15 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     const budgetFormId = budgetDetails.Entry.Number;
     console.log('Budget Form ID:', budgetFormId);
 
-    const updatedData = {
-        Actual : {
-            ActualPeople: (budgetDetails.Actual?.ActualPeople || 0) + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
-            FinanceContribution: parseInt(budgetDetails.Actual?.FinanceContribution || 0) + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
-            Taxis: (budgetDetails.Actual?.ActualTaxis || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
-            Buses: (budgetDetails.Actual?.ActualBuses || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
-            Coasters: (budgetDetails.Actual?.ActualCoasters || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
-        }
-    };
+  const updatedData = {
+      Actual: {
+          ActualPeople: (parseInt(budgetDetails.Actual?.ActualPeople) || 0) + (parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0),
+          FinanceContribution: (parseInt(budgetDetails.Actual?.FinanceContribution) || 0) + (parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]) || 0),
+          Taxis: (parseInt(budgetDetails.Actual?.ActualTaxis) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
+          Buses: (parseInt(budgetDetails.Actual?.ActualBuses) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
+          Coasters: (parseInt(budgetDetails.Actual?.ActualCoasters) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
+      }
+  };
 
     console.log('Updated Data:', updatedData);
 
