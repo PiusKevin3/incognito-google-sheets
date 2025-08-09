@@ -6,39 +6,41 @@ const { upsertBudgetEntry } = require('../services/dbService');
 
 
 const REQUIRED_BUDGET_COLUMNS = [
-  'Code',
-  'District Name|Division Name',
-  'Residential',
-  'Stage Name',
-  'TargetPeople',
-  'Number of Taxis',
-  'Number of Coasters',
-  'Number of Buses',
-  'Total Cost',
-  'Cost Per Head',
-  'Coaster Campaign',
-  'Manifest Pledge',
-  'Manifest Contribution',
-  'Department'
+  'Details_Code',
+  'Details_Region',
+  'Details_Division',
+  'Details_Manifests',
+  'Details_StageName',
+  'Planned_People',
+  'Planned_Taxis',
+  'Planned_Coasters',
+  'Planned_Buses',
+  'Planned_TotalCost',
+  'Planned_CostPerHead',
+  'Planned_CoasterCampaign',
+  'Planned_ManifestPledge',
+  'Planned_Contribution',
+  'Details_Department'
 ];
 
 const BUDGET_COLUMN_MAPPINGS = {
-  'Code': 'code',
-  'District Name|Division Name': 'division',
-  'Residential': 'manifest',
-  'Institution': 'institutions',
-  'School': 'schools',
-  'Stage Name': 'stage_name',
-  'TargetPeople': 'planned_people',
-  'Number of Taxis': 'planned_taxis',
-  'Number of Coasters': 'planned_coasters',
-  'Number of Buses': 'planned_buses',
-  'Total Cost': 'total_cost',
-  'Cost Per Head': 'cost_per_head',
-  'Coaster Campaign': 'coaster_campaign',
-  'Manifest Pledge': 'manifest_pledge',
-  'Manifest Contribution': 'contribution',
-  'Department': 'department'
+  'Details_Code': 'code',
+  'Details_Region': 'region',
+  'Details_Division': 'division',
+  'Details_Manifests': 'manifest',
+  'Details_Institution': 'institutions',
+  'Details_Schools': 'schools',
+  'Details_StageName': 'stage_name',
+  'Planned_People': 'planned_people',
+  'Planned_Taxis': 'planned_taxis',
+  'Planned_Coasters': 'planned_coasters',
+  'Planned_Buses': 'planned_buses',
+  'Planned_TotalCost': 'total_cost',
+  'Planned_CostPerHead': 'cost_per_head',
+  'Planned_CoasterCampaign': 'coaster_campaign',
+  'Planned_ManifestPledge': 'manifest_pledge',
+  'Planned_Contribution': 'contribution',
+  'Details_Department': 'department'
 };
 
 function flattenObject(obj, prefix = '') {
