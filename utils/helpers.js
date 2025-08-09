@@ -144,9 +144,9 @@ async function processXlsxSyncUpload(file, type) {
     if (obj.Department) {
       const department = obj.Department.toString().toLowerCase();
       // Use Institution column if available, otherwise look for Division/District      
-      if (department.includes('institution') && obj.Institution) {
+      if (['institution', 'institutions'].some(keyword => department.toLowerCase().includes(keyword)) && obj.Institution) {
         obj.Residential = obj.Institution;
-      } else if (department.includes('school') && obj.School) {
+      } else if (['school', 'schools'].some(keyword => department.toLowerCase().includes(keyword)) && obj.School) {
         obj.Residential = obj.School;
       }
     }
