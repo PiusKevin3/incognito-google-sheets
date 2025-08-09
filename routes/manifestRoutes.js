@@ -65,7 +65,7 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
   try {
     const hasApiKey = req.query.apiKey === process.env.API_KEY;
     console.log('Request body', req.body)
-    console.log(process.env.API_KEY, apiKey)
+
     if (!hasApiKey) {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
