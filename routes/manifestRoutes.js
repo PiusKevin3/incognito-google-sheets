@@ -178,6 +178,7 @@ router.post('/update', async (req, res) => {
 
     switch (flatGeneral["Department"]) {
       case "Manifests":
+      case "Manifest":
       case "Residential":
         manifestName = flatGeneral["Manifests"];
         break;
