@@ -4,14 +4,14 @@ const router = express.Router();
 const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject } = require('../utils/helpers');
-const keys = require('/etc/secrets/service-account.json'); // For Render
+// const keys = require('/etc/secrets/service-account.json'); // For Render
 const { fetchEntry, updateCognitoEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json'); // For local dev
 
-const auth = new google.auth.GoogleAuth({
-  credentials: keys,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-});
+// const auth = new google.auth.GoogleAuth({
+//   credentials: keys,
+//   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+// });
 
 const SHEET_ID = process.env.ACC_GOOGLE_SHEET_ID;
 const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;

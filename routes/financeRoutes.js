@@ -3,21 +3,21 @@ const router = express.Router();
 const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject, validateApiKey } = require('../utils/helpers');
-const keys = require('/etc/secrets/service-account.json'); // Use on render
+// const keys = require('/etc/secrets/service-account.json'); // Use on render
 const { updateCognitoEntry, fetchEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json');
 
 const MANIFEST_FORM_ID = process.env.MANIFEST_FORM_ID;
 const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;
 
-const auth = new google.auth.GoogleAuth({
-  credentials: keys,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-});
+// const auth = new google.auth.GoogleAuth({
+//   credentials: keys,
+//   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+// });
 
 router.post('/submit-finance', validateApiKey, async (req, res) => {
     try {
-        const client = await auth.getClient();
+        // const client = await auth.getClient();
         // const sheets = google.sheets({ version: 'v4', auth: client });
 
         const section = req.body.Section || {};

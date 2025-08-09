@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
 // const keys = require('./service-account.json'); //Google service account json credentials path for local host
-const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
+// const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
 
 const app = express();
 app.use(express.json());
