@@ -333,46 +333,65 @@ module.exports = {
   },
 
   upsertBudgetEntry: async (flat, updatedAt) => {
-  const query = `
-    INSERT INTO budget_entries (
-      code,
-      division,
-      manifest,
-      stage_name,
-      planned_people,
-      planned_coasters,
-      planned_buses,
-      planned_taxis,
-      total_cost,
-      updated_at
-    ) VALUES (
-      $1,
-      $2,
-      $3,
-      $4,
-      $5,
-      $6,
-      $7,
-      $8,
-      $9,
-      $10
-    )
-    ON CONFLICT (stage_name, manifest)
-    DO UPDATE SET
-      code = EXCLUDED.code,
-      division = EXCLUDED.division,
-      manifest = EXCLUDED.manifest,
-      stage_name = EXCLUDED.stage_name,
-      planned_people = EXCLUDED.planned_people,
-      planned_coasters = EXCLUDED.planned_coasters,
-      planned_buses = EXCLUDED.planned_buses,
-      planned_taxis = EXCLUDED.planned_taxis,
-      total_cost = EXCLUDED.total_cost,
-      updated_at = EXCLUDED.updated_at
-    RETURNING *;
-  `;
+    const query = `
+      INSERT INTO budget_entries (
+        region,
+        department,
+        code,
+        division,
+        manifest,
+        stage_name,
+        planned_people,
+        planned_coasters,
+        planned_buses,
+        planned_taxis,
+        cost_per_head,
+        contribution,
+        total_cost,
+        coaster_campaign,
+        manifest_pledge,
+        updated_at
+      ) VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16
+      )
+      ON CONFLICT (stage_name, manifest)
+      DO UPDATE SET
+        region = COALESCE(EXCLUDED.region, budget_entries.region),
+        department = COALESCE(EXCLUDED.department, budget_entries.department),
+        code = COALESCE(EXCLUDED.code, budget_entries.code),
+        division = COALESCE(EXCLUDED.division, budget_entries.division),
+        manifest = COALESCE(EXCLUDED.manifest, budget_entries.manifest),
+        stage_name = COALESCE(EXCLUDED.stage_name, budget_entries.stage_name),
+        planned_people = COALESCE(EXCLUDED.planned_people, budget_entries.planned_people),
+        planned_coasters = COALESCE(EXCLUDED.planned_coasters, budget_entries.planned_coasters),
+        planned_buses = COALESCE(EXCLUDED.planned_buses, budget_entries.planned_buses),
+        planned_taxis = COALESCE(EXCLUDED.planned_taxis, budget_entries.planned_taxis),
+        cost_per_head = COALESCE(EXCLUDED.cost_per_head, budget_entries.cost_per_head),
+        total_cost = COALESCE(EXCLUDED.total_cost, budget_entries.total_cost),
+        contribution = COALESCE(EXCLUDED.contribution, budget_entries.contribution),
+        coaster_campaign = COALESCE(EXCLUDED.coaster_campaign, budget_entries.coaster_campaign),
+        manifest_pledge = COALESCE(EXCLUDED.manifest_pledge, budget_entries.manifest_pledge),
+        updated_at = EXCLUDED.updated_at
+      RETURNING *;
+    `;
 
     const values = [
+      flat.region,
       flat.department,
       flat.code,
       flat.division,

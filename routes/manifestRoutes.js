@@ -4,14 +4,14 @@ const router = express.Router();
 const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject } = require('../utils/helpers');
-const keys = require('/etc/secrets/service-account.json'); // For Render
+// const keys = require('/etc/secrets/service-account.json'); // For Render
 const { fetchEntry, updateCognitoEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json'); // For local dev
 
-const auth = new google.auth.GoogleAuth({
-  credentials: keys,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-});
+// const auth = new google.auth.GoogleAuth({
+//   credentials: keys,
+//   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+// });
 
 const SHEET_ID = process.env.ACC_GOOGLE_SHEET_ID;
 const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;
@@ -64,12 +64,12 @@ async function saveToGoogleSheets(flatGeneral) {
 router.post('/cognito-manifest-webhook', async (req, res) => {
   try {
     const hasApiKey = req.query.apiKey === process.env.API_KEY;
+    console.log('Request body', req.body)
 
     if (!hasApiKey) {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
     }
 
-    console.log('Request body', req.body)
     // const { formId, entryId, event } = req.body;
 
     // if (event !== 'entry.created' && event !== 'entry.updated') {
@@ -87,19 +87,20 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     }
 
     const budgetDetails = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+    console.log('Cognito Details:', flatGeneral);
     console.log('Budget Details:', budgetDetails);
     const budgetFormId = budgetDetails.Entry.Number;
     console.log('Budget Form ID:', budgetFormId);
 
-    const updatedData = {
-        Actual : {
-            ActualPeople: budgetDetails.Actual.ActualPeople + parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]),
-            FinanceContribution: (budgetDetails.Actual?.FinanceContribution || 0) + parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]),
-            Taxis: (budgetDetails.Actual?.ActualTaxis || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
-            Buses: (budgetDetails.Actual?.ActualBuses || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
-            Coasters: (budgetDetails.Actual?.ActualCoasters || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
-        }
-    };
+  const updatedData = {
+      Actual: {
+          ActualPeople: (parseInt(budgetDetails.Actual?.ActualPeople) || 0) + (parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0),
+          FinanceContribution: (parseInt(budgetDetails.Actual?.FinanceContribution) || 0) + (parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]) || 0),
+          Taxis: (parseInt(budgetDetails.Actual?.ActualTaxis) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
+          Buses: (parseInt(budgetDetails.Actual?.ActualBuses) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
+          Coasters: (parseInt(budgetDetails.Actual?.ActualCoasters) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
+      }
+  };
 
     console.log('Updated Data:', updatedData);
 
@@ -178,12 +179,16 @@ router.post('/update', async (req, res) => {
 
     switch (flatGeneral["Department"]) {
       case "Manifests":
+      case "Manifest":
+      case "Residential":
         manifestName = flatGeneral["Manifests"];
         break;
       case "Institutions":
+      case "Institution":
         manifestName = flatGeneral["Institutions"];
         break;
       case "Schools":
+      case "School":
         manifestName = flatGeneral["Schools"];
         break;
       case "UpCountry":

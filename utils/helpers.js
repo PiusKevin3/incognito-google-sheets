@@ -6,27 +6,41 @@ const { upsertBudgetEntry } = require('../services/dbService');
 
 
 const REQUIRED_BUDGET_COLUMNS = [
-  'Code',
-  'District Name|Division Name',
-  'Residential',
-  'Stage Name',
-  'TargetPeople',
-  'Number of Taxis',
-  'Number of Coasters',
-  'Number of Buses',
-  'Total Cost',
+  'Details_Code',
+  'Details_Region',
+  'Details_Division',
+  'Details_Manifests',
+  'Details_StageName',
+  'Planned_People',
+  'Planned_Taxis',
+  'Planned_Coasters',
+  'Planned_Buses',
+  'Planned_TotalCost',
+  'Planned_CostPerHead',
+  'Planned_CoasterCampaign',
+  'Planned_ManifestPledge',
+  'Planned_Contribution',
+  'Details_Department'
 ];
 
 const BUDGET_COLUMN_MAPPINGS = {
-  'Code': 'code',
-  'District Name|Division Name': 'division',
-  'Residential': 'manifest',
-  'Stage Name': 'stage_name',
-  'TargetPeople': 'planned_people',
-  'Number of Taxis': 'planned_taxis',
-  'Number of Coasters': 'planned_coasters',
-  'Number of Buses': 'planned_buses',
-  'Total Cost': 'total_cost'
+  'Details_Code': 'code',
+  'Details_Region': 'region',
+  'Details_Division': 'division',
+  'Details_Manifests': 'manifest',
+  'Details_Institution': 'institutions',
+  'Details_Schools': 'schools',
+  'Details_StageName': 'stage_name',
+  'Planned_People': 'planned_people',
+  'Planned_Taxis': 'planned_taxis',
+  'Planned_Coasters': 'planned_coasters',
+  'Planned_Buses': 'planned_buses',
+  'Planned_TotalCost': 'total_cost',
+  'Planned_CostPerHead': 'cost_per_head',
+  'Planned_CoasterCampaign': 'coaster_campaign',
+  'Planned_ManifestPledge': 'manifest_pledge',
+  'Planned_Contribution': 'contribution',
+  'Details_Department': 'department'
 };
 
 function flattenObject(obj, prefix = '') {
@@ -125,15 +139,15 @@ async function processXlsxSyncUpload(file, type) {
         hasData = true;
       }
     });
-
+    console.log(obj)
     // Apply department mapping logic
     if (obj.Department) {
       const department = obj.Department.toString().toLowerCase();
       // Use Institution column if available, otherwise look for Division/District      
-      if (department.includes('institution') && obj.Institution) {
+      if (['institution', 'institutions'].some(keyword => department.toLowerCase().includes(keyword)) && obj.Institution) {
         obj.Residential = obj.Institution;
-      } else if (department.includes('school') && obj.School) {
-        obj.Residential = obj.School;
+      } else if (['school', 'schools'].some(keyword => department.toLowerCase().includes(keyword)) && obj.Schools) {
+        obj.Residential = obj.Schools;
       }
     }
 
