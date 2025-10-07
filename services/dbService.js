@@ -119,7 +119,8 @@ module.exports = {
   // This function performs a pure INSERT. It will throw an error if a record with the same form_id already exists
   // and form_id has a UNIQUE constraint.
   insertManifestEntry: async (formId, entry, updatedAt = new Date()) => {
-    // console.log("insert manifest : " + entry);
+    console.log("insert manifest : " + entry);
+    console.log(entry);  
 
     if (!formId) {
       console.warn("⚠️ Skipped: Missing ID1 (form_id) for insertManifestEntry");
@@ -127,92 +128,96 @@ module.exports = {
     }
 
     const query = `
-    INSERT INTO manifest_entries (
-      form_id, event, department, manifests, institutions, hospitals, masterclass,
-      schools, up_country, stage_name, coordinator_name, coordinator_contact,
-      driver_name, driver_contact, driver_nin_permit, driver_vehicle_type,
-      driver_number_plate, vehicle_cost, vehicle_contribution, vehicle_booking_fee,
-      vehicle_balance, cost_per_head, souls_total, souls_residents, souls_residents_firsttimers,
-      souls_institutions, souls_institutions_firsttimers, souls_schools,
-      souls_schools_firsttimers, verifier_name, updated_at
-    )
-    VALUES (
-      $1, $2, $3, $4, $5, $6, $7,
-      $8, $9, $10, $11, $12,
-      $13, $14, $15, $16,
-      $17, $18, $19, $20,
-      $21, $22, $23, $24, $25,
-      $26, $27, $28,
-      $29, $30, $31
-    )
-    ON CONFLICT (form_id) DO UPDATE SET
-      event = COALESCE(EXCLUDED.event, manifest_entries.event),
-      department = COALESCE(EXCLUDED.department, manifest_entries.department),
-      manifests = COALESCE(EXCLUDED.manifests, manifest_entries.manifests),
-      institutions = COALESCE(EXCLUDED.institutions, manifest_entries.institutions),
-      hospitals = COALESCE(EXCLUDED.hospitals, manifest_entries.hospitals),
-      masterclass = COALESCE(EXCLUDED.masterclass, manifest_entries.masterclass),
-      schools = COALESCE(EXCLUDED.schools, manifest_entries.schools),
-      up_country = COALESCE(EXCLUDED.up_country, manifest_entries.up_country),
-      stage_name = COALESCE(EXCLUDED.stage_name, manifest_entries.stage_name),
-      coordinator_name = COALESCE(EXCLUDED.coordinator_name, manifest_entries.coordinator_name),
-      coordinator_contact = COALESCE(EXCLUDED.coordinator_contact, manifest_entries.coordinator_contact),
-      driver_name = COALESCE(EXCLUDED.driver_name, manifest_entries.driver_name),
-      driver_contact = COALESCE(EXCLUDED.driver_contact, manifest_entries.driver_contact),
-      driver_nin_permit = COALESCE(EXCLUDED.driver_nin_permit, manifest_entries.driver_nin_permit),
-      driver_vehicle_type = COALESCE(EXCLUDED.driver_vehicle_type, manifest_entries.driver_vehicle_type),
-      driver_number_plate = COALESCE(EXCLUDED.driver_number_plate, manifest_entries.driver_number_plate),
-      vehicle_cost = COALESCE(EXCLUDED.vehicle_cost, manifest_entries.vehicle_cost),
-      vehicle_contribution = COALESCE(EXCLUDED.vehicle_contribution, manifest_entries.vehicle_contribution),
-      vehicle_booking_fee = COALESCE(EXCLUDED.vehicle_booking_fee, manifest_entries.vehicle_booking_fee),
-      vehicle_balance = COALESCE(EXCLUDED.vehicle_balance, manifest_entries.vehicle_balance),
-      cost_per_head = COALESCE(EXCLUDED.cost_per_head, manifest_entries.cost_per_head),
-      souls_total = COALESCE(EXCLUDED.souls_total, manifest_entries.souls_total),
-      souls_residents = COALESCE(EXCLUDED.souls_residents, manifest_entries.souls_residents),
-      souls_residents_firsttimers = COALESCE(EXCLUDED.souls_residents_firsttimers, manifest_entries.souls_residents_firsttimers),
-      souls_institutions = COALESCE(EXCLUDED.souls_institutions, manifest_entries.souls_institutions),
-      souls_institutions_firsttimers = COALESCE(EXCLUDED.souls_institutions_firsttimers, manifest_entries.souls_institutions_firsttimers),
-      souls_schools = COALESCE(EXCLUDED.souls_schools, manifest_entries.souls_schools),
-      souls_schools_firsttimers = COALESCE(EXCLUDED.souls_schools_firsttimers, manifest_entries.souls_schools_firsttimers),
-      verifier_name = COALESCE(EXCLUDED.verifier_name, manifest_entries.verifier_name),
-      updated_at = NOW()
-    WHERE
-      manifest_entries.* IS DISTINCT FROM EXCLUDED.*;
-  `;
+INSERT INTO manifest_entries (
+  form_id, event, department, manifests, institutions, hospitals, masterclass,
+  schools, up_country, stage_name, coordinator_name, coordinator_contact,
+  driver_name, driver_contact, driver_nin_permit, driver_vehicle_type,
+  driver_number_plate, vehicle_cost, vehicle_contribution, vehicle_booking_fee,
+  vehicle_balance, cost_per_head, souls_total, souls_residents, souls_residents_firsttimers,
+  souls_institutions, souls_institutions_firsttimers, souls_schools,
+  souls_schools_firsttimers, verifier_name, updated_at
+)
+VALUES (
+  $1, $2, $3, $4, $5, $6, $7,
+  $8, $9, $10, $11, $12,
+  $13, $14, $15, $16,
+  $17, $18, $19, $20,
+  $21, $22, $23, $24, $25,
+  $26, $27, $28,
+  $29, $30, $31
+)
+ON CONFLICT (form_id) DO UPDATE SET
+  event = COALESCE(EXCLUDED.event, manifest_entries.event),
+  department = COALESCE(EXCLUDED.department, manifest_entries.department),
+  manifests = COALESCE(EXCLUDED.manifests, manifest_entries.manifests),
+  institutions = COALESCE(EXCLUDED.institutions, manifest_entries.institutions),
+  hospitals = COALESCE(EXCLUDED.hospitals, manifest_entries.hospitals),
+  masterclass = COALESCE(EXCLUDED.masterclass, manifest_entries.masterclass),
+  schools = COALESCE(EXCLUDED.schools, manifest_entries.schools),
+  up_country = COALESCE(EXCLUDED.up_country, manifest_entries.up_country),
+  stage_name = COALESCE(EXCLUDED.stage_name, manifest_entries.stage_name),
+  coordinator_name = COALESCE(EXCLUDED.coordinator_name, manifest_entries.coordinator_name),
+  coordinator_contact = COALESCE(EXCLUDED.coordinator_contact, manifest_entries.coordinator_contact),
+  driver_name = COALESCE(EXCLUDED.driver_name, manifest_entries.driver_name),
+  driver_contact = COALESCE(EXCLUDED.driver_contact, manifest_entries.driver_contact),
+  driver_nin_permit = COALESCE(EXCLUDED.driver_nin_permit, manifest_entries.driver_nin_permit),
+  driver_vehicle_type = COALESCE(EXCLUDED.driver_vehicle_type, manifest_entries.driver_vehicle_type),
+  driver_number_plate = COALESCE(EXCLUDED.driver_number_plate, manifest_entries.driver_number_plate),
+  vehicle_cost = COALESCE(EXCLUDED.vehicle_cost, manifest_entries.vehicle_cost),
+  vehicle_contribution = COALESCE(EXCLUDED.vehicle_contribution, manifest_entries.vehicle_contribution),
+  vehicle_booking_fee = COALESCE(EXCLUDED.vehicle_booking_fee, manifest_entries.vehicle_booking_fee),
+  vehicle_balance = COALESCE(EXCLUDED.vehicle_balance, manifest_entries.vehicle_balance),
+  cost_per_head = COALESCE(EXCLUDED.cost_per_head, manifest_entries.cost_per_head),
+  souls_total = COALESCE(EXCLUDED.souls_total, manifest_entries.souls_total),
+  souls_residents = COALESCE(EXCLUDED.souls_residents, manifest_entries.souls_residents),
+  souls_residents_firsttimers = COALESCE(EXCLUDED.souls_residents_firsttimers, manifest_entries.souls_residents_firsttimers),
+  souls_institutions = COALESCE(EXCLUDED.souls_institutions, manifest_entries.souls_institutions),
+  souls_institutions_firsttimers = COALESCE(EXCLUDED.souls_institutions_firsttimers, manifest_entries.souls_institutions_firsttimers),
+  souls_schools = COALESCE(EXCLUDED.souls_schools, manifest_entries.souls_schools),
+  souls_schools_firsttimers = COALESCE(EXCLUDED.souls_schools_firsttimers, manifest_entries.souls_schools_firsttimers),
+  verifier_name = COALESCE(EXCLUDED.verifier_name, manifest_entries.verifier_name),
+  updated_at = NOW()
+WHERE
+  manifest_entries.* IS DISTINCT FROM EXCLUDED.*
+RETURNING *;  -- ✅ Add this line
+`;
 
-    const values = [
-      formId,
-      entry.General_Event,
-      entry.General_Department,
-      entry.General_Manifests,
-      entry.General_Institutions,
-      entry.General_Hospitals,
-      entry.General_Masterclass,
-      entry.General_Schools,
-      entry.General_UpCountry,
-      entry.General_StageName2,
-      entry.General_Coordinator_Name,
-      entry.General_Coordinator_Contact,
-      entry.General_Coordinator_DriversDetails_Name,
-      entry.General_Coordinator_DriversDetails_Contact,
-      entry.General_Coordinator_DriversDetails_NINPermitNo,
-      entry.General_Coordinator_DriversDetails_VehicleType,
-      entry.General_Coordinator_DriversDetails_NumberPlate,
-      entry.General_Coordinator_VehicleDetails_CostOfVehicle2,
-      entry.General_Coordinator_VehicleDetails_CashContribution,
-      entry.General_Coordinator_VehicleDetails_BookingFee,
-      entry.General_Coordinator_VehicleDetails_Balance,
-      entry.General_Coordinator_VehicleDetails_CostPerHead,
-      entry.General_Coordinator_SoulsDetails_TOTAL,
-      entry.General_Coordinator_SoulsDetails_Residents_NoOfPeople,
-      entry.General_Coordinator_SoulsDetails_Residents_FirstTimers,
-      entry.General_Coordinator_SoulsDetails_Institutions_NoOfPeople,
-      entry.General_Coordinator_SoulsDetails_Institutions_FirstTimers,
-      entry.General_Coordinator_SoulsDetails_Schools_NoOfPeople,
-      entry.General_Coordinator_SoulsDetails_Schools_FirstTimers,
-      entry.General_Coordinator_VehicleDetails_VerifierName,
-      updatedAt,
-    ];
+  
+    const mapped = {
+      form_id: formId,
+      event: entry.event,
+      department: entry.department,
+      manifests: entry.manifest, // renamed
+      institutions: entry.institutions,
+      hospitals: entry.hospitals || null,
+      masterclass: entry.masterclass || null,
+      schools: entry.schools,
+      up_country: entry.up_country,
+      stage_name: entry.stage_name,
+      coordinator_name: entry.coordinator_name,
+      coordinator_contact: entry.coordinator_contact,
+      driver_name: entry.driver_name || null,
+      driver_contact: entry.driver_contact || null,
+      driver_nin_permit: entry.driver_nin_permit_no, // renamed
+      driver_vehicle_type: entry.driver_vehicle_type,
+      driver_number_plate: entry.driver_number_plate,
+      vehicle_cost: entry.cost_of_vehicle, // renamed
+      vehicle_contribution: entry.cash_contribution, // renamed
+      vehicle_booking_fee: entry.driver_booking_fee, // renamed
+      vehicle_balance: entry.balance, // renamed
+      cost_per_head: entry.cost_per_head,
+      souls_total: entry.total, // renamed
+      souls_residents: entry.people, // renamed
+      souls_residents_firsttimers: entry.first_timers, // renamed
+      souls_institutions: entry.souls_institutions || null,
+      souls_institutions_firsttimers: entry.souls_institutions_firsttimers || null,
+      souls_schools: entry.souls_schools || null,
+      souls_schools_firsttimers: entry.souls_schools_firsttimers || null,
+      verifier_name: entry.verifier_name,
+      updated_at: updatedAt,
+    };
+
+    const values = Object.values(mapped);
 
     const result = await db.query(query, values);
     console.log(`✅ Inserted new manifest entry: ${formId}`);
@@ -273,48 +278,51 @@ module.exports = {
   },
 
   insertFinanceEntry: async (flat, updatedAt) => {
-    const query = `
-      INSERT INTO finance_entries (
-        manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
-        form_id, final_balance, manifest_name, institution_name,
-        school_name, department, cost_of_vehicle, balance, stage_name,
-        contribution, booking_fee, event, updated_at
-      ) VALUES (
-        $1, $2, $3, $4, $5,
-        $6, $7, $8, $9,
-        $10, $11, $12, $13,
-        $14, $15, $16, $17, $18, $19, $20
-      )
-      RETURNING *;
-    `;
+  const query = `
+    INSERT INTO finance_entries (
+      manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
+      form_id, final_balance, manifest_name, institution_name,
+      school_name, department, cost_of_vehicle, balance, stage_name,
+      contribution, booking_fee, event, updated_at
+    ) VALUES (
+      $1, $2, $3, $4, $5,
+      $6, $7, $8, $9,
+      $10, $11, $12, $13,
+      $14, $15, $16, $17, $18, $19, $20
+    )
+    RETURNING *;
+  `;
 
-    const values = [
-      flat["FormID"],
-      flat["BudgetID"],
-      flat["AccountabilityEntry_Label"],
-      flat["FundingParty"],
-      parseNumeric(flat["Amount"]),
-      flat["IssuedBy"],
-      flat["ReceivedBy"],
-      flat["FormID"],
-      parseNumeric(flat["FinalBalance"]),
-      flat["ManifestName"],
-      flat["InstitutionName"],
-      flat["SchoolName"],
-      flat["Department"],
-      flat["CostOfVehicle"],
-      parseNumeric(flat["Balance"]),
-      flat["StageName"],
-      parseNumeric(flat["Contribution"]),
-      parseNumeric(flat["BookingFee"]),
-      flat["Event"],
-      updatedAt
-    ];
+  console.log(flat);
+  
 
-    console.log(values);
+  const values = [
+    flat["manifest_entry_id"] || null,
+    flat["budget_entry_id"] || null,
+    flat["label"] || null,
+    flat["funding_party"] || null,
+    parseFloat(flat["amount"]) || 0,
+    flat["issued_by"] || null,
+    flat["received_by"] || null,
+    flat["form_id"] || null,
+    parseFloat(flat["final_balance"]) || 0,
+    flat["manifest_name"] || null,
+    flat["institution_name"] || null,
+    flat["school_name"] || null,
+    flat["department"] || null,
+    parseFloat(flat["cost_of_vehicle"]) || 0,
+    parseFloat(flat["balance"]) || 0,
+    flat["stage_name"] || null,
+    parseFloat(flat["contribution"]) || 0,
+    parseFloat(flat["booking_fee"]) || 0,
+    flat["event"] || null,
+    updatedAt
+  ];
 
-    return db.query(query, values);
-  },
+  console.log(values);
+  return db.query(query, values);
+},
+
 
   upsertCognitoEntry: async (formId, entryId, entryData, updatedAt) => {
     const query = `
@@ -449,7 +457,7 @@ module.exports = {
       WHERE form_id = $1
       RETURNING *;
     `;
-  
+
     const values = [
       flat["ID1"], // $1 — used in WHERE
       flat["BudgetID"],
@@ -484,12 +492,12 @@ module.exports = {
       flat["Coordinator_VehicleDetails_VerifierName"],
       updatedAt,
     ];
-  
+
     return db.query(query, values);
   },
 
   updateActualBudgetData: async (budget, updatedAt) => {
-  const query = `
+    const query = `
     UPDATE budget_entries
     SET
       actual_people = COALESCE($1, actual_people),
@@ -502,19 +510,19 @@ module.exports = {
     WHERE stage_name = $8;
   `;
 
-  const values = [
-    budget.actual_people,
-    budget.actual_coasters,
-    budget.actual_buses,
-    budget.actual_taxis,
-    budget.actual_cost,
-    budget.actual_expenditure,
-    updatedAt,
-    budget.stage_name
-  ];
+    const values = [
+      budget.actual_people,
+      budget.actual_coasters,
+      budget.actual_buses,
+      budget.actual_taxis,
+      budget.actual_cost,
+      budget.actual_expenditure,
+      updatedAt,
+      budget.stage_name
+    ];
 
-  return db.query(query, values);
-},
+    return db.query(query, values);
+  },
 
   getLatestCognitoEntry: async (formId) => {
     const query = `
@@ -569,6 +577,35 @@ module.exports = {
 
     return result.rows[0] || null;
   },
+  findManifestByNumberPlate: async (numberPlate) => {
+    console.log("🔍 Checking number plate:", numberPlate);
+
+    if (!numberPlate) {
+      console.warn("⚠️ Skipped: Missing number plate for query");
+      return null;
+    }
+
+    const normalizedPlate = numberPlate.trim().toUpperCase();
+    const query = `
+    SELECT * FROM manifest_entries 
+    WHERE TRIM(UPPER(driver_number_plate)) = $1 
+    LIMIT 1;
+  `;
+
+    console.log("🧩 Executing query:", query, "with:", normalizedPlate);
+
+    try {
+      const result = await db.query(query, [normalizedPlate]);
+      console.log("🪶 Query result rows:", result.rows);
+
+      return result.rows[0] || null;
+    } catch (err) {
+      console.error("❌ Error fetching manifest by number plate:", err);
+      throw err;
+    }
+  },
+
+
 
 };
 

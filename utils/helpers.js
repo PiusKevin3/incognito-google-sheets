@@ -30,20 +30,24 @@ const BUDGET_COLUMN_MAPPINGS = {
 
 
 const MANIFEST_COLUMN_MAPPINGS = {
+  'ID': 'form_id',
   'Event': 'event',
   'Department': 'department',
   'Manifests': 'manifest',
   'Institutions': 'institutions',
+  // 'Hospitals': 'hospitals',
+  // 'Masterclass': 'master_class',
   'Schools': 'schools',
+  'UpCountry': 'up_country',
   'Stage Name': 'stage_name',
-  'Name': 'name',
-  'Contact': 'contact',
-  'NIN/Permit no.': 'nin_permit_no',
-  'Vehicle Type': 'vehicle_type',
-  'Number Plate': 'number_plate',
+  'Name': 'coordinator_name',
+  'Contact': 'coordinator_contact',
+  'NIN/Permit no.': 'driver_nin_permit_no',
+  'Vehicle Type': 'driver_vehicle_type',
+  'Number Plate': 'driver_number_plate',
   'Cost Of Vehicle': 'cost_of_vehicle',
   'Cash Contribution': 'cash_contribution',
-  'Booking Fee': 'booking_fee',
+  'Booking Fee': 'driver_booking_fee',
   'Balance': 'balance',
   'Cost Per Head': 'cost_per_head',
   'TOTAL': 'total',
@@ -190,7 +194,9 @@ async function processXlsxSyncUpload(file, type) {
 
             result = await upsertBudgetEntry(filteredFlat, new Date().toISOString());
           }
-          break;
+          return result;
+
+          // break;
 
         case 'manifest':
           flat = flattenXlsxObject(row, '', MANIFEST_COLUMN_MAPPINGS);
@@ -206,22 +212,37 @@ async function processXlsxSyncUpload(file, type) {
             }
             seenPlates.add(plate);
           }
+          console.log(flat);
+          console.log("After confirming theres no number plate");
+
 
           result = await upsertManifestEntry(flat, new Date().toISOString());
+          console.log(result);
+          console.log("After inserting");
 
-          break;
+          return result;
+
+
+
+        // break;
 
         case 'finance':
           flat = flattenXlsxObject(row, '', FINANCE_COLUMN_MAPPINGS);
           result = await upsertFinanceEntry(flat, new Date().toISOString());
 
-          break;
+          return result;
+
+
+        // break;
 
         default:
           throw new Error(`Unknown type: ${type}`);
       }
 
-      if (result?.rows?.length > 0) {
+      // if (result?.rowCount > 0 && result?.command === 'INSERT') {
+        if (result?.rows?.length > 0) {
+
+
         results.push({ inserted: true, serviceResponse: result.rows[0] });
       } else {
         results.push({ inserted: false, reason: 'No rows returned from DB', rowData: flat });
