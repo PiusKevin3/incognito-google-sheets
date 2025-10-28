@@ -60,6 +60,8 @@ router.post('/upload-xlsx-sync', upload.single('file'), async (req, res) => {
         const result = await processXlsxSyncUpload(file, type);
         safeUnlink(file.path); // Clean up file after processing
 
+        console.log(result);
+
         return res.status(200).json(result);
     } catch (err) {
         console.error('Upload error:', err);
