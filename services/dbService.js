@@ -291,7 +291,12 @@ RETURNING *;  -- ✅ Add this line
   },
 
   insertFinanceEntry: async (flat, updatedAt) => {
-    const query = `
+  // Normalize keys to lowercase to handle both camelCase and PascalCase keys
+  const normalized = Object.fromEntries(
+    Object.entries(flat).map(([key, value]) => [key.toLowerCase(), value])
+  );
+
+  const query = `
     INSERT INTO finance_entries (
       manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
       form_id, final_balance, manifest_name, institution_name,
@@ -306,35 +311,42 @@ RETURNING *;  -- ✅ Add this line
     RETURNING *;
   `;
 
-    console.log(flat);
+  // Helper to parse numbers safely (handles strings like "15,000")
+  const parseNumber = (val) => {
+    if (val === null || val === undefined || val === '') return 0;
+    const cleaned = String(val).replace(/,/g, '');
+    return isNaN(cleaned) ? 0 : parseFloat(cleaned);
+  };
 
+  const values = [
+    normalized["manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+    normalized["budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"] || null,
+    normalized["label"] || normalized["budgetamount_label"] || null,
+    normalized["funding_party"] || normalized["fundingparty"] || null,
+    parseNumber(normalized["amount"]),
+    normalized["issued_by"] || normalized["issuedby"] || null,
+    normalized["received_by"] || normalized["receivedby"] || null,
+    normalized["form_id"] || normalized["formid"] || null,
+    parseNumber(normalized["final_balance"]),
+    normalized["manifest_name"] || normalized["manifestname"] || null,
+    normalized["institution_name"] || normalized["institutionname"] || null,
+    normalized["school_name"] || normalized["schoolname"] || null,
+    normalized["department"] || null,
+    parseNumber(normalized["cost_of_vehicle"]),
+    parseNumber(normalized["balance"]),
+    normalized["stage_name"] || normalized["stagename"] || null,
+    parseNumber(normalized["contribution"]),
+    parseNumber(normalized["booking_fee"]),
+    normalized["event"] || null,
+    updatedAt
+  ];
 
-    const values = [
-      flat["manifest_entry_id"] || null,
-      flat["budget_entry_id"] || null,
-      flat["label"] || null,
-      flat["funding_party"] || null,
-      parseFloat(flat["amount"]) || 0,
-      flat["issued_by"] || null,
-      flat["received_by"] || null,
-      flat["form_id"] || null,
-      parseFloat(flat["final_balance"]) || 0,
-      flat["manifest_name"] || null,
-      flat["institution_name"] || null,
-      flat["school_name"] || null,
-      flat["department"] || null,
-      parseFloat(flat["cost_of_vehicle"]) || 0,
-      parseFloat(flat["balance"]) || 0,
-      flat["stage_name"] || null,
-      parseFloat(flat["contribution"]) || 0,
-      parseFloat(flat["booking_fee"]) || 0,
-      flat["event"] || null,
-      updatedAt
-    ];
+  console.log('🧾 Normalized Input:', normalized);
+  console.log('📥 Insert Values:', values);
 
-    console.log(values);
-    return db.query(query, values);
-  },
+  return db.query(query, values);
+},
+
 
 
   upsertCognitoEntry: async (formId, entryId, entryData, updatedAt) => {

@@ -9,24 +9,25 @@ const { upsertBudgetEntry, checkBudgetByCode } = require('../services/dbService'
 // Column Mappings
 // ----------------------
 const BUDGET_COLUMN_MAPPINGS = {
-  'Code': 'code',
-  'Region': 'region',
-  'Division': 'division',
-  'Manifests': 'manifest',
-  'Institution': 'institutions',
-  'Schools': 'schools',
-  'Stage Name': 'stage_name',
-  'People': 'planned_people',
-  'Taxis': 'planned_taxis',
-  'Coasters': 'planned_coasters',
-  'Buses': 'planned_buses',
-  'Total Cost': 'total_cost',
-  'Cost Per Head': 'cost_per_head',
-  'Coaster Campaign': 'coaster_campaign',
-  'Manifest Pledge': 'manifest_pledge',
-  'Contribution': 'contribution',
-  'Department': 'department'
+  'Details_Code': 'code',
+  'Details_Region': 'region',
+  'Details_Division': 'division',
+  'Details_Manifests': 'manifest',
+  'Details_Institution': 'institutions',
+  'Details_Schools': 'schools',
+  'Details_StageName': 'stage_name',
+  'Planned_People': 'planned_people',
+  'Planned_Taxis': 'planned_taxis',
+  'Planned_Coasters': 'planned_coasters',
+  'Planned_Buses': 'planned_buses',
+  'Planned_TotalCost': 'total_cost',
+  'Planned_CostPerHead': 'cost_per_head',
+  'Planned_CoasterCampaign': 'coaster_campaign',
+  'Planned_ManifestPledge': 'manifest_pledge',
+  'Planned_Contribution': 'contribution',
+  'Details_Department': 'department'
 };
+
 
 const MANIFEST_COLUMN_MAPPINGS = {
   'ID': 'form_id',
@@ -176,6 +177,7 @@ async function processXlsxSyncUpload(file, type) {
   for (const row of dataObjects) {
     try {
       let flat, result;
+
       switch (type) {
         case 'budget':
           flat = flattenXlsxObject(row, '', BUDGET_COLUMN_MAPPINGS);
@@ -186,7 +188,7 @@ async function processXlsxSyncUpload(file, type) {
             );
 
             try {
-              // 🔍 Check if a budget entry already exists for the same code
+              // Check if a budget entry already exists for the same code
               const existing = await checkBudgetByCode(filteredFlat.code);
 
               if (existing) {
@@ -194,19 +196,15 @@ async function processXlsxSyncUpload(file, type) {
                 throw new Error(`Budget entry for stage ${filteredFlat.stage_name} and code ${filteredFlat.code} already exists.`);
               }
 
-              // ✅ Insert new entry if none found
+              // Insert new entry
               result = await upsertBudgetEntry(filteredFlat, new Date().toISOString());
-              console.log(`✅ Successfully inserted budget entry for stage: ${filteredFlat.stage_name}`);
+              console.log(`✅ Inserted budget entry for stage: ${filteredFlat.stage_name}`);
             } catch (err) {
-              console.error(`❌ Failed to insert budget entry for stage: ${flat.stage_name}`, err.message || err);
-              result = {
-                inserted: false,
-                reason: err.message || "Unknown error",
-              };
+              console.error(`❌ Failed budget entry for stage: ${flat.stage_name}`, err.message || err);
+              result = { inserted: false, reason: err.message || "Unknown error" };
             }
           }
-
-          return result;
+          break;
 
         case 'manifest':
           flat = flattenXlsxObject(row, '', MANIFEST_COLUMN_MAPPINGS);
@@ -222,28 +220,31 @@ async function processXlsxSyncUpload(file, type) {
 
             seenPlates.add(plate);
           }
-          result = await upsertManifestEntry(flat, new Date().toISOString());
-          console.log(result);
-          console.log("After inserting");
 
-          return result;
+          result = await upsertManifestEntry(flat, new Date().toISOString());
+          console.log(`✅ Inserted manifest entry for plate: ${flat.driver_number_plate}`);
+          break;
 
         case 'finance':
           flat = flattenXlsxObject(row, '', FINANCE_COLUMN_MAPPINGS);
           result = await upsertFinanceEntry(flat, new Date().toISOString());
-
-          return result;
+          console.log(`✅ Inserted finance entry for stage: ${flat.stage_name}`);
+          break;
 
         default:
           throw new Error(`Unknown type: ${type}`);
       }
 
+      // ✅ Always push result (even if empty)
       if (result?.rows?.length > 0) {
         results.push({ inserted: true, serviceResponse: result.rows[0] });
+      } else if (result?.inserted === false) {
+        results.push({ inserted: false, reason: result.reason, rowData: flat });
       } else {
         results.push({ inserted: false, reason: 'No rows returned from DB', rowData: flat });
       }
     } catch (err) {
+      console.error(`❌ General error while processing row:`, err.message);
       results.push({
         inserted: false,
         reason: err.message,
@@ -251,6 +252,7 @@ async function processXlsxSyncUpload(file, type) {
       });
     }
   }
+
 
   return {
     message: `Sync complete for ${type}`,

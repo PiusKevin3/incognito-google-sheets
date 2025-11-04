@@ -11,6 +11,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
 
       return;
     }
+    
 
     // Check if FormID already exists
     const existing = await dbService.findFinanceByFormID(formId);
@@ -31,6 +32,7 @@ async function upsertFinanceEntry(entry, updatedAt = new Date()) {
     entry.Section_CostOfVehicle = parseNumeric(entry.Section_CostOfVehicle);
     entry.Section_Contribution = parseNumeric(entry.Section_Contribution);
     entry.Section_BookingFee = parseNumeric(entry.Section_BookingFee);
+
 
     // Insert new entry
     const result = await dbService.insertFinanceEntry(entry, updatedAt);
