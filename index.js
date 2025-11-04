@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
 // const keys = require('./service-account.json'); //Google service account json credentials path for local host
-const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
+// const keys = require('/etc/secrets/service-account.json'); //Google service account json credentials path for render
 
 const app = express();
 app.use(express.json());
@@ -120,26 +120,26 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
         console.log('🧾 Data to be sent to Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
-        if (
-            !flatSection["AccountabilityEntry_Label"] ||
-            !flatSection["FundingParty"] ||
-            !flatSection["Amount"] ||
-            !flatSection["IssuedBy"] ||
-            !flatSection["ReceivedBy"] ||
-            !flatSection["FormID"] ||
-            !flatSection["FinalBalance"] ||
-            !flatSection["ManifestName"] ||
-            !flatSection["InstitutionName"] ||
-            !flatSection["SchoolName"] ||
-            !flatSection["Department"] ||
-            !flatSection["CostOfVehicle"] ||
-            !flatSection["Balance"] ||
-            !flatSection["StageName"] ||
-            !flatSection["Contribution"] ||
-            !flatSection["BookingFee"]
-        ) {
-            return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
-        }
+        // if (
+        //     !flatSection["AccountabilityEntry_Label"] ||
+        //     !flatSection["FundingParty"] ||
+        //     !flatSection["Amount"] ||
+        //     !flatSection["IssuedBy"] ||
+        //     !flatSection["ReceivedBy"] ||
+        //     !flatSection["FormID"] ||
+        //     !flatSection["FinalBalance"] ||
+        //     !flatSection["ManifestName"] ||
+        //     !flatSection["InstitutionName"] ||
+        //     !flatSection["SchoolName"] ||
+        //     !flatSection["Department"] ||
+        //     !flatSection["CostOfVehicle"] ||
+        //     !flatSection["Balance"] ||
+        //     !flatSection["StageName"] ||
+        //     !flatSection["Contribution"] ||
+        //     !flatSection["BookingFee"]
+        // ) {
+        //     return res.status(400).json({ success: false, message: "Missing one or more required 'Section' fields in request body." });
+        // }
 
         // Construct the values to append in the order you want
         const values = [[
@@ -162,6 +162,27 @@ app.post('/submit-finance', validateApiKey, async (req, res) => {
             flatSection["Event"] ?? ''
 
         ]];
+
+        const newBalance = flatSection["Balance"] - flatSection["Amount"];
+
+        try {
+            await fetch(`https://www.cognitoforms.com/api/forms/654/entries/${flatSection["FormID"]}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${process.env.COGNITO_SECRET_TOKEN}`
+                },
+                body: JSON.stringify({
+                    Entry: {
+                        Action: 'Submit',
+                        Role: 'Public'
+                    },
+                    Balance: newBalance
+                })
+            });
+        } catch (error) {
+            console.error('Error updating Cognito form:', error);
+        }
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,

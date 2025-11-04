@@ -1,0 +1,29 @@
+const express = require('express');
+const router = express.Router();
+const dbService = require('../services/dbService');
+
+router.post('/cognito-webhook', async (req, res) => {
+  try {
+    const hasApiKey = req.query.apiKey === process.env.API_KEY;
+
+    if (!hasApiKey) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
+    }
+
+    const { formId, entryId, event } = req.body;
+
+    if (event !== 'entry.created') {
+      return res.status(200).send('Ignored event');
+    }
+
+    await dbService.saveCognitoEntry(formId, entryId, req.body);
+
+    res.status(200).send('Entry saved');
+  } catch (error) {
+    console.error(`Webhook Error: ${error.message}`);
+
+    res.status(500).send('Error processing webhook');
+  }
+});
+
+module.exports = router;

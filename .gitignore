@@ -46,6 +46,8 @@ pnpm-lock.yaml
 .env
 .env.*
 npm-debug.log*
+package-lock.json
+
 
 # Example of an ignored file (specific to your project)
 my-custom-config.json

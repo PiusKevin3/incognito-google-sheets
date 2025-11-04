@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>PMI Transport Department Cognito Excel Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f4f6f8;
+        }
+
+        form#uploadForm {
+            background: white;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        form#uploadForm label {
+            display: block;
+            margin-top: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        form#uploadForm select,
+        form#uploadForm input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        form#uploadForm button[type="submit"] {
+            margin-top: 20px;
+            width: 100%;
+            background-color: #28a745;
+            /* Green */
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form#uploadForm button[type="submit"]:hover {
+            background-color: #218838;
+            /* Darker green on hover */
+        }
+
+        /* Spinner Styles */
+        .spinner-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #28a745;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            white-space: pre-wrap;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <center>
+        <h2>PMI Transport Department Cognito Excel Upload</h2>
+    </center>
+
+    <form id="uploadForm">
+        <label for="type">Upload Type</label>
+        <select id="type" name="type" required>
+            <option value="">-- Select Type --</option>
+            <option value="finance">Finance</option>
+            <option value="manifest">Manifest</option>
+            <option value="budget">Budget</option>
+        </select>
+
+        <label for="file">Choose Excel File (.xlsx)</label>
+        <input type="file" id="file" name="file" accept=".xlsx" required />
+
+        <button type="submit" id="submitButton">Upload and Sync with DB Data</button>
+
+        <!-- Spinner Element -->
+        <div class="spinner-container" id="spinner">
+            <div class="spinner"></div>
+            <p>Processing your file, please wait...</p>
+        </div>
+    </form>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Show spinner, hide button
+            const spinner = document.getElementById('spinner');
+            const submitButton = document.getElementById('submitButton');
+            const resultDiv = document.getElementById('result');
+
+            spinner.style.display = 'block';
+            submitButton.disabled = true;
+            resultDiv.style.display = 'none';
+            resultDiv.innerText = '';
+
+            const formData = new FormData();
+            formData.append('type', document.getElementById('type').value);
+            formData.append('file', document.getElementById('file').files[0]);
+
+            try {
+                const response = await fetch('/api/upload-xlsx-sync', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                resultDiv.innerText = JSON.stringify(result, null, 2);
+                resultDiv.style.display = 'block';
+            } catch (err) {
+                resultDiv.innerText = 'Error: ' + err.message;
+                resultDiv.style.display = 'block';
+            } finally {
+                // Hide spinner, enable button
+                spinner.style.display = 'none';
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+
+</html>
