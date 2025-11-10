@@ -445,6 +445,62 @@ RETURNING *;  -- ✅ Add this line
     return db.query(query, values);
   },
 
+  updateBudgetEntry: async (flat, updatedAt) => {
+  console.log("updateBudgetEntry", flat);
+
+    const code = flat["code"] || flat["Code"];
+
+
+  const query = `
+    UPDATE budget_entries
+    SET
+      region = COALESCE($1, region),
+      department = COALESCE($2, department),
+      division = COALESCE($3, division),
+      manifest = COALESCE($4, manifest),
+      stage_name = COALESCE($5, stage_name),
+      planned_people = COALESCE($6, planned_people),
+      planned_coasters = COALESCE($7, planned_coasters),
+      planned_buses = COALESCE($8, planned_buses),
+      planned_taxis = COALESCE($9, planned_taxis),
+      cost_per_head = COALESCE($10, cost_per_head),
+      contribution = COALESCE($11, contribution),
+      total_cost = COALESCE($12, total_cost),
+      coaster_campaign = COALESCE($13, coaster_campaign),
+      manifest_pledge = COALESCE($14, manifest_pledge),
+      updated_at = $15
+    WHERE code = $16
+    RETURNING *;
+  `;
+
+  const values = [
+  flat.region,
+  flat.department,
+  flat.division,
+  flat.manifest,
+  flat.stage_name,
+  flat.planned_people != null ? parseInt(flat.planned_people) : null,
+  flat.planned_coasters != null ? parseInt(flat.planned_coasters) : null,
+  flat.planned_buses != null ? parseInt(flat.planned_buses) : null,
+  flat.planned_taxis != null ? parseInt(flat.planned_taxis) : null,
+  flat.cost_per_head != null ? parseInt(flat.cost_per_head) : null,
+  flat.contribution != null ? parseInt(flat.contribution) : null,
+  flat.total_cost != null ? parseInt(flat.total_cost) : null,
+  flat.coaster_campaign != null ? parseInt(flat.coaster_campaign) : null,
+  flat.manifest_pledge != null ? parseInt(flat.manifest_pledge) : null,
+  updatedAt,
+  code
+];
+
+
+
+  const result = await db.query(query, values);
+  console.log(`✅ Updated budget entry: Code ${code}`);
+  return result.rows[0] || null;
+},
+
+
+
   updateManifestEntry: async (flat, updatedAt) => {
     const query = `
       UPDATE manifest_entries SET

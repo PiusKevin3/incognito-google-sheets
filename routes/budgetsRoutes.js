@@ -32,7 +32,7 @@ router.post('/update-budget-manifest', validateApiKey, async (req, res) => {
         const flatGeneral = flattenObject(req.body);
         const updatedAt = new Date(req.body.updated_at || req.body.created_at || Date.now());
         console.log(mapCognitoToBudgetEntry(flatGeneral));
-        await dbService.upsertBudgetEntry(mapCognitoToBudgetEntry(flatGeneral), updatedAt);
+        await dbService.updateBudgetEntry(mapCognitoToBudgetEntry(flatGeneral), updatedAt);
 
         return res.status(200).send('Budget updated');
     } catch (error) {
