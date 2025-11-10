@@ -606,6 +606,8 @@ RETURNING *;  -- ✅ Add this line
     const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);  //  ensure it's a string
     // console.log(result);
+        console.log("findManifestByFormID:", result);
+
 
     return result.rows[0] || null;
   },
@@ -647,25 +649,121 @@ RETURNING *;  -- ✅ Add this line
     return result.rows[0] || null;
   },
 
+  findBudgetByStageName: async (stageName, manifestName) => {
+  const query = `
+    SELECT *
+    FROM budget_entries
+    WHERE stage_name = $1 AND manifest = $2
+    LIMIT 1
+  `;
+  
+  const result = await db.query(query, [stageName, manifestName]);
+  return result.rows[0] || null;
+},
+
+
+  // updateManifestEntry: async (flat, updatedAt) => {
+  //   const query = `
+  //     UPDATE manifest_entries
+  //     SET
+  //       event = COALESCE($1, event),
+  //       department = COALESCE($2, department),
+  //       updated_at = $3
+  //     WHERE form_id = $4;
+  //   `;
+
+  //   const values = [
+  //     flat["Event"],
+  //     flat["Department"],
+  //     updatedAt,
+  //     flat["FormID"]
+  //   ];
+
+  //   return db.query(query, values);
+  // },
+
   updateManifestEntry: async (flat, updatedAt) => {
-    const query = `
-      UPDATE manifest_entries
-      SET
-        event = COALESCE($1, event),
-        department = COALESCE($2, department),
-        updated_at = $3
-      WHERE form_id = $4;
-    `;
+    console.log("updateManifestEntry",flat);
 
-    const values = [
-      flat["Event"],
-      flat["Department"],
-      updatedAt,
-      flat["FormID"]
-    ];
+    const formId = flat["FormID"] || flat["ID1"];
 
-    return db.query(query, values);
-  },
+    
+  const query = `
+    UPDATE manifest_entries
+    SET
+      event = COALESCE($1, event),
+      department = COALESCE($2, department),
+      manifests = COALESCE($3, manifests),
+      institutions = COALESCE($4, institutions),
+      hospitals = COALESCE($5, hospitals),
+      masterclass = COALESCE($6, masterclass),
+      schools = COALESCE($7, schools),
+      up_country = COALESCE($8, up_country),
+      stage_name = COALESCE($9, stage_name),
+      coordinator_name = COALESCE($10, coordinator_name),
+      coordinator_contact = COALESCE($11, coordinator_contact),
+      driver_name = COALESCE($12, driver_name),
+      driver_contact = COALESCE($13, driver_contact),
+      driver_nin_permit = COALESCE($14, driver_nin_permit),
+      driver_vehicle_type = COALESCE($15, driver_vehicle_type),
+      driver_number_plate = COALESCE($16, driver_number_plate),
+      vehicle_cost = COALESCE($17, vehicle_cost),
+      vehicle_contribution = COALESCE($18, vehicle_contribution),
+      vehicle_booking_fee = COALESCE($19, vehicle_booking_fee),
+      vehicle_balance = COALESCE($20, vehicle_balance),
+      cost_per_head = COALESCE($21, cost_per_head),
+      souls_total = COALESCE($22, souls_total),
+      souls_residents = COALESCE($23, souls_residents),
+      souls_residents_firsttimers = COALESCE($24, souls_residents_firsttimers),
+      souls_institutions = COALESCE($25, souls_institutions),
+      souls_institutions_firsttimers = COALESCE($26, souls_institutions_firsttimers),
+      souls_schools = COALESCE($27, souls_schools),
+      souls_schools_firsttimers = COALESCE($28, souls_schools_firsttimers),
+      verifier_name = COALESCE($29, verifier_name),
+      updated_at = $30
+    WHERE form_id = $31
+    RETURNING *;
+  `;
+
+  const values = [
+    flat["Event"],
+    flat["Department"],
+    flat["Manifests"],
+    flat["Institutions"],
+    flat["Hospitals"],
+    flat["Masterclass"],
+    flat["Schools"],
+    flat["UpCountry"],
+    flat["StageName"],
+    flat["Coordinator_Name"],
+    flat["Coordinator_Contact"],
+    flat["Coordinator_DriversDetails_Name"],
+    flat["Coordinator_DriversDetails_Contact"],
+    flat["Coordinator_DriversDetails_NINPermit"],
+    flat["Coordinator_DriversDetails_VehicleType"],
+    flat["Coordinator_DriversDetails_NumberPlate"],
+    flat["Coordinator_DriversDetails_CostOfVehicle"],
+    flat["Coordinator_DriversDetails_CashContribution"],
+    flat["Coordinator_DriversDetails_BookingFee"],
+    flat["Coordinator_DriversDetails_Balance"],
+    flat["Coordinator_SoulsDetails_CostPerHead"],
+    flat["Coordinator_SoulsDetails_TOTAL"],
+    flat["Coordinator_SoulsDetails_Residents"],
+    flat["Coordinator_SoulsDetails_FirstTimers"],
+    flat["Coordinator_SoulsDetails_Institutions"],
+    flat["Coordinator_SoulsDetails_InstitutionsFirstTimers"],
+    flat["Coordinator_SoulsDetails_Schools"],
+    flat["Coordinator_SoulsDetails_SchoolsFirstTimers"],
+    flat["VerifierName"],
+    updatedAt,
+    formId
+  ];
+
+  const result = await db.query(query, values);
+  console.log(`✅ Updated manifest entry: ${formId}`);
+  return result.rows[0] || null;
+},
+
 
 };
 
