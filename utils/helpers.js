@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const xlsx = require('xlsx');
 const { upsertFinanceEntry } = require('../services/financeService');
 const { upsertManifestEntry, plateExistsInDB } = require('../services/manifestService');
-const { upsertBudgetEntry, checkBudgetByCode,checkBudgetByCodeAndStage } = require('../services/dbService');
+const { upsertBudgetEntry, checkBudgetByCode } = require('../services/dbService');
 // const infisicalService = require('../services/infisicalService');
 
 // ----------------------
@@ -188,8 +188,8 @@ async function processXlsxSyncUpload(file, type) {
             );
 
             try {
-              // Check if a budget entry already exists for the same code and stage_name
-              const existing = await checkBudgetByCodeAndStage(filteredFlat.code, filteredFlat.stage_name);
+              // Check if a budget entry already exists for the same code
+              const existing = await checkBudgetByCode(filteredFlat.code);
 
               if (existing) {
                 console.warn(`⚠️ Budget entry already exists for stage: ${filteredFlat.stage_name}, code: ${filteredFlat.code}`);
