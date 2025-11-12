@@ -658,6 +658,13 @@ RETURNING *;  -- ✅ Add this line
 
     return result.rows[0] || null;
   },
+
+  checkBudgetByCodeAndStage: async (code, stage_name) => {
+  const query = `SELECT * FROM budget_entries WHERE code = $1 AND stage_name = $2`;
+  const result = await db.query(query, [code, stage_name]);
+  return result.rows[0] || null;
+},
+
   findManifestByFormID: async (formId) => {
     const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);  //  ensure it's a string
