@@ -1,6 +1,6 @@
 // dbService.js
 const db = require('../config/db');
-const { parseNumeric } = require('../utils/numericUtils');
+const { parseNumeric, parseIntId } = require('../utils/numericUtils');
 
 // Track if database has been initialized
 let dbInitialized = false;
@@ -91,7 +91,7 @@ module.exports = {
     `;
 
     const values = [
-      flat["BudgetID"],
+      parseIntId(flat["BudgetID"]),
       flat["ID1"],
       flat["Event"],
       flat["Department"],
@@ -266,7 +266,7 @@ RETURNING *;  -- ✅ Add this line
 
     const values = [
       flat["FormID"],
-      flat["BudgetID"],
+      parseIntId(flat["BudgetID"]),
       flat["AccountabilityEntry_Label"],
       flat["FundingParty"],
       parseNumeric(flat["Amount"]),
@@ -320,7 +320,7 @@ RETURNING *;  -- ✅ Add this line
 
   const values = [
     normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
-    normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"] || null,
+    parseIntId(normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
     normalized["label"] || normalized["budgetamount_label"] || null,
     normalized["funding_party"] || normalized["fundingparty"] || null,
     parseNumber(normalized["amount"]),
@@ -603,7 +603,7 @@ RETURNING *;  -- ✅ Add this line
 
     const values = [
       flat["ID1"], // $1 — used in WHERE
-      flat["BudgetID"],
+      parseIntId(flat["BudgetID"]),
       flat["Event"],
       flat["Department"],
       flat["Manifests"],

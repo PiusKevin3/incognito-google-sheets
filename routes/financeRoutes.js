@@ -3,6 +3,7 @@ const router = express.Router();
 const { google } = require('googleapis');
 const dbService = require('../services/dbService');
 const { flattenObject, validateApiKey } = require('../utils/helpers');
+const { parseIntId } = require('../utils/numericUtils');
 // const keys = require('/etc/secrets/service-account.json'); // Use on render
 const { updateCognitoEntry, fetchEntry } = require('../services/cognitoService');
 // const keys = require('../service-account.json');
@@ -83,10 +84,11 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             }
         });
 
-        const budget = await fetchEntry(BUDGET_FORM_ID, flatSection["BudgetID"]);
+        const budgetId = parseIntId(flatSection["BudgetID"]);
+        const budget = await fetchEntry(BUDGET_FORM_ID, budgetId);
         const newContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
 
-        await updateCognitoEntry(BUDGET_FORM_ID, flatSection["BudgetID"], {
+        await updateCognitoEntry(BUDGET_FORM_ID, budgetId, {
             Actual : {
                 FinanceContribution: newContribution
             },

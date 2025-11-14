@@ -6,6 +6,23 @@ function parseNumeric(value) {
   return Number(value);
 }
 
+/**
+ * Parse integer IDs by removing commas and non-numeric characters
+ * Handles cases like "2,592" -> 2592
+ * @param {string|number} value - The ID to parse
+ * @returns {number|null} - Parsed integer or null
+ */
+function parseIntId(value) {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  // Remove commas and parse as integer
+  const cleaned = String(value).replace(/,/g, '');
+  const parsed = parseInt(cleaned, 10);
+  return isNaN(parsed) ? null : parsed;
+}
+
 module.exports = {
-  parseNumeric
+  parseNumeric,
+  parseIntId
 };

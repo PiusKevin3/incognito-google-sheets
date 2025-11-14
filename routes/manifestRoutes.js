@@ -6,6 +6,7 @@ const dbService = require('../services/dbService');
 const { flattenObject } = require('../utils/helpers');
 // const keys = require('/etc/secrets/service-account.json'); // For Render
 const { fetchEntry, updateCognitoEntry } = require('../services/cognitoService');
+const { parseIntId } = require('../utils/numericUtils');
 // const keys = require('../service-account.json'); // For local dev
 
 // const auth = new google.auth.GoogleAuth({
@@ -86,7 +87,8 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
       await saveToGoogleSheets(flatGeneral);
     }
 
-    const budgetDetails = await fetchEntry(BUDGET_FORM_ID, flatGeneral["BudgetID"]);
+    const budgetId = parseIntId(flatGeneral["BudgetID"]);
+    const budgetDetails = await fetchEntry(BUDGET_FORM_ID, budgetId);
     console.log('Cognito Details:', flatGeneral);
     console.log('Budget Details:', budgetDetails);
     const budgetFormId = budgetDetails.Entry.Number;
@@ -192,7 +194,7 @@ router.post('/update', async (req, res) => {
 
     const Id = flatGeneral["ID1"];
     console.log('Id:', Id);
-    const budgetFormId = flatGeneral["BudgetID"];
+    const budgetFormId = parseIntId(flatGeneral["BudgetID"]);
     console.log("Am on this step 3");
 
     const existingManifestEntry = await dbService.findManifestByFormID(req.body.General.ID1);
