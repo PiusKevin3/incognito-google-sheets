@@ -11,11 +11,6 @@ const FINANCE_FORM_VIEW_ID = process.env.FINANCE_FORM_VIEW_ID;
 const MANIFEST_FORM_ACCESS_TOKEN = process.env.MANIFEST_FORM_ACCESS_TOKEN;
 const FINANCE_FORM_ACCESS_TOKEN = process.env.FINANCE_FORM_ACCESS_TOKEN;
 
-const BUDGET_FORM_ID = process.env.BUDGET_FORM_ID;
-const BUDGET_FORM_VIEW_ID = process.env.BUDGET_FORM_VIEW_ID;
-
-const BUDGET_FORM_ACCESS_TOKEN = process.env.BUDGET_FORM_ACCESS_TOKEN;
-
 const formConfigs = [
   {
     id: MANIFEST_FORM_ID,
@@ -30,46 +25,15 @@ const formConfigs = [
     accessToken: FINANCE_FORM_ACCESS_TOKEN,
     upsertFn: dbService.upsertFinanceEntry,
     label: 'Finance'
-  },
-  {
-    id: BUDGET_FORM_ID,
-    viewId: BUDGET_FORM_VIEW_ID,
-    accessToken: BUDGET_FORM_ACCESS_TOKEN,
-    upsertFn: dbService.upsertBudgetEntry,
-    label: 'Budget'
   }
 ];
 
-async function syncCognitoEntries(formId = null) {
+async function syncCognitoEntries() {
   try {
     console.log('🔄 Starting Cognito entries sync');
 
-    const config = formConfigs.find(f => f.id === formId);
-
-    if (config) {
-      const lastSyncedAt = new Date(Date.now() - 15 * 60 * 1000); // Default to last 15 minutes
-      console.log(lastSyncedAt);
-      const allEntries = await cognitoService.getFormEntriesData(
-        config.id,
-        config.viewId,
-        config.accessToken,
-        `Entry_DateUpdated gt ${lastSyncedAt.toISOString()}`
-      );
-
-      console.log(allEntries.value.length);
-
-      // for (const entry of allEntries) {
-      //   const updatedAt = new Date(Date.now());
-      //   await config.upsertFn(entry, updatedAt);
-      //   console.log(`${config.label} entry upserted: ${entry.Entry_Id}`);
-      // }
-
-      // console.log(`${config.label} form synced with ${allEntries.length} new entries`);
-
-      return { success: true };
-    }
-
     const forms = await cognitoService.getForms();
+
     for (const config of formConfigs) {
       const formExists = forms.find(f => f.id === config.id);
       if (!formExists) {
@@ -86,8 +50,7 @@ async function syncCognitoEntries(formId = null) {
       const allEntries = await cognitoService.getFormEntriesData(
         config.id,
         config.viewId,
-        config.accessToken,
-        `Entry_DateUpdated gt ${lastSyncedAt.toISOString()}`
+        config.accessToken
       );
 
       const filteredEntries = allEntries.filter(entry => {
@@ -108,7 +71,6 @@ async function syncCognitoEntries(formId = null) {
     console.log('✅ Cognito sync complete');
     return { success: true };
   } catch (error) {
-    console.log(error);
     console.error(`❌ Sync failed: ${error.message}`);
     return { success: false, error: error.message };
   }

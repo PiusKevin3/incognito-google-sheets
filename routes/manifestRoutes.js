@@ -92,15 +92,15 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
     const budgetFormId = budgetDetails.Entry.Number;
     console.log('Budget Form ID:', budgetFormId);
 
-  const updatedData = {
+    const updatedData = {
       Actual: {
-          ActualPeople: (parseInt(budgetDetails.Actual?.ActualPeople) || 0) + (parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0),
-          FinanceContribution: (parseInt(budgetDetails.Actual?.FinanceContribution) || 0) + (parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]) || 0),
-          Taxis: (parseInt(budgetDetails.Actual?.ActualTaxis) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
-          Buses: (parseInt(budgetDetails.Actual?.ActualBuses) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
-          Coasters: (parseInt(budgetDetails.Actual?.ActualCoasters) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
+        ActualPeople: (parseInt(budgetDetails.Actual?.ActualPeople) || 0) + (parseInt(flatGeneral["Coordinator_SoulsDetails_TOTAL"]) || 0),
+        FinanceContribution: (parseInt(budgetDetails.Actual?.FinanceContribution) || 0) + (parseInt(flatGeneral["Coordinator_VehicleDetails_CashContribution"]) || 0),
+        Taxis: (parseInt(budgetDetails.Actual?.ActualTaxis) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Taxi" ? 1 : 0),
+        Buses: (parseInt(budgetDetails.Actual?.ActualBuses) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Bus" ? 1 : 0),
+        Coasters: (parseInt(budgetDetails.Actual?.ActualCoasters) || 0) + (flatGeneral["Coordinator_DriversDetails_VehicleType"] === "Coaster" ? 1 : 0),
       }
-  };
+    };
 
     console.log('Updated Data:', updatedData);
 
@@ -127,7 +127,17 @@ router.post('/cognito-manifest-webhook', async (req, res) => {
 
 router.post('/update', async (req, res) => {
   try {
-    const hasApiKey = req.query.apiKey === process.env.API_KEY;
+
+    let apiKey = req.query.apiKey;
+
+    if (!apiKey && req.query.operation?.includes('?apiKey=')) {
+      const parts = req.query.operation.split('?apiKey=');
+      req.query.operation = parts[0];
+      apiKey = parts[1];
+    }
+
+    const hasApiKey = apiKey === process.env.API_KEY;
+
 
     if (!hasApiKey) {
       return res.status(401).json({ success: false, message: 'Unauthorized: Missing or invalid API key' });
@@ -136,24 +146,29 @@ router.post('/update', async (req, res) => {
     // ✅ Check if this is a webhook call or direct API call
     const isWebhookCall = req.headers['x-cognito-forms-webhook'] || req.body.event;
     const operation = req.query.operation || 'update'; // New parameter: 'update' or 'submit'
-    
+
     console.log('Operation:', operation);
     console.log('Headers:', req.headers);
     console.log('Body:', req.body);
 
+    // console.log(req.body.General.ID1);
+
+
     // Validate operation type
-    if (!['update', 'submit'].includes(operation)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid operation type. Must be 'update' or 'submit'"
-      });
-    }
+    // if (!['update', 'submit'].includes(operation)) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Invalid operation type. Must be 'update' or 'submit'"
+    //   });
+    // }
+    console.log("Am on this step 1");
+
 
     // ✅ Only process specific events to avoid recursion
     if (isWebhookCall) {
       const event = req.body.event;
       console.log('🔍 Webhook event:', event);
-      
+
       // Only process certain events, ignore others
       if (event !== 'entry.updated' && event !== 'entry.created') {
         console.log('⏭️ Skipping event:', event);
@@ -161,15 +176,28 @@ router.post('/update', async (req, res) => {
       }
     }
 
+    console.log("Am on this step 2");
+
+
+    console.log("✅ Step 1 reached: after Body log");
+
     const general = req.body?.General || {};
+    console.log("✅ Step 2: General object", general);
+
     const flatGeneral = flattenObject(general);
+    console.log("✅ Step 3: flatGeneral", flatGeneral);
+
     const updatedAt = new Date(req.body.updated_at || req.body.created_at || Date.now());
+    console.log("✅ Step 4: updatedAt", updatedAt);
 
     const Id = flatGeneral["ID1"];
     console.log('Id:', Id);
     const budgetFormId = flatGeneral["BudgetID"];
+    console.log("Am on this step 3");
 
-    const existingManifestEntry = await dbService.findManifestByFormID(Id);
+    const existingManifestEntry = await dbService.findManifestByFormID(req.body.General.ID1);
+    console.log("ExistingManifestEntry:", existingManifestEntry);
+    console.log("Am on this step 4");
 
     if (!existingManifestEntry) {
       return res.status(404).json({ success: false, message: 'Manifest entry not found' });
@@ -206,7 +234,7 @@ router.post('/update', async (req, res) => {
     }
 
     // Updating budget details
-    const budgetDetails = await dbService.findBudgetByFormID(flatGeneral["StageName"], manifestName);
+    const budgetDetails = await dbService.findBudgetByStageName(flatGeneral["StageName"], manifestName);
     console.log('Stage Name:', flatGeneral["StageName"]);
     console.log('Manifest Name:', manifestName);
     console.log('Budget Details:', budgetDetails);
@@ -341,15 +369,15 @@ router.post('/update', async (req, res) => {
     }
 
     console.log('FLAT GENERAL:', flatGeneral);
-    
+
     // Update manifest entry
     await dbService.updateManifestEntry(flatGeneral, updatedAt);
 
     console.log('Update Result:', result);
-    
+
     // ✅ Send proper response
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: `Manifest ${operation} completed successfully`,
       result,
       operation,
@@ -363,10 +391,10 @@ router.post('/update', async (req, res) => {
 
   } catch (error) {
     console.error(`Webhook Error: ${error.message}`);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Error processing webhook',
-      error: error.message 
+      error: error.message
     });
   }
 });

@@ -21,21 +21,9 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         // const sheets = google.sheets({ version: 'v4', auth: client });
 
         const section = req.body.Section || {};
-        const entry = req.body.Entry || {};
-        const operation = req.query.operation || 'submit'; // New parameter: 'update' or 'submit'
-        console.log('Operation:', operation);
-
-        // Validate operation type
-        if (!['update', 'submit'].includes(operation)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid operation type. Must be 'update' or 'submit'"
-            });
-        }
 
         // Flatten the nested objects
         const flatSection = flattenObject(section);
-        const flatEntry = flattenObject(entry);
         // console.log('🧾 Data to be sent to the Google Sheets:', flatSection);
 
         // Validate that required Section fields exist
@@ -80,52 +68,8 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
 
         ]];
 
-        var newFinanceContribution;
-        var newBudgetContribution;
-        const budget = await fetchEntry(BUDGET_FORM_ID, flatSection["BudgetID"]);
-
-        switch (operation) {
-            case 'submit':
-                newFinanceContribution = flatSection["FinanceContribution"] + flatSection["Amount"];
-                newBudgetContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
-                break;
-            case 'update':
-                const existingFinanceEntry = await dbService.findFinanceByFormID(flatSection["FormID"]);
-                // const existingBudgetEntry = await dbService.findBudgetByFormID(flatSection["BudgetID"]);
-
-                if (existingFinanceEntry) {
-                    const oldFinanceAmount = parseInt(existingFinanceEntry.amount) || 0;
-                    const newAmount = parseInt(flatSection["Amount"]) || 0;
-                    const currentFinanceContribution = parseInt(flatSection["FinanceContribution"]) || 0;
-                    const currentBudgetContribution = parseInt(budget.Actual?.FinanceContribution || 0);
-
-                    // Calculate: current_budget_contribution - old_amount + new_amount
-                    newBudgetContribution = (currentBudgetContribution - oldFinanceAmount) + newAmount;
-                    newFinanceContribution = (currentFinanceContribution - oldFinanceAmount) + newAmount;
-
-                    console.log('Update operation - Amount adjustment:', {
-                        currentFinanceContribution,
-                        currentBudgetContribution,
-                        oldFinanceAmount,
-                        newAmount,
-                        newFinanceContribution,
-                        newBudgetContribution
-                    });
-                } else {
-                    newFinanceContribution = flatSection["FinanceContribution"] + flatSection["Amount"];
-                    newBudgetContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
-                    console.log('Update operation - No existing entry found, treating as new submission');
-                }
-                break;
-
-            default:
-                // Default to submit behavior
-                newFinanceContribution = flatSection["FinanceContribution"] + flatSection["Amount"];
-                newBudgetContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
-                console.log('Default operation - Adding amount to contributions');
-        }
-
-        console.log('Here are the finance records', flatSection);
+        const newFinanceContribution = flatSection["FinanceContribution"] + flatSection["Amount"];
+        console.log(flatSection["FinanceContribution"], flatSection["Amount"]);
 
         console.log('New Finance Contribution:', newFinanceContribution);
 
@@ -139,11 +83,12 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             }
         });
 
-        // const newContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
+        const budget = await fetchEntry(BUDGET_FORM_ID, flatSection["BudgetID"]);
+        const newContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
 
         await updateCognitoEntry(BUDGET_FORM_ID, flatSection["BudgetID"], {
             Actual : {
-                FinanceContribution: newBudgetContribution
+                FinanceContribution: newContribution
             },
             updatedAt: Date.now()
         });
@@ -151,10 +96,10 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         // Update budget_entries in the database
         await dbService.updateActualBudgetData({
             stage_name: flatSection["StageName"],
-            actual_expenditure: newBudgetContribution,
+            actual_expenditure: newContribution,
         }, new Date().toISOString());
 
-        await dbService.upsertFinanceEntry({...flatSection, ID: flatEntry["Number"]}, new Date().toISOString());
+        await dbService.insertFinanceEntry(flatSection, new Date().toISOString());
 
         // await sheets.spreadsheets.values.append({
         //     spreadsheetId: SHEET_ID,
