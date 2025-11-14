@@ -45,7 +45,8 @@ module.exports = {
 
   updateCognitoEntry: async (formId, entryId, updatedFields) => {
     try {
-      const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${entryId}`, {
+      const formattedEntryId = entryId.replace(/[^0-9]/g, '');
+      const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${formattedEntryId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +72,8 @@ module.exports = {
   },
 
   fetchEntry: async (formId, entryId) => {
-    const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${entryId}`, {
+    const formattedEntryId = entryId.replace(/[^0-9]/g, '');
+    const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${formattedEntryId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
