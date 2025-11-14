@@ -18,8 +18,8 @@ module.exports = {
   initializeDatabase,
   upsertManifestEntry: async (flat, updatedAt) => {
     const query = `
-      INSERT INTO manifest_entries (
-        budget_entry_id,
+      INSERT INTO gic_manifest_entries (
+        gic_budget_entry_id,
         form_id,
         event,
         department,
@@ -141,7 +141,7 @@ module.exports = {
     }
 
     const query = `
-INSERT INTO manifest_entries (
+INSERT INTO gic_manifest_entries (
   form_id, event, department, manifests, institutions, hospitals, masterclass,
   schools, up_country, stage_name, coordinator_name, coordinator_contact,
   driver_name, driver_contact, driver_nin_permit, driver_vehicle_type,
@@ -160,38 +160,38 @@ VALUES (
   $29, $30, $31
 )
 ON CONFLICT (form_id) DO UPDATE SET
-  event = COALESCE(EXCLUDED.event, manifest_entries.event),
-  department = COALESCE(EXCLUDED.department, manifest_entries.department),
-  manifests = COALESCE(EXCLUDED.manifests, manifest_entries.manifests),
-  institutions = COALESCE(EXCLUDED.institutions, manifest_entries.institutions),
-  hospitals = COALESCE(EXCLUDED.hospitals, manifest_entries.hospitals),
-  masterclass = COALESCE(EXCLUDED.masterclass, manifest_entries.masterclass),
-  schools = COALESCE(EXCLUDED.schools, manifest_entries.schools),
-  up_country = COALESCE(EXCLUDED.up_country, manifest_entries.up_country),
-  stage_name = COALESCE(EXCLUDED.stage_name, manifest_entries.stage_name),
-  coordinator_name = COALESCE(EXCLUDED.coordinator_name, manifest_entries.coordinator_name),
-  coordinator_contact = COALESCE(EXCLUDED.coordinator_contact, manifest_entries.coordinator_contact),
-  driver_name = COALESCE(EXCLUDED.driver_name, manifest_entries.driver_name),
-  driver_contact = COALESCE(EXCLUDED.driver_contact, manifest_entries.driver_contact),
-  driver_nin_permit = COALESCE(EXCLUDED.driver_nin_permit, manifest_entries.driver_nin_permit),
-  driver_vehicle_type = COALESCE(EXCLUDED.driver_vehicle_type, manifest_entries.driver_vehicle_type),
-  driver_number_plate = COALESCE(EXCLUDED.driver_number_plate, manifest_entries.driver_number_plate),
-  vehicle_cost = COALESCE(EXCLUDED.vehicle_cost, manifest_entries.vehicle_cost),
-  vehicle_contribution = COALESCE(EXCLUDED.vehicle_contribution, manifest_entries.vehicle_contribution),
-  vehicle_booking_fee = COALESCE(EXCLUDED.vehicle_booking_fee, manifest_entries.vehicle_booking_fee),
-  vehicle_balance = COALESCE(EXCLUDED.vehicle_balance, manifest_entries.vehicle_balance),
-  cost_per_head = COALESCE(EXCLUDED.cost_per_head, manifest_entries.cost_per_head),
-  souls_total = COALESCE(EXCLUDED.souls_total, manifest_entries.souls_total),
-  souls_residents = COALESCE(EXCLUDED.souls_residents, manifest_entries.souls_residents),
-  souls_residents_firsttimers = COALESCE(EXCLUDED.souls_residents_firsttimers, manifest_entries.souls_residents_firsttimers),
-  souls_institutions = COALESCE(EXCLUDED.souls_institutions, manifest_entries.souls_institutions),
-  souls_institutions_firsttimers = COALESCE(EXCLUDED.souls_institutions_firsttimers, manifest_entries.souls_institutions_firsttimers),
-  souls_schools = COALESCE(EXCLUDED.souls_schools, manifest_entries.souls_schools),
-  souls_schools_firsttimers = COALESCE(EXCLUDED.souls_schools_firsttimers, manifest_entries.souls_schools_firsttimers),
-  verifier_name = COALESCE(EXCLUDED.verifier_name, manifest_entries.verifier_name),
+  event = COALESCE(EXCLUDED.event, gic_manifest_entries.event),
+  department = COALESCE(EXCLUDED.department, gic_manifest_entries.department),
+  manifests = COALESCE(EXCLUDED.manifests, gic_manifest_entries.manifests),
+  institutions = COALESCE(EXCLUDED.institutions, gic_manifest_entries.institutions),
+  hospitals = COALESCE(EXCLUDED.hospitals, gic_manifest_entries.hospitals),
+  masterclass = COALESCE(EXCLUDED.masterclass, gic_manifest_entries.masterclass),
+  schools = COALESCE(EXCLUDED.schools, gic_manifest_entries.schools),
+  up_country = COALESCE(EXCLUDED.up_country, gic_manifest_entries.up_country),
+  stage_name = COALESCE(EXCLUDED.stage_name, gic_manifest_entries.stage_name),
+  coordinator_name = COALESCE(EXCLUDED.coordinator_name, gic_manifest_entries.coordinator_name),
+  coordinator_contact = COALESCE(EXCLUDED.coordinator_contact, gic_manifest_entries.coordinator_contact),
+  driver_name = COALESCE(EXCLUDED.driver_name, gic_manifest_entries.driver_name),
+  driver_contact = COALESCE(EXCLUDED.driver_contact, gic_manifest_entries.driver_contact),
+  driver_nin_permit = COALESCE(EXCLUDED.driver_nin_permit, gic_manifest_entries.driver_nin_permit),
+  driver_vehicle_type = COALESCE(EXCLUDED.driver_vehicle_type, gic_manifest_entries.driver_vehicle_type),
+  driver_number_plate = COALESCE(EXCLUDED.driver_number_plate, gic_manifest_entries.driver_number_plate),
+  vehicle_cost = COALESCE(EXCLUDED.vehicle_cost, gic_manifest_entries.vehicle_cost),
+  vehicle_contribution = COALESCE(EXCLUDED.vehicle_contribution, gic_manifest_entries.vehicle_contribution),
+  vehicle_booking_fee = COALESCE(EXCLUDED.vehicle_booking_fee, gic_manifest_entries.vehicle_booking_fee),
+  vehicle_balance = COALESCE(EXCLUDED.vehicle_balance, gic_manifest_entries.vehicle_balance),
+  cost_per_head = COALESCE(EXCLUDED.cost_per_head, gic_manifest_entries.cost_per_head),
+  souls_total = COALESCE(EXCLUDED.souls_total, gic_manifest_entries.souls_total),
+  souls_residents = COALESCE(EXCLUDED.souls_residents, gic_manifest_entries.souls_residents),
+  souls_residents_firsttimers = COALESCE(EXCLUDED.souls_residents_firsttimers, gic_manifest_entries.souls_residents_firsttimers),
+  souls_institutions = COALESCE(EXCLUDED.souls_institutions, gic_manifest_entries.souls_institutions),
+  souls_institutions_firsttimers = COALESCE(EXCLUDED.souls_institutions_firsttimers, gic_manifest_entries.souls_institutions_firsttimers),
+  souls_schools = COALESCE(EXCLUDED.souls_schools, gic_manifest_entries.souls_schools),
+  souls_schools_firsttimers = COALESCE(EXCLUDED.souls_schools_firsttimers, gic_manifest_entries.souls_schools_firsttimers),
+  verifier_name = COALESCE(EXCLUDED.verifier_name, gic_manifest_entries.verifier_name),
   updated_at = NOW()
 WHERE
-  manifest_entries.* IS DISTINCT FROM EXCLUDED.*
+  gic_manifest_entries.* IS DISTINCT FROM EXCLUDED.*
 RETURNING *;  -- ✅ Add this line
 `;
 
@@ -240,8 +240,8 @@ RETURNING *;  -- ✅ Add this line
 
   upsertFinanceEntry: async (flat, updatedAt) => {
     const query = `
-      INSERT INTO finance_entries (
-        manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
+      INSERT INTO gic_finance_entries (
+        gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
         form_id, final_balance, manifest_name, institution_name,
         school_name, department, cost_of_vehicle, balance, stage_name,
         contribution, booking_fee, event, updated_at
@@ -253,8 +253,8 @@ RETURNING *;  -- ✅ Add this line
       )
       ON CONFLICT (stage_name, manifest_name)
       DO UPDATE SET
-        manifest_entry_id = EXCLUDED.manifest_entry_id,
-        budget_entry_id = EXCLUDED.budget_entry_id,
+        gic_manifest_entry_id = EXCLUDED.gic_manifest_entry_id,
+        gic_budget_entry_id = EXCLUDED.gic_budget_entry_id,
         label = EXCLUDED.label,
         funding_party = EXCLUDED.funding_party,
         issued_by = EXCLUDED.issued_by,
@@ -297,8 +297,8 @@ RETURNING *;  -- ✅ Add this line
   );
 
   const query = `
-    INSERT INTO finance_entries (
-      manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
+    INSERT INTO gic_finance_entries (
+      gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
       form_id, final_balance, manifest_name, institution_name,
       school_name, department, cost_of_vehicle, balance, stage_name,
       contribution, booking_fee, event, updated_at
@@ -319,8 +319,8 @@ RETURNING *;  -- ✅ Add this line
   };
 
   const values = [
-    normalized["manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
-    normalized["budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"] || null,
+    normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+    normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"] || null,
     normalized["label"] || normalized["budgetamount_label"] || null,
     normalized["funding_party"] || normalized["fundingparty"] || null,
     parseNumber(normalized["amount"]),
@@ -351,7 +351,7 @@ RETURNING *;  -- ✅ Add this line
 
   upsertCognitoEntry: async (formId, entryId, entryData, updatedAt) => {
     const query = `
-      INSERT INTO cognito_entries (
+      INSERT INTO gic_cognito_entries (
         cognito_form_id,
         cognito_entry_id,
         entry_data,
@@ -367,7 +367,7 @@ RETURNING *;  -- ✅ Add this line
 
   upsertBudgetEntry: async (flat, updatedAt) => {
     const query = `
-      INSERT INTO budget_entries (
+      INSERT INTO gic_budget_entries (
         region,
         department,
         code,
@@ -404,21 +404,21 @@ RETURNING *;  -- ✅ Add this line
       )
       ON CONFLICT (stage_name, manifest)
       DO UPDATE SET
-        region = COALESCE(EXCLUDED.region, budget_entries.region),
-        department = COALESCE(EXCLUDED.department, budget_entries.department),
-        code = COALESCE(EXCLUDED.code, budget_entries.code),
-        division = COALESCE(EXCLUDED.division, budget_entries.division),
-        manifest = COALESCE(EXCLUDED.manifest, budget_entries.manifest),
-        stage_name = COALESCE(EXCLUDED.stage_name, budget_entries.stage_name),
-        planned_people = COALESCE(EXCLUDED.planned_people, budget_entries.planned_people),
-        planned_coasters = COALESCE(EXCLUDED.planned_coasters, budget_entries.planned_coasters),
-        planned_buses = COALESCE(EXCLUDED.planned_buses, budget_entries.planned_buses),
-        planned_taxis = COALESCE(EXCLUDED.planned_taxis, budget_entries.planned_taxis),
-        cost_per_head = COALESCE(EXCLUDED.cost_per_head, budget_entries.cost_per_head),
-        total_cost = COALESCE(EXCLUDED.total_cost, budget_entries.total_cost),
-        contribution = COALESCE(EXCLUDED.contribution, budget_entries.contribution),
-        coaster_campaign = COALESCE(EXCLUDED.coaster_campaign, budget_entries.coaster_campaign),
-        manifest_pledge = COALESCE(EXCLUDED.manifest_pledge, budget_entries.manifest_pledge),
+        region = COALESCE(EXCLUDED.region, gic_budget_entries.region),
+        department = COALESCE(EXCLUDED.department, gic_budget_entries.department),
+        code = COALESCE(EXCLUDED.code, gic_budget_entries.code),
+        division = COALESCE(EXCLUDED.division, gic_budget_entries.division),
+        manifest = COALESCE(EXCLUDED.manifest, gic_budget_entries.manifest),
+        stage_name = COALESCE(EXCLUDED.stage_name, gic_budget_entries.stage_name),
+        planned_people = COALESCE(EXCLUDED.planned_people, gic_budget_entries.planned_people),
+        planned_coasters = COALESCE(EXCLUDED.planned_coasters, gic_budget_entries.planned_coasters),
+        planned_buses = COALESCE(EXCLUDED.planned_buses, gic_budget_entries.planned_buses),
+        planned_taxis = COALESCE(EXCLUDED.planned_taxis, gic_budget_entries.planned_taxis),
+        cost_per_head = COALESCE(EXCLUDED.cost_per_head, gic_budget_entries.cost_per_head),
+        total_cost = COALESCE(EXCLUDED.total_cost, gic_budget_entries.total_cost),
+        contribution = COALESCE(EXCLUDED.contribution, gic_budget_entries.contribution),
+        coaster_campaign = COALESCE(EXCLUDED.coaster_campaign, gic_budget_entries.coaster_campaign),
+        manifest_pledge = COALESCE(EXCLUDED.manifest_pledge, gic_budget_entries.manifest_pledge),
         updated_at = EXCLUDED.updated_at
       RETURNING *;
     `;
@@ -445,6 +445,68 @@ RETURNING *;  -- ✅ Add this line
     return db.query(query, values);
   },
 
+  createBudgetEntry: async (budgetData) => {
+    const query = `
+      INSERT INTO gic_budget_entries (
+        region,
+        department,
+        code,
+        division,
+        manifest,
+        stage_name,
+        planned_people,
+        planned_coasters,
+        planned_buses,
+        planned_taxis,
+        cost_per_head,
+        contribution,
+        total_cost,
+        coaster_campaign,
+        manifest_pledge,
+        actual_people,
+        actual_coasters,
+        actual_buses,
+        actual_taxis,
+        actual_cost,
+        actual_expenditure,
+        updated_at,
+        created_at
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+      )
+      RETURNING *;
+    `;
+
+    const now = new Date().toISOString();
+    const values = [
+      budgetData.region || null,
+      budgetData.department || null,
+      budgetData.code,
+      budgetData.division || null,
+      budgetData.manifest || null,
+      budgetData.stage_name,
+      budgetData.planned_people != null ? parseInt(budgetData.planned_people) : null,
+      budgetData.planned_coasters != null ? parseInt(budgetData.planned_coasters) : null,
+      budgetData.planned_buses != null ? parseInt(budgetData.planned_buses) : null,
+      budgetData.planned_taxis != null ? parseInt(budgetData.planned_taxis) : null,
+      budgetData.cost_per_head != null ? parseInt(budgetData.cost_per_head) : null,
+      budgetData.contribution != null ? parseInt(budgetData.contribution) : null,
+      budgetData.total_cost != null ? parseInt(budgetData.total_cost) : null,
+      budgetData.coaster_campaign != null ? parseInt(budgetData.coaster_campaign) : null,
+      budgetData.manifest_pledge != null ? parseInt(budgetData.manifest_pledge) : null,
+      budgetData.actual_people != null ? parseInt(budgetData.actual_people) : null,
+      budgetData.actual_coasters != null ? parseInt(budgetData.actual_coasters) : null,
+      budgetData.actual_buses != null ? parseInt(budgetData.actual_buses) : null,
+      budgetData.actual_taxis != null ? parseInt(budgetData.actual_taxis) : null,
+      budgetData.actual_cost != null ? parseInt(budgetData.actual_cost) : null,
+      budgetData.actual_expenditure != null ? parseInt(budgetData.actual_expenditure) : null,
+      budgetData.updated_at || now,
+      budgetData.created_at || now
+    ];
+
+    return db.query(query, values);
+  },
+
   updateBudgetEntry: async (flat, updatedAt) => {
   console.log("updateBudgetEntry", flat);
 
@@ -452,7 +514,7 @@ RETURNING *;  -- ✅ Add this line
 
 
   const query = `
-    UPDATE budget_entries
+    UPDATE gic_budget_entries
     SET
       region = COALESCE($1, region),
       department = COALESCE($2, department),
@@ -503,8 +565,8 @@ RETURNING *;  -- ✅ Add this line
 
   updateManifestEntry: async (flat, updatedAt) => {
     const query = `
-      UPDATE manifest_entries SET
-        budget_entry_id = $2,
+      UPDATE gic_manifest_entries SET
+        gic_budget_entry_id = $2,
         event = $3,
         department = $4,
         manifests = $5,
@@ -579,7 +641,7 @@ RETURNING *;  -- ✅ Add this line
 
   updateActualBudgetData: async (budget, updatedAt) => {
     const query = `
-    UPDATE budget_entries
+    UPDATE gic_budget_entries
     SET
       actual_people = COALESCE($1, actual_people),
       actual_coasters = COALESCE($2, actual_coasters),
@@ -608,7 +670,7 @@ RETURNING *;  -- ✅ Add this line
   getLatestCognitoEntry: async (formId) => {
     const query = `
       SELECT *
-      FROM cognito_entries
+      FROM gic_cognito_entries
       WHERE cognito_form_id = $1
       ORDER BY updated_at DESC
       LIMIT 1`;
@@ -619,7 +681,7 @@ RETURNING *;  -- ✅ Add this line
   getLatestManifestEntry: async () => {
     const query = `
       SELECT *
-      FROM manifest_entries
+      FROM gic_manifest_entries
       ORDER BY updated_at DESC
       LIMIT 1`;
 
@@ -630,7 +692,7 @@ RETURNING *;  -- ✅ Add this line
   getLatestFinanceEntry: async () => {
     const query = `
       SELECT *
-      FROM finance_entries
+      FROM gic_finance_entries
       ORDER BY updated_at DESC
       LIMIT 1`;
 
@@ -638,21 +700,21 @@ RETURNING *;  -- ✅ Add this line
   },
 
   findFinanceByFormID: async (formId) => {
-    const query = `SELECT * FROM finance_entries WHERE form_id = $1 LIMIT 1`;
+    const query = `SELECT * FROM gic_finance_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);
     // console.log(result);
 
     return result.rows[0] || null;
   },
   findBudgetByFormID: async (stageName, manifest) => {
-    const query = `SELECT * FROM budget_entries WHERE stage_name = $1 AND manifest = $2 LIMIT 1`;
+    const query = `SELECT * FROM gic_budget_entries WHERE stage_name = $1 AND manifest = $2 LIMIT 1`;
     const result = await db.query(query, [stageName, manifest]);
     // console.log(result);
 
     return result.rows[0] || null;
   },
   checkBudgetByCode: async (code) => {
-    const query = `SELECT * FROM budget_entries WHERE code = $1`;
+    const query = `SELECT * FROM gic_budget_entries WHERE code = $1`;
     const result = await db.query(query, [code]);
     // console.log(result);
 
@@ -660,13 +722,13 @@ RETURNING *;  -- ✅ Add this line
   },
 
   checkBudgetByCodeAndStage: async (code, stage_name) => {
-  const query = `SELECT * FROM budget_entries WHERE code = $1 AND stage_name = $2`;
+  const query = `SELECT * FROM gic_budget_entries WHERE code = $1 AND stage_name = $2`;
   const result = await db.query(query, [code, stage_name]);
   return result.rows[0] || null;
 },
 
   findManifestByFormID: async (formId) => {
-    const query = `SELECT * FROM manifest_entries WHERE form_id = $1 LIMIT 1`;
+    const query = `SELECT * FROM gic_manifest_entries WHERE form_id = $1 LIMIT 1`;
     const result = await db.query(query, [formId]);  //  ensure it's a string
     // console.log(result);
         console.log("findManifestByFormID:", result);
@@ -684,7 +746,7 @@ RETURNING *;  -- ✅ Add this line
 
     const normalizedPlate = numberPlate.trim().toUpperCase();
     const query = `
-    SELECT * FROM manifest_entries 
+    SELECT * FROM gic_manifest_entries 
     WHERE TRIM(UPPER(driver_number_plate)) = $1 
     LIMIT 1;
   `;
@@ -705,7 +767,7 @@ RETURNING *;  -- ✅ Add this line
 
 
   findBudgetByFormID: async (budgetId) => {
-    const query = `SELECT * FROM budget_entries WHERE code = $1 LIMIT 1`;
+    const query = `SELECT * FROM gic_budget_entries WHERE code = $1 LIMIT 1`;
     const result = await db.query(query, [budgetId]);
     // console.log(result);
 
@@ -715,7 +777,7 @@ RETURNING *;  -- ✅ Add this line
   findBudgetByStageName: async (stageName, manifestName) => {
   const query = `
     SELECT *
-    FROM budget_entries
+    FROM gic_budget_entries
     WHERE stage_name = $1 AND manifest = $2
     LIMIT 1
   `;
@@ -727,7 +789,7 @@ RETURNING *;  -- ✅ Add this line
 
   // updateManifestEntry: async (flat, updatedAt) => {
   //   const query = `
-  //     UPDATE manifest_entries
+  //     UPDATE gic_manifest_entries
   //     SET
   //       event = COALESCE($1, event),
   //       department = COALESCE($2, department),
@@ -752,7 +814,7 @@ RETURNING *;  -- ✅ Add this line
 
     
   const query = `
-    UPDATE manifest_entries
+    UPDATE gic_manifest_entries
     SET
       event = COALESCE($1, event),
       department = COALESCE($2, department),
