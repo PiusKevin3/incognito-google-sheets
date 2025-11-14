@@ -44,12 +44,12 @@ router.post('/update-budget-manifest', validateApiKey, async (req, res) => {
 router.post('/upsert-budget', validateApiKey, async (req, res) => {
     try {
         const budgetData = req.body;
-        
+
         // Validate required fields for conflict resolution
         if (!budgetData.stage_name || !budgetData.manifest) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'stage_name and manifest are required fields' 
+            return res.status(400).json({
+                success: false,
+                message: 'stage_name and manifest are required fields'
             });
         }
 
@@ -59,92 +59,96 @@ router.post('/upsert-budget', validateApiKey, async (req, res) => {
         // Call upsertBudgetEntry
         const result = await dbService.upsertBudgetEntry(budgetData, updatedAt);
 
-        return res.status(200).json({ 
-            success: true, 
+        return res.status(200).json({
+            success: true,
             message: 'Budget entry upserted successfully',
             data: result.rows[0] || result
         });
     } catch (error) {
         console.error(`Error upserting budget entry: ${error.message}`);
-        return res.status(500).json({ 
-            success: false, 
+        return res.status(500).json({
+            success: false,
             message: 'Error upserting budget entry',
-            error: error.message 
+            error: error.message
         });
     }
 })
 
 router.post('/create-budget', validateApiKey, async (req, res) => {
     try {
-        const budgetData = req.body;
-        
+
+        const flat = flattenObject(req.body);           // ENSURE flattening
+        const budgetData = mapCognitoToBudgetEntry(flat); // MAP CLEAN FIELDS
+        console.log("Mapped Budget Data:", budgetData);
+
         // Validate required fields (code and stage_name are NOT NULL in schema)
         if (!budgetData.code) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'code is a required field' 
+            return res.status(400).json({
+                success: false,
+                message: 'code is a required field'
             });
         }
 
         if (!budgetData.stage_name) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'stage_name is a required field' 
+            return res.status(400).json({
+                success: false,
+                message: 'stage_name is a required field'
             });
         }
 
         // Check if code already exists (since code is UNIQUE)
         const existingByCode = await dbService.checkBudgetByCode(budgetData.code);
         if (existingByCode) {
-            return res.status(409).json({ 
-                success: false, 
-                message: `Budget entry with code '${budgetData.code}' already exists` 
+            return res.status(409).json({
+                success: false,
+                message: `Budget entry with code '${budgetData.code}' already exists`
             });
         }
 
         // Call createBudgetEntry
         const result = await dbService.createBudgetEntry(budgetData);
+        console.log('createBudgetEntry', result);
 
-        return res.status(201).json({ 
-            success: true, 
+        return res.status(201).json({
+            success: true,
             message: 'Budget entry created successfully',
             data: result.rows[0] || result
         });
     } catch (error) {
         console.error(`Error creating budget entry: ${error.message}`);
-        
+
         // Handle unique constraint violations
         // 23505 = unique_violation in PostgreSQL
         if (error.code === '23505') {
             let message = 'Budget entry with this combination already exists';
-            
+
             // Provide more specific error message based on constraint
             if (error.constraint === 'gic_budget_entries_code_key') {
                 message = `Budget entry with code '${budgetData.code}' already exists`;
             } else if (error.constraint === 'unique_stage_manifest') {
                 message = `Budget entry with stage_name '${budgetData.stage_name}' and manifest '${budgetData.manifest}' already exists`;
             }
-            
-            return res.status(409).json({ 
-                success: false, 
+
+            return res.status(409).json({
+                success: false,
                 message: message,
-                error: error.message 
+                error: error.message
             });
         }
 
         // Handle not null constraint violations
         if (error.code === '23502') {
-            return res.status(400).json({ 
-                success: false, 
+            return res.status(400).json({
+                success: false,
                 message: 'Missing required field',
-                error: error.message 
+                error: error.message
             });
         }
 
-        return res.status(500).json({ 
-            success: false, 
+        return res.status(500).json({
+            success: false,
             message: 'Error creating budget entry',
-            error: error.message 
+            error: error.message
         });
     }
 })
