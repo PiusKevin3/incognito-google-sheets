@@ -297,7 +297,7 @@ RETURNING *;  -- ✅ Add this line
   );
 
    const query = `
-    INSERT INTO finance_entries (
+    INSERT INTO gic_finance_entries (
       manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
       form_id, final_balance, manifest_name, institution_name,
       school_name, department, cost_of_vehicle, balance, stage_name,
