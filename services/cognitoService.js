@@ -1,4 +1,5 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const { parseIntId } = require('../utils/numericUtils');
 
 module.exports = {
   getForms: async () => {
@@ -45,7 +46,7 @@ module.exports = {
 
   updateCognitoEntry: async (formId, entryId, updatedFields) => {
     try {
-      const formattedEntryId = entryId.replace(/[^0-9]/g, '');
+      const formattedEntryId = parseIntId(entryId);
       const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${formattedEntryId}`, {
         method: 'PATCH',
         headers: {
@@ -72,7 +73,7 @@ module.exports = {
   },
 
   fetchEntry: async (formId, entryId) => {
-    const formattedEntryId = entryId.replace(/[^0-9]/g, '');
+    const formattedEntryId = parseIntId(entryId);
     const response = await fetch(`https://www.cognitoforms.com/api/forms/${formId}/entries/${formattedEntryId}`, {
         method: 'GET',
         headers: {
