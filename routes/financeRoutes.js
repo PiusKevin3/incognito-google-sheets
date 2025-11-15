@@ -119,11 +119,108 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         //     requestBody: { values },
         // });
 
-        res.json({ success: true, message: 'Data saved to Google Sheets!' });
+        res.json({ success: true, message: 'Data saved to !' });
     } catch (error) {
         console.error('Google Sheets API Error:', error);
         res.status(500).json({ success: false, message: 'Failed to save data' });
     }
 });
+
+router.post('/update-finance', validateApiKey, async (req, res) => {
+    try {
+        const section = req.body.Section || {};
+        const flatSection = flattenObject(section);
+
+        // ------------------------
+        // 1️⃣ COMPUTE NEW CONTRIBUTION VALUES
+        // ------------------------
+        const oldContribution = parseInt(flatSection["FinanceContribution"] || 0);
+        const amount = parseInt(flatSection["Amount"] || 0);
+        const newFinanceContribution = oldContribution + amount;
+
+        console.log("Old FinanceContribution:", oldContribution);
+        console.log("Amount:", amount);
+        console.log("New Finance Contribution:", newFinanceContribution);
+
+        // ------------------------
+        // 2️⃣ UPDATE COGNITO MANIFEST ENTRY
+        // ------------------------
+        await updateCognitoEntry(MANIFEST_FORM_ID, flatSection["FormID"], {
+            General: {
+                Coordinator: {
+                    VehicleDetails: {
+                        FinanceContribution: newFinanceContribution
+                    }
+                }
+            }
+        });
+
+        console.log("✔ Cognito manifest entry updated.");
+
+        // ------------------------
+        // 3️⃣ UPDATE COGNITO BUDGET ENTRY
+        // ------------------------
+        const budgetId = parseIntId(flatSection["BudgetID"]);
+        const budget = await fetchEntry(BUDGET_FORM_ID, budgetId);
+        const existingBudgetContribution = parseInt(budget.Actual?.FinanceContribution || 0);
+
+        const newBudgetContribution = existingBudgetContribution + amount;
+
+        await updateCognitoEntry(BUDGET_FORM_ID, budgetId, {
+            Actual: {
+                FinanceContribution: newBudgetContribution
+            },
+            updatedAt: Date.now()
+        });
+
+        console.log("✔ Cognito budget contribution updated.");
+
+        // ------------------------
+        // 4️⃣ UPDATE gic_budget_entries (ACTUALS)
+        // ------------------------
+        await dbService.updateActualBudgetData(
+            {
+                stage_name: flatSection["StageName"],
+                actual_expenditure: newBudgetContribution,
+            },
+            new Date().toISOString()
+        );
+
+        console.log("✔ gic_budget_entries updated.");
+
+        // ------------------------
+        // 5️⃣ UPDATE FINANCE ENTRY (NOT UPSERT)
+        // ------------------------
+        const updatedAt = new Date().toISOString();
+
+        const financeUpdateResult = await dbService.updateFinanceEntry(
+            flatSection,
+            updatedAt
+        );
+
+        console.log("✔ Finance update complete:", financeUpdateResult);
+
+        // ------------------------
+        // 6️⃣ RETURN SUCCESS
+        // ------------------------
+        res.json({
+            success: true,
+            message: "Finance record updated successfully.",
+            newFinanceContribution,
+            newBudgetContribution,
+            dbFinance: financeUpdateResult || null
+        });
+
+    } catch (error) {
+        console.error("❌ /update-finance ERROR:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update finance entry.",
+            error: error.message
+        });
+    }
+});
+
+
 
 module.exports = router;

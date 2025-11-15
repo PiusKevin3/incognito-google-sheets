@@ -239,6 +239,30 @@ RETURNING *;  -- ✅ Add this line
 
 
   upsertFinanceEntry: async (flat, updatedAt) => {
+    // const query = `
+    //   INSERT INTO finance_entries (
+    //     manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
+    //     form_id, final_balance, manifest_name, institution_name,
+    //     school_name, department, cost_of_vehicle, balance, stage_name,
+    //     contribution, booking_fee, event, updated_at
+    //   ) VALUES (
+    //     $1, $2, $3, $4, $5,
+    //     $6, $7, $8, $9,
+    //     $10, $11, $12, $13,
+    //     $14, $15, $16, $17, $18, $19, $20
+    //   )
+    //   ON CONFLICT (stage_name, manifest_name)
+    //   DO UPDATE SET
+    //     manifest_entry_id = EXCLUDED.manifest_entry_id,
+    //     budget_entry_id = EXCLUDED.budget_entry_id,
+    //     label = EXCLUDED.label,
+    //     funding_party = EXCLUDED.funding_party,
+    //     issued_by = EXCLUDED.issued_by,
+    //     received_by = EXCLUDED.received_by,
+    //     amount = EXCLUDED.amount,
+    //     updated_at = EXCLUDED.updated_at
+    //   RETURNING *;
+    // `;
     const query = `
       INSERT INTO gic_finance_entries (
         gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
@@ -296,22 +320,7 @@ RETURNING *;  -- ✅ Add this line
     Object.entries(flat).map(([key, value]) => [key.toLowerCase(), value])
   );
 
-   const query = `
-    INSERT INTO gic_finance_entries (
-      manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
-      form_id, final_balance, manifest_name, institution_name,
-      school_name, department, cost_of_vehicle, balance, stage_name,
-      contribution, booking_fee, event, updated_at
-    ) VALUES (
-      $1, $2, $3, $4, $5,
-      $6, $7, $8, $9,
-      $10, $11, $12, $13,
-      $14, $15, $16, $17, $18, $19, $20
-    )
-    RETURNING *;
-  `;
-
-  // const query = `
+   //const query = `
   //   INSERT INTO gic_finance_entries (
   //     gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
   //     form_id, final_balance, manifest_name, institution_name,
@@ -326,6 +335,21 @@ RETURNING *;  -- ✅ Add this line
   //   RETURNING *;
   // `;
 
+  const query = `
+    INSERT INTO gic_finance_entries (
+      gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
+      form_id, final_balance, manifest_name, institution_name,
+      school_name, department, cost_of_vehicle, balance, stage_name,
+      contribution, booking_fee, event, updated_at
+    ) VALUES (
+      $1, $2, $3, $4, $5,
+      $6, $7, $8, $9,
+      $10, $11, $12, $13,
+      $14, $15, $16, $17, $18, $19, $20
+    )
+    RETURNING *;
+  `;
+
   // Helper to parse numbers safely (handles strings like "15,000")
   const parseNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
@@ -333,33 +357,10 @@ RETURNING *;  -- ✅ Add this line
     return isNaN(cleaned) ? 0 : parseFloat(cleaned);
   };
 
-   const values = [
-    normalized["manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
-    parseIntId(normalized["budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
-    normalized["label"] || normalized["accountabilityentry_label"] || null,
-    normalized["funding_party"] || normalized["fundingparty"] || null,
-    parseNumber(normalized["amount"]),
-    normalized["issued_by"] || normalized["issuedby"] || null,
-    normalized["received_by"] || normalized["receivedby"] || null,
-    normalized["form_id"] || normalized["formid"] || null,
-    parseNumber(normalized["final_balance"]),
-    normalized["manifest_name"] || normalized["manifestname"] || null,
-    normalized["institution_name"] || normalized["institutionname"] || null,
-    normalized["school_name"] || normalized["schoolname"] || null,
-    normalized["department"] || null,
-    parseNumber(normalized["cost_of_vehicle"]),
-    parseNumber(normalized["balance"]),
-    normalized["stage_name"] || normalized["stagename"] || null,
-    parseNumber(normalized["contribution"]),
-    parseNumber(normalized["booking_fee"]),
-    normalized["event"] || null,
-    updatedAt
-  ];
-
-  // const values = [
-  //   normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
-  //   parseIntId(normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
-  //   normalized["label"] || normalized["budgetamount_label"] || null,
+  //  const values = [
+  //   normalized["manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+  //   parseIntId(normalized["budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
+  //   normalized["label"] || normalized["accountabilityentry_label"] || null,
   //   normalized["funding_party"] || normalized["fundingparty"] || null,
   //   parseNumber(normalized["amount"]),
   //   normalized["issued_by"] || normalized["issuedby"] || null,
@@ -378,6 +379,29 @@ RETURNING *;  -- ✅ Add this line
   //   normalized["event"] || null,
   //   updatedAt
   // ];
+
+  const values = [
+    normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+    parseIntId(normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
+    normalized["label"] || normalized["budgetamount_label"] || null,
+    normalized["funding_party"] || normalized["fundingparty"] || null,
+    parseNumber(normalized["amount"]),
+    normalized["issued_by"] || normalized["issuedby"] || null,
+    normalized["received_by"] || normalized["receivedby"] || null,
+    normalized["form_id"] || normalized["formid"] || null,
+    parseNumber(normalized["final_balance"]),
+    normalized["manifest_name"] || normalized["manifestname"] || null,
+    normalized["institution_name"] || normalized["institutionname"] || null,
+    normalized["school_name"] || normalized["schoolname"] || null,
+    normalized["department"] || null,
+    parseNumber(normalized["cost_of_vehicle"]),
+    parseNumber(normalized["balance"]),
+    normalized["stage_name"] || normalized["stagename"] || null,
+    parseNumber(normalized["contribution"]),
+    parseNumber(normalized["booking_fee"]),
+    normalized["event"] || null,
+    updatedAt
+  ];
 
   console.log('🧾 Normalized Input:', normalized);
   console.log('📥 Insert Values:', values);
@@ -926,6 +950,93 @@ RETURNING *;  -- ✅ Add this line
   console.log(`✅ Updated manifest entry: ${formId}`);
   return result.rows[0] || null;
 },
+
+updateFinanceEntry: async (flat, updatedAt) => {
+  console.log("updateFinanceEntry", flat);
+
+  // Normalize keys for consistent access
+  const normalized = Object.fromEntries(
+    Object.entries(flat).map(([k, v]) => [k.toLowerCase(), v])
+  );
+
+  // Form ID (primary identifier)
+  const formId =
+    normalized["form_id"] ||
+    normalized["formid"] ||
+    normalized["id1"] ||
+    normalized["formid"];
+
+  const parseNumber = (val) => {
+    if (val === null || val === undefined || val === "") return 0;
+    const cleaned = String(val).replace(/,/g, "");
+    return isNaN(cleaned) ? 0 : parseFloat(cleaned);
+  };
+
+  const parseIntId = (val) => {
+    if (!val) return null;
+    return parseInt(String(val).replace(/,/g, ""));
+  };
+
+  const query = `
+    UPDATE finance_entries
+    SET
+      gic_manifest_entry_id = COALESCE($1, gic_manifest_entry_id),
+      gic_budget_entry_id = COALESCE($2, gic_budget_entry_id),
+      label = COALESCE($3, label),
+      funding_party = COALESCE($4, funding_party),
+      amount = COALESCE($5, amount),
+      issued_by = COALESCE($6, issued_by),
+      received_by = COALESCE($7, received_by),
+      form_id = COALESCE($8, form_id),
+      final_balance = COALESCE($9, final_balance),
+      manifest_name = COALESCE($10, manifest_name),
+      institution_name = COALESCE($11, institution_name),
+      school_name = COALESCE($12, school_name),
+      department = COALESCE($13, department),
+      cost_of_vehicle = COALESCE($14, cost_of_vehicle),
+      balance = COALESCE($15, balance),
+      stage_name = COALESCE($16, stage_name),
+      contribution = COALESCE($17, contribution),
+      booking_fee = COALESCE($18, booking_fee),
+      event = COALESCE($19, event),
+      updated_at = $20
+    WHERE form_id = $21
+    RETURNING *;
+  `;
+
+  const values = [
+    normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+    parseIntId(normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
+    normalized["label"] || normalized["accountabilityentry_label"] || null,
+    normalized["funding_party"] || normalized["fundingparty"] || null,
+    parseNumber(normalized["amount"]),
+    normalized["issued_by"] || normalized["issuedby"] || null,
+    normalized["received_by"] || normalized["receivedby"] || null,
+    normalized["form_id"] || normalized["formid"] || null,
+    parseNumber(normalized["final_balance"]),
+    normalized["manifest_name"] || normalized["manifestname"] || null,
+    normalized["institution_name"] || normalized["institutionname"] || null,
+    normalized["school_name"] || normalized["schoolname"] || null,
+    normalized["department"] || null,
+    parseNumber(normalized["cost_of_vehicle"]),
+    parseNumber(normalized["balance"]),
+    normalized["stage_name"] || normalized["stagename"] || null,
+    parseNumber(normalized["contribution"]),
+    parseNumber(normalized["booking_fee"]),
+    normalized["event"] || null,
+    updatedAt,
+    formId
+  ];
+
+  console.log("📥 Update Values:", values);
+  console.log(`🔑 Updating finance entry with FormID: ${formId}`);
+
+  const result = await db.query(query, values);
+
+  console.log(`✅ Updated finance entry: ${formId}`);
+  return result.rows[0] || null;
+},
+
 
 
 };
