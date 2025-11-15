@@ -75,25 +75,28 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
         console.log('New Finance Contribution:', newFinanceContribution);
 
         await updateCognitoEntry(MANIFEST_FORM_ID, flatSection["FormID"], {
-            General : {
-                Coordinator : {
-                    VehicleDetails : {
+            General: {
+                Coordinator: {
+                    VehicleDetails: {
                         FinanceContribution: parseInt(newFinanceContribution)
                     }
                 }
             }
         });
+        console.log("Finished updateCognitoEntry");
 
         const budgetId = parseIntId(flatSection["BudgetID"]);
         const budget = await fetchEntry(BUDGET_FORM_ID, budgetId);
         const newContribution = parseInt(budget.Actual?.FinanceContribution || 0) + parseInt(flatSection["Amount"]);
 
         await updateCognitoEntry(BUDGET_FORM_ID, budgetId, {
-            Actual : {
+            Actual: {
                 FinanceContribution: newContribution
             },
             updatedAt: Date.now()
         });
+
+        console.log("Going to update budget");
 
         // Update gic_budget_entries in the database
         await dbService.updateActualBudgetData({
@@ -101,7 +104,12 @@ router.post('/submit-finance', validateApiKey, async (req, res) => {
             actual_expenditure: newContribution,
         }, new Date().toISOString());
 
+        console.log("Inserting into db");
+
+
         await dbService.insertFinanceEntry(flatSection, new Date().toISOString());
+        console.log("Finished to insert in db");
+
 
         // await sheets.spreadsheets.values.append({
         //     spreadsheetId: SHEET_ID,

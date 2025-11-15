@@ -296,9 +296,9 @@ RETURNING *;  -- ✅ Add this line
     Object.entries(flat).map(([key, value]) => [key.toLowerCase(), value])
   );
 
-  const query = `
-    INSERT INTO gic_finance_entries (
-      gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
+   const query = `
+    INSERT INTO finance_entries (
+      manifest_entry_id, budget_entry_id, label, funding_party, amount, issued_by, received_by,
       form_id, final_balance, manifest_name, institution_name,
       school_name, department, cost_of_vehicle, balance, stage_name,
       contribution, booking_fee, event, updated_at
@@ -311,6 +311,21 @@ RETURNING *;  -- ✅ Add this line
     RETURNING *;
   `;
 
+  // const query = `
+  //   INSERT INTO gic_finance_entries (
+  //     gic_manifest_entry_id, gic_budget_entry_id, label, funding_party, amount, issued_by, received_by,
+  //     form_id, final_balance, manifest_name, institution_name,
+  //     school_name, department, cost_of_vehicle, balance, stage_name,
+  //     contribution, booking_fee, event, updated_at
+  //   ) VALUES (
+  //     $1, $2, $3, $4, $5,
+  //     $6, $7, $8, $9,
+  //     $10, $11, $12, $13,
+  //     $14, $15, $16, $17, $18, $19, $20
+  //   )
+  //   RETURNING *;
+  // `;
+
   // Helper to parse numbers safely (handles strings like "15,000")
   const parseNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
@@ -318,10 +333,10 @@ RETURNING *;  -- ✅ Add this line
     return isNaN(cleaned) ? 0 : parseFloat(cleaned);
   };
 
-  const values = [
-    normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
-    parseIntId(normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
-    normalized["label"] || normalized["budgetamount_label"] || null,
+   const values = [
+    normalized["manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+    parseIntId(normalized["budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
+    normalized["label"] || normalized["accountabilityentry_label"] || null,
     normalized["funding_party"] || normalized["fundingparty"] || null,
     parseNumber(normalized["amount"]),
     normalized["issued_by"] || normalized["issuedby"] || null,
@@ -340,6 +355,29 @@ RETURNING *;  -- ✅ Add this line
     normalized["event"] || null,
     updatedAt
   ];
+
+  // const values = [
+  //   normalized["gic_manifest_entry_id"] || normalized["accountabilityentry_id"] || null,
+  //   parseIntId(normalized["gic_budget_entry_id"] || normalized["budgetid"] || normalized["budget_id"]),
+  //   normalized["label"] || normalized["budgetamount_label"] || null,
+  //   normalized["funding_party"] || normalized["fundingparty"] || null,
+  //   parseNumber(normalized["amount"]),
+  //   normalized["issued_by"] || normalized["issuedby"] || null,
+  //   normalized["received_by"] || normalized["receivedby"] || null,
+  //   normalized["form_id"] || normalized["formid"] || null,
+  //   parseNumber(normalized["final_balance"]),
+  //   normalized["manifest_name"] || normalized["manifestname"] || null,
+  //   normalized["institution_name"] || normalized["institutionname"] || null,
+  //   normalized["school_name"] || normalized["schoolname"] || null,
+  //   normalized["department"] || null,
+  //   parseNumber(normalized["cost_of_vehicle"]),
+  //   parseNumber(normalized["balance"]),
+  //   normalized["stage_name"] || normalized["stagename"] || null,
+  //   parseNumber(normalized["contribution"]),
+  //   parseNumber(normalized["booking_fee"]),
+  //   normalized["event"] || null,
+  //   updatedAt
+  // ];
 
   console.log('🧾 Normalized Input:', normalized);
   console.log('📥 Insert Values:', values);
